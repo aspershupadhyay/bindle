@@ -5,13 +5,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { UndoProvider } from "./components/Undo";
 import { UpdateBar } from "./components/UpdateBar";
-import { commands, inDesktopApp, onMailChanged, onPromisesChanged, onWorkChanged, type Mode, type Space } from "./lib/commands";
+import { commands, inDesktopApp, onCreatorChanged, onMailChanged, onPromisesChanged, onWorkChanged, type Mode, type Space } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Board } from "./screens/Board";
 import { Code } from "./screens/Code";
 import { Desk } from "./screens/Desk";
 import { Home } from "./screens/Home";
 import { Inbox } from "./screens/Inbox";
+import { Creator } from "./screens/Creator";
 import { Ours } from "./screens/Ours";
 import { useSettings } from "./lib/settings";
 import { UpdatesProvider } from "./lib/updates";
@@ -31,6 +32,7 @@ export function App() {
   const [unsorted, setUnsorted] = useState(0);
   const [reviewsOwed, setReviewsOwed] = useState(0);
   const [repliesOwed, setRepliesOwed] = useState(0);
+  const [commentsWaiting, setCommentsWaiting] = useState(0);
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [spaceId, setSpaceId] = useState<string | null>(null);
   const [focusSearch, setFocusSearch] = useState(0);
@@ -50,6 +52,17 @@ export function App() {
     const count = () => commands.reviewsOwed().then(setReviewsOwed, () => setReviewsOwed(0));
     count();
     return onWorkChanged(count);
+  }, []);
+
+  useEffect(() => {
+    const count = () => commands.commentsWaiting().then(setCommentsWaiting, () => setCommentsWaiting(0));
+    count();
+    const stopCreator = onCreatorChanged(count);
+    const stopPromises = onPromisesChanged(count);
+    return () => {
+      stopCreator();
+      stopPromises();
+    };
   }, []);
 
   useEffect(() => {
@@ -137,6 +150,7 @@ export function App() {
             unsorted={unsorted}
             reviewsOwed={reviewsOwed}
             repliesOwed={repliesOwed}
+            commentsWaiting={commentsWaiting}
             spaces={spaces}
             currentSpace={spaceId}
             onSpace={openSpace}
@@ -169,6 +183,8 @@ export function App() {
               <Inbox onOpenSort={openSort} />
             ) : current === "board" ? (
               <Board />
+            ) : current === "creator" ? (
+              <Creator onOpenSort={openSort} />
             ) : current === "settings" ? (
               <Settings onOpenSpace={openSpace} />
             ) : current === "ours" && spaceId ? (

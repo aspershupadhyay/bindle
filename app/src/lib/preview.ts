@@ -7,6 +7,7 @@
 // be tried and screenshotted without building the desktop app.
 
 import { SAMPLE_KIT, addSpace, cloud, oursView } from "./preview-cloud";
+import { commentById, connectYoutube, sampleCreator, youtube } from "./preview-creator";
 import { sampleDesk } from "./preview-desk";
 import { hideMail, sampleBoard, sampleInbox, sampleMail } from "./preview-mail";
 import { sampleCodeView, sampleWork } from "./preview-work";
@@ -169,6 +170,43 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
       return sampleInbox(gmail) as T;
     case "replies_owed":
       return sampleInbox(gmail).reply.length as T;
+    case "creator_view":
+      return sampleCreator() as T;
+    case "comments_waiting":
+      return sampleCreator().comments.filter((c) => !c.promise).length as T;
+    case "youtube_key_page":
+      return "https://console.cloud.google.com/apis/credentials" as T;
+    case "youtube_connect":
+      if (!String(args.key ?? "").trim()) throw { message: "paste the API key first" };
+      connectYoutube(String(args.channel ?? "@aspersh"));
+      previewEvents.emit("creator-changed");
+      return youtube.account as T;
+    case "youtube_refresh":
+      if (youtube.account.channel) youtube.account = { ...youtube.account, synced_at: new Date().toISOString() };
+      previewEvents.emit("creator-changed");
+      return youtube.account as T;
+    case "youtube_disconnect":
+      youtube.account = { channel: null, found: null, synced_at: null, error: null };
+      previewEvents.emit("creator-changed");
+      return undefined as T;
+    case "comment_make_promise": {
+      const comment = commentById(String(args.commentId));
+      if (!comment) throw { message: "that promise is not here any more" };
+      const promise = { ...jotDown(`Reply to ${comment.author} on "${comment.post_title}"`), mode: "work" as const, person: comment.author };
+      promises[promises.length - 1] = promise;
+      youtube.promised.set(comment.id, promise.id);
+      previewEvents.emit("creator-changed");
+      return promise as T;
+    }
+    case "comment_hide":
+    case "comment_unhide":
+      if (name === "comment_hide") youtube.hidden.add(String(args.commentId));
+      else youtube.hidden.delete(String(args.commentId));
+      previewEvents.emit("creator-changed");
+      return undefined as T;
+    case "open_on_youtube":
+      window.open(String(args.url), "_blank", "noopener");
+      return undefined as T;
     case "mail_providers":
       return MAIL_PROVIDERS as T;
     case "gmail_connect":

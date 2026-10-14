@@ -19,6 +19,8 @@ interface SidebarProps {
   reviewsOwed: number;
   /** Emails waiting on your reply, from Gmail. */
   repliesOwed: number;
+  /** YouTube comments waiting on a reply. */
+  commentsWaiting: number;
   /** Shared spaces on this device, and the one open now. */
   spaces: Space[];
   currentSpace: string | null;
@@ -28,7 +30,7 @@ interface SidebarProps {
   onJotDown: () => void;
 }
 
-export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, spaces, currentSpace, onSpace, onMode, onScreen, onJotDown }: SidebarProps) {
+export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, commentsWaiting, spaces, currentSpace, onSpace, onMode, onScreen, onJotDown }: SidebarProps) {
   const { settings } = useSettings();
   return (
     <aside className="sidebar" aria-label="Bindle navigation">
@@ -63,6 +65,11 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, spa
             {screen.id === "inbox" && repliesOwed > 0 && (
               <span className="badge" aria-label={`${repliesOwed} ${repliesOwed === 1 ? "email" : "emails"} waiting on your reply`}>
                 {repliesOwed}
+              </span>
+            )}
+            {screen.id === "creator" && commentsWaiting > 0 && (
+              <span className="badge" aria-label={`${commentsWaiting} ${commentsWaiting === 1 ? "comment" : "comments"} waiting on your reply`}>
+                {commentsWaiting}
               </span>
             )}
             {screen.id === "code" && reviewsOwed > 0 && (

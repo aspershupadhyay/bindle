@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Creator: connect your YouTube channel with an API key (kept in the system keychain) and see subscribers and views against a week ago, twelve weeks of growth, your top posts of the last 30 days, how much you post long videos and Shorts, and the comments still waiting on your reply. Any comment can become a promise in Sort. Bindle only reads public data and never replies or posts. Migration 0011.
 - Inbox reads any mailbox, not only Gmail: iCloud Mail, Fastmail, Yahoo Mail, Zoho Mail, Outlook (where app passwords still work) or any IMAP server you type. Still read only, and Bindle still never sends email.
 
 - Bindle Cloud and Ours: make a shared space, invite someone with a link that works once, and carry promises together. Both of you can jot down to it, share one of your own promises, and mark things done; it shows who added each one and who kept it, with no scores. Works offline and catches up every 30 seconds.

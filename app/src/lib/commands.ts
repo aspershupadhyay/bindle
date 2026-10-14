@@ -201,6 +201,62 @@ export interface MailAccount {
   port?: number | null;
 }
 
+/** A YouTube channel's public numbers. */
+export interface Channel {
+  id: string;
+  title: string;
+  handle: string | null;
+  description: string;
+  /** null when the channel hides its subscriber count. */
+  followers: number | null;
+  views: number;
+  posts: number;
+}
+
+/** The YouTube connection. The API key is never sent to the views. */
+export interface CreatorAccount {
+  channel: string | null;
+  found: Channel | null;
+  synced_at: string | null;
+  error: string | null;
+}
+
+export interface CreatorPost {
+  id: string;
+  title: string;
+  url: string;
+  short: boolean;
+  duration_seconds: number;
+  published_at: string;
+  views: number;
+  likes: number;
+  comments: number;
+}
+
+export interface CreatorComment {
+  id: string;
+  post_title: string;
+  author: string;
+  text: string;
+  url: string;
+  likes: number;
+  published_at: string;
+  promise: { id: string; state: State } | null;
+}
+
+/** Everything the Creator screen shows. */
+export interface CreatorView {
+  account: CreatorAccount;
+  followers_this_week: number | null;
+  views_this_week: number | null;
+  growth: { week: string; followers: number }[];
+  top_posts: CreatorPost[];
+  views_last_30_days: number;
+  long_posts: number;
+  short_posts: number;
+  comments: CreatorComment[];
+}
+
 /** A mail service Bindle knows how to read. */
 export interface MailProvider {
   id: string;
@@ -460,6 +516,16 @@ export const commands = {
   openOnGithub: (url: string) => call<void>("open_on_github", { url }),
   inboxView: () => call<InboxView>("inbox_view"),
   repliesOwed: () => call<number>("replies_owed"),
+  creatorView: () => call<CreatorView>("creator_view"),
+  commentsWaiting: () => call<number>("comments_waiting"),
+  youtubeKeyPage: () => call<string>("youtube_key_page"),
+  youtubeConnect: (channel: string, key: string) => call<CreatorAccount>("youtube_connect", { channel, key }),
+  youtubeDisconnect: () => call<void>("youtube_disconnect"),
+  youtubeRefresh: () => call<CreatorAccount>("youtube_refresh"),
+  commentMakePromise: (commentId: string) => call<Promise>("comment_make_promise", { commentId }),
+  commentHide: (commentId: string) => call<void>("comment_hide", { commentId }),
+  commentUnhide: (commentId: string) => call<void>("comment_unhide", { commentId }),
+  openOnYoutube: (url: string) => call<void>("open_on_youtube", { url }),
   mailProviders: () => call<MailProvider[]>("mail_providers"),
   gmailConnect: (address: string, password: string, provider: string, host?: string, port?: number) =>
     call<MailAccount>("gmail_connect", { address, password, provider, host: host ?? null, port: port ?? null }),
@@ -506,6 +572,13 @@ export function onPromisesChanged(handler: () => void): () => void {
 export function onWorkChanged(handler: () => void): () => void {
   if (!isTauri()) return previewEvents.on("work-changed", handler);
   const stop = listen("work-changed", handler);
+  return () => void stop.then((unlisten) => unlisten());
+}
+
+/** Runs `handler` after each look at YouTube, or when it is connected or disconnected. */
+export function onCreatorChanged(handler: () => void): () => void {
+  if (!isTauri()) return previewEvents.on("creator-changed", handler);
+  const stop = listen("creator-changed", handler);
   return () => void stop.then((unlisten) => unlisten());
 }
 

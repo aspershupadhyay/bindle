@@ -2,7 +2,7 @@
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
 // Accessibility audit (docs/ACCEPTANCE.md). With `npm run dev` running, walks
-// through first run, every Life screen, and Work's Desk, Code, Inbox and Board, and
+// through first run, every Life screen, and Work's Desk, Code, Inbox, Board and Creator, and
 // Bindle Cloud with an Ours space, in
 // the browser preview, and lists unnamed buttons and links, images without
 // alt text, unlabelled fields, duplicate ids, missing landmarks, and a skip
@@ -78,6 +78,14 @@ await audit("Board");
 await page.getByRole("button", { name: /^Desk/ }).click();
 await page.waitForTimeout(400);
 await audit("Desk");
+await page.getByRole("button", { name: /^Creator/ }).click();
+await page.waitForTimeout(400);
+await audit("Creator, not connected");
+await page.getByLabel("Your channel's handle").fill("@aspersh");
+await page.getByLabel("The API key").fill("AIza-preview");
+await page.getByRole("button", { name: /^Connect$/ }).click();
+await page.waitForTimeout(400);
+await audit("Creator, connected");
 await page.getByRole("button", { name: /^Life$/ }).click();
 // Bindle Cloud: start, the recovery kit, then an Ours space.
 await page.getByRole("button", { name: /^Settings/ }).first().click();

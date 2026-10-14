@@ -130,3 +130,29 @@
 .jot-ours .field input { width: 100%; }
 .ours-members { list-style: none; margin: 0; padding: 0; }
 .nav-item.space { width: 100%; }
+
+/* Creator (v2 design, Creator). */
+
+.creator-tiles { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.creator-growth { width: 100%; height: auto; overflow: visible; }
+.creator-grid { stroke: var(--sand); stroke-width: 1; }
+.creator-tick { fill: var(--ink-soft); font-size: 11px; font-family: var(--font-body); }
+.creator-area { fill: var(--chart-planned); opacity: 0.35; }
+.creator-line { fill: none; stroke: var(--chart-done); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.creator-point { fill: var(--chart-done); stroke: var(--card); stroke-width: 2; }
+.creator-comment .row-end { flex-wrap: wrap; gap: 6px; }
+.creator-comment-text { overflow-wrap: anywhere; }
+.creator-posts { width: 100%; border-collapse: collapse; font-size: 14px; }
+.creator-posts th, .creator-posts td { text-align: right; padding: 10px 0 10px 12px; border-bottom: 1px solid var(--sand); font-variant-numeric: tabular-nums; font-weight: 600; }
+.creator-posts thead th { color: var(--ink-soft); font-size: 12.5px; font-weight: 500; }
+.creator-posts th:first-child { text-align: left; padding-left: 0; font-weight: 400; }
+.creator-posts tbody th > * { display: block; }
+.creator-posts tbody th .muted { margin-top: 2px; }
+.creator-posts tbody th .link-button { text-align: left; color: var(--ink); text-decoration: none; font-weight: 500; }
+.creator-posts tbody th .link-button:hover { text-decoration: underline; }
+.creator-mix { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.creator-mix-row { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 10px; }
+.creator-mix-row dt { font-size: 14px; }
+.creator-mix-row dd { margin: 0; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.creator-mix-bar { display: block; height: 8px; border-radius: 4px; background: var(--sand-soft); overflow: hidden; }
+.creator-mix-bar span { display: block; height: 100%; border-radius: 4px; background: var(--chart-done); }
