@@ -114,3 +114,8 @@ button:disabled { opacity: 0.6; cursor: default; }
 .update-bar p { margin: 0; flex: 1 1 280px; }
 .update-bar.error { border-left-color: var(--error); }
 .update-actions { display: flex; gap: 8px; }
+
+/* On phones, Undo and notes sit above the floating Jot down button. */
+@media (max-width: 600px) {
+  .undo-bar-slot { bottom: calc(88px + env(safe-area-inset-bottom)); padding: 0 16px; }
+}

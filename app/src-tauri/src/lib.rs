@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
-//! The Bindle desktop app (handbook P4).
+//! The Bindle app for desktops and phones (handbook P4).
 //!
 //! This crate only wires things together: it opens the database in the app's
 //! data folder and exposes the typed commands in [`commands`] to the React views.
@@ -48,7 +48,8 @@ fn linux_fixes() {
     }
 }
 
-/// Starts the app.
+/// Starts the app. On phones this is where the app begins.
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
@@ -62,6 +63,7 @@ pub fn run() {
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&dir)?;
+            secrets::use_folder(&dir);
             let paths = Paths {
                 db: dir.join("bindle.db"),
                 safety: dir.join("safety copies"),

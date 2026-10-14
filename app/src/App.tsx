@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { UndoProvider } from "./components/Undo";
 import { UpdateBar } from "./components/UpdateBar";
-import { commands, inDesktopApp, onCreatorChanged, onMailChanged, onPromisesChanged, onWorkChanged, type Mode, type Space } from "./lib/commands";
+import { commands, inDesktopApp, onCreatorChanged, onMailChanged, onPromisesChanged, onWorkChanged, onPhone, type Mode, type Space } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Board } from "./screens/Board";
 import { Code } from "./screens/Code";
@@ -89,11 +89,11 @@ export function App() {
   }, []);
 
   const jotDown = useCallback(() => {
-    if (inDesktopApp()) {
+    if (inDesktopApp() && !onPhone()) {
       void commands.showJot();
       return;
     }
-    // In a browser preview there is no second window: use the field on Home.
+    // In a browser preview or on a phone there is no second window: use the field on Home.
     setMode("life");
     setCurrent("home");
     requestAnimationFrame(() => jotRef.current?.focus());

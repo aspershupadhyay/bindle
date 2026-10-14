@@ -91,7 +91,11 @@ Read this first if you are continuing the work (another person or a new Claude s
 - [ ] YouTube Analytics (watch time, click-through, returning viewers, "when people are around", "who sees your posts" in the design): needs "Sign in with Google" with a Google Cloud OAuth app the owner registers (and Google's verification for the Analytics scope). Not started
 - [ ] Instagram: needs a Meta app and its review, which only the owner can register. The Creator screen says "not in Bindle yet"
 - [ ] Several channels at once (the design's account switcher): one channel for now
-- [ ] Phone build: Tauri mobile entry point, a layout that works at phone width (360 px: sidebar becomes a bottom bar or menu), and an Android build workflow in CI. The desktop-only parts (global shortcut, tray, updater) are left out on phones
+- [x] Phone-ready app (done, not yet run on a phone): `#[cfg_attr(mobile, tauri::mobile_entry_point)]` on `run()`; desktop-only parts (Jot window, global shortcut, updater, process restart, keychain) are left out on phones; `capabilities/desktop.json` holds the updater permissions for desktops only; `tauri.android.conf.json` and `tauri.ios.conf.json` keep one window (identifier `app.bindle.mobile`). On phones, secrets are kept in `secrets.json` in the app's private folder (`app/src-tauri/src/secrets.rs`, `phone` module)
+- [x] Phone layout (done): under 600 px the sidebar becomes a bar across the top with the screens and spaces in sideways-scrolling rows, Jot down floats bottom right (it focuses Home's field, as there is no second window), and Undo sits above it. No sideways page scroll at 390 px. Screenshots `docs/screens/week-20-phone-*.png`
+- [ ] Android build: `.github/workflows/android.yml` (run it from the Actions tab; it runs `tauri android init` and builds a debug arm64 APK as an artifact). Not yet seen passing: check its first run, fix what it reports
+- [ ] Phone keychain: use the Android Keystore and iOS Keychain (a Tauri plugin such as a stronghold or keystore plugin) instead of the private-folder file
+- [ ] iOS build: needs a Mac with Xcode and an Apple developer account (owner)
 - [ ] Gate: Ours works on a phone. Needs a hosted relay and the Android build on a real phone
 
 - [ ] Weeks 11–12 gate, "a week of email triage from Bindle": connect Gmail (Work → Inbox, with an app password), then triage from Bindle for a week. The cloud session that built this cannot reach Gmail, so this needs the real app

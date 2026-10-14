@@ -7,7 +7,7 @@
 // is installed without the person saying so.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { errorMessage, inDesktopApp } from "./commands";
+import { errorMessage, inDesktopApp, onPhone } from "./commands";
 
 /** Where people can always download Bindle by hand. */
 export const DOWNLOAD_PAGE = "https://aspershupadhyay.github.io/bindle/";
@@ -85,7 +85,7 @@ export function UpdatesProvider({ children }: { children: ReactNode }) {
   // `quiet` checks (the automatic ones) never show "newest" or errors: no
   // network, or no release yet, is not worth a word.
   const check = useCallback(async (quiet = false) => {
-    if (!inDesktopApp() || busy.current) return;
+    if (!inDesktopApp() || onPhone() || busy.current) return;
     busy.current = true;
     if (!quiet) setState({ kind: "checking" });
     try {
@@ -134,7 +134,7 @@ export function UpdatesProvider({ children }: { children: ReactNode }) {
   const later = useCallback(() => setDismissed(true), []);
 
   useEffect(() => {
-    if (!inDesktopApp()) return;
+    if (!inDesktopApp() || onPhone()) return;
     const first = setTimeout(() => void check(true), FIRST_LOOK_MS);
     const every = setInterval(() => void check(true), LOOK_EVERY_MS);
     return () => {

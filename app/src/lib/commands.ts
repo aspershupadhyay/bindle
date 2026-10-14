@@ -558,6 +558,11 @@ export const commands = {
 /** True inside the desktop app, false in a plain browser preview. */
 export const inDesktopApp = isTauri;
 
+/** True in the phone app (Android or iOS): no second window, no global shortcut, updates come from the store. */
+export function onPhone(): boolean {
+  return typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 /**
  * Runs `handler` whenever any promise is saved or changed, in any window.
  * Returns a function that stops listening.

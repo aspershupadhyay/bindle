@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Phones: Bindle fits a phone screen (the screens and spaces scroll sideways across the top, Jot down floats at the bottom), and the app can be built for Android from the Actions tab. Desktop-only parts stay on desktops.
 - Creator: connect your YouTube channel with an API key (kept in the system keychain) and see subscribers and views against a week ago, twelve weeks of growth, your top posts of the last 30 days, how much you post long videos and Shorts, and the comments still waiting on your reply. Any comment can become a promise in Sort. Bindle only reads public data and never replies or posts. Migration 0011.
 - Inbox reads any mailbox, not only Gmail: iCloud Mail, Fastmail, Yahoo Mail, Zoho Mail, Outlook (where app passwords still work) or any IMAP server you type. Still read only, and Bindle still never sends email.
 
