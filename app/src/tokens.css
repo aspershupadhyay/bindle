@@ -12,6 +12,7 @@
 
   /* Text */
   --ink: #2B2622;
+  --ink-mid: #4A433C;    /* body text on cards and in the nav */
   --ink-soft: #6E655C;
 
   /* Accent: one per screen */
@@ -52,6 +53,7 @@
     --sand: #3A342E;
     --sand-soft: #2C2824;
     --ink: #EDE6DC;
+    --ink-mid: #D4CBBF;
     --ink-soft: #B3A99D;
     --clay: #D9825C;
     --clay-text: #D9825C;

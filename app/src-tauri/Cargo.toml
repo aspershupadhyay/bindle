@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
+
+[package]
+name = "bindle-app"
+description = "The Bindle desktop app: a Tauri shell around the Rust core."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+name = "bindle_app"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+bindle-core = { path = "../../crates/bindle-core" }
+bindle-store = { path = "../../crates/bindle-store" }
+chrono.workspace = true
+rusqlite.workspace = true
+serde.workspace = true
+tauri = { version = "2", features = [] }
