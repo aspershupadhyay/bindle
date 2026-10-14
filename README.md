@@ -11,7 +11,11 @@ A calm, local-first app that carries your promises, from your life and your work
   <img src="docs/design/hero-hills.png" alt="Pixel art: a traveller with a bindle walking over green hills at sunset" width="768">
 </p>
 
-> **Status: early.** The handbook and designs are done; the Rust core has its first tested crates. The desktop app is not built yet. Nothing here is ready to use.
+> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop shell opens with a working Jot down. Nothing here is ready for daily use yet.
+
+<p align="center">
+  <img src="docs/screens/week-1-home.png" alt="The Bindle desktop app on Linux: Life Home with Jot down and two promises waiting in Sort" width="768">
+</p>
 
 ## What Bindle is
 
@@ -60,24 +64,43 @@ The brand sheet is in [docs/design/v2/brand.png](docs/design/v2/brand.png). The 
 
 ```
 bindle/
+  app/
+    src/             React views: shell, Home, Settings
+    src/art/         pixel sprites at 1x (scale by whole numbers only)
+    src/tokens.css   design tokens
+    src-tauri/       the Tauri desktop app and its typed commands
   crates/
     bindle-core/     promise rules: states, allowed changes, running late
     bindle-parse/    understands what you type, English and Hinglish
     bindle-store/    SQLite schema and migrations
     bindle-sync/     hybrid logical clocks and merges for Bindle Cloud
-  app/src/art/       pixel sprites at 1x (scale by whole numbers only)
-  app/src/tokens.css design tokens
+  design/            design sources, sprites and render tools
   docs/              handbook mirror and designs
 ```
 
-Coming next, in order: the Tauri shell, Jot down, Sort, Home (weeks 1 to 4 of the plan in [docs/ROADMAP.md](docs/ROADMAP.md)).
+Coming next, in order: the Jot down window with its system-wide shortcut and the parser, then Sort, then Home (weeks 2 to 4 of the plan in [docs/ROADMAP.md](docs/ROADMAP.md)).
 
 ## Build and test
 
+You need Rust (stable), Node 22, and on Linux the WebKitGTK libraries (`sudo apt install libwebkit2gtk-4.1-dev librsvg2-dev` on Debian and Ubuntu; see the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for other systems).
+
 ```sh
-cargo test --workspace
-cargo clippy --workspace --all-targets -- -D warnings
+cd app && npm install
+
+npm run tauri dev        # run the desktop app
+npm run dev              # views only, in a browser, with an in-memory preview (nothing saved)
 ```
+
+Checks, the same as CI:
+
+```sh
+(cd app && npm run typecheck && npm test && npx vite build)
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+```
+
+The views must be built (`npx vite build`) before the Rust workspace compiles, because the desktop app embeds them.
 
 ## Handbook
 
