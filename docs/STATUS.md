@@ -34,6 +34,12 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] CI on Windows, macOS and Linux: format, lint, tests, views and licence headers. It runs on pushes to `main`, to working branches, and on pull requests. First full run passed on all three on 14 October 2026
 - [x] Release workflow (week 8): a version tag builds installers for all three systems. They are signed once the signing secrets are added (see [RELEASING.md](RELEASING.md))
 
+### Release and website
+- [x] Download page in Bindle's pixel style (`site/`), published by the Website workflow to https://aspershupadhyay.github.io/bindle/ (Pages switched on)
+- [x] Release workflow: start it from the Actions tab with a version; builds Windows (.exe, .msi), macOS (Apple silicon and Intel .dmg) and Linux (.AppImage, .deb, .rpm), unsigned for now
+- [ ] First release v0.0.1: started; check the Release run in the Actions tab, and fix and re-run it if a build failed
+- [x] GitHub's language bar counts design mockups as documentation
+
 ## Being worked on now
 
 - [ ] Week 8 gate, "all acceptance checks pass": the automated checks pass. The hands-on checks in [ACCEPTANCE.md](ACCEPTANCE.md) still need a person on a real Windows and macOS machine
