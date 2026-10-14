@@ -12,7 +12,13 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # Started by hand from the Actions tab: GitHub makes the tag when it
+  # publishes the release.
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Tag for the release, such as v0.0.1"
+        required: true
 
 permissions:
   contents: write
@@ -80,8 +86,9 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           projectPath: app
-          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
-          releaseName: Bindle ${{ github.ref_name }}
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+          releaseName: Bindle ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+          releaseCommitish: ${{ github.sha }}
           releaseBody: |
             Installers for Windows, macOS and Linux. See CHANGELOG.md for what changed.
             Signed only where the signing secrets were set; see docs/RELEASING.md.

@@ -2,7 +2,7 @@
 
 1. Update the version in `Cargo.toml` (`[workspace.package]`), `app/package.json` and `app/src-tauri/tauri.conf.json`, and move the changelog's "Unreleased" notes under the new version.
 2. Make sure CI is green on `main` and every check in [ACCEPTANCE.md](ACCEPTANCE.md) passes.
-3. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
+3. Tag and push (`git tag v0.1.0 && git push origin v0.1.0`), or start the **Release** workflow by hand from the Actions tab and type the version; GitHub then makes the tag.
 4. The **Release** workflow builds installers on Windows (`.msi`, `.exe`), macOS (Apple silicon and Intel `.dmg`) and Linux (`.deb`, `.rpm`, `.AppImage`) and puts them on a **draft** release.
 5. Install each one on a real machine, run the hands-on checks, then publish the draft.
 
