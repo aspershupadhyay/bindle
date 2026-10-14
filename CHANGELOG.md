@@ -17,3 +17,8 @@
 - `bindle-parse` reads days (today, kal, parso, weekdays in English and Hindi, "next week", "in 3 days", "2 din mein", written dates day first), deadlines ("by Friday", "Friday tak"), times ("8:30 pm", "at 4", "shaam 7 baje", "in the evening"), money ("₹2,340", "Rs 500", "1.5 lakh", "$12"), people ("to Rohan", "@aman", "Rohan ko", names already in Bindle), who owes it ("Rohan will", "bhejega", "I'll", "just for me") and soft promises ("sometime", "kabhi"). Words that could mean two things are flagged so Sort can ask.
 - Jot down keeps exactly what was typed as the promise's source, saves the day or deadline, time, amount and person, and adds new people.
 - Chips on Home show the day, time, amount, person, who owes it and soft promises.
+- Sort: one promise at a time, filled in from what Jot down understood, with words to check called out. Choose who will do it, when (quick days, a date, a time, a deadline, or Sometime), who it is with and a first step, then keep it, put it off for later, or let it go.
+- `bindle-core`: a kept promise must say who owes it, and a firm one must have a day ("close the loop").
+- `bindle-store`: Sort, Done, reopen, Let go and Move it, each recorded in history with the promise before and after. Undo puts back exactly what was there, refuses when the promise changed since, and never deletes anything. Migration 0003 lets history record "later" and "undone".
+- Undo bar after every change, and Ctrl+Z (Cmd+Z) for the latest change.
+- Home lists what is coming up, soonest first, with a box to mark each done and its history.
