@@ -304,6 +304,13 @@ fn people_already_in_bindle_are_found_in_any_case() {
 fn a_capital_at_the_start_is_not_taken_for_a_name() {
     assert_eq!(reads("Pay electricity bill").person, None);
     assert_eq!(reads("Book Diwali train tickets").person, None);
+    assert_eq!(reads("Buy diyas for Diwali this weekend").person, None);
+    assert_eq!(reads("Gift for Christmas").person, None);
+    assert_eq!(reads("Pay rent for October").person, None);
+    assert_eq!(
+        reads("Buy a gift for Ananya").person.as_deref(),
+        Some("Ananya")
+    );
 }
 
 #[test]

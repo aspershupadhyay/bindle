@@ -33,6 +33,17 @@ const NOT_NAMES: &[&str] = &[
     "i", "me", "my", "we", "you", "they", "he", "she", "it", "the", "a", "an",
 ];
 
+/// Capitalised words after "for" or "to" that are occasions, months or
+/// places, not people: "buy diyas for Diwali", "tickets for March".
+#[rustfmt::skip]
+const NOT_PEOPLE: &[&str] = &[
+    "diwali", "holi", "eid", "christmas", "navratri", "dussehra", "rakhi", "pongal", "onam",
+    "lohri", "easter", "ramadan", "ugadi", "baisakhi", "durga", "ganesh", "karwa", "bhai", "chhath",
+    "new", "january", "february", "march", "april", "may", "june", "july", "august", "september",
+    "october", "november", "december", "monday", "tuesday", "wednesday", "thursday", "friday",
+    "saturday", "sunday", "office", "home", "work", "school", "college", "gym", "india",
+];
+
 /// Finds the person, skipping tokens already `taken`. `known` holds the names
 /// of people already in Bindle.
 pub(crate) fn find(tokens: &[Token], taken: &[Span], known: &[String]) -> Option<PersonHit> {
@@ -116,6 +127,7 @@ fn looks_like_name(word: &str, needs_capital: bool) -> bool {
         && word.chars().all(char::is_alphabetic)
         && (!needs_capital || first.is_some_and(char::is_uppercase))
         && !NOT_NAMES.contains(&word.to_lowercase().as_str())
+        && !NOT_PEOPLE.contains(&word.to_lowercase().as_str())
 }
 
 fn title_case(word: &str) -> String {

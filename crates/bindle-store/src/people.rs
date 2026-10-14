@@ -10,11 +10,24 @@ use rusqlite::{params, Connection, OptionalExtension};
 use serde::Serialize;
 use uuid::Uuid;
 
+/// The pictures a person can have. Each names what is drawn, not who someone
+/// is: anyone can pick any of them, and change it whenever they like.
+pub const AVATARS: &[&str] = &[
+    "short", "long", "curly", "bun", "beard", "turban", "scarf", "cap", "grey",
+];
+
+/// Whether `word` is one of [`AVATARS`].
+pub fn is_avatar(word: &str) -> bool {
+    AVATARS.contains(&word)
+}
+
 /// One person on the People screen.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct PersonSummary {
     pub id: String,
     pub name: String,
+    /// Their picture, or `None` for their first letter.
+    pub avatar: Option<String>,
     /// Open promises you made to them.
     pub you_owe: u32,
     /// Open promises they made to you.
@@ -26,6 +39,11 @@ pub struct PersonSummary {
 pub struct PersonDetail {
     pub id: String,
     pub name: String,
+    pub avatar: Option<String>,
+    /// How they like to be referred to, in their words ("she/her").
+    pub pronouns: Option<String>,
+    /// Kept from AI: neither they nor their promises are shown to one.
+    pub hidden_from_ai: bool,
     pub you_owe: Vec<Promise>,
     pub they_owe: Vec<Promise>,
     /// Promises with them kept since `since`, newest first, at most ten.
@@ -35,7 +53,7 @@ pub struct PersonDetail {
 /// Everyone, with open promises first (most first), then by name.
 pub fn summaries(conn: &Connection) -> Result<Vec<PersonSummary>, StoreError> {
     let mut stmt = conn.prepare(
-        "SELECT person.id, person.display_name,
+        "SELECT person.id, person.display_name, person.avatar,
                 count(CASE WHEN p.state = 'open' AND p.direction IN ('mine', 'self') THEN 1 END),
                 count(CASE WHEN p.state = 'open' AND p.direction = 'theirs' THEN 1 END)
          FROM person LEFT JOIN promise p ON p.person_id = person.id
@@ -47,8 +65,9 @@ pub fn summaries(conn: &Connection) -> Result<Vec<PersonSummary>, StoreError> {
         Ok(PersonSummary {
             id: row.get(0)?,
             name: row.get(1)?,
-            you_owe: row.get(2)?,
-            they_owe: row.get(3)?,
+            avatar: row.get(2)?,
+            you_owe: row.get(3)?,
+            they_owe: row.get(4)?,
         })
     })?;
     Ok(rows.collect::<Result<_, _>>()?)
@@ -57,10 +76,12 @@ pub fn summaries(conn: &Connection) -> Result<Vec<PersonSummary>, StoreError> {
 /// What you owe one person, what they owe you, and what was kept since `since`
 /// (an RFC 3339 time).
 pub fn detail(conn: &Connection, id: &str, since: &str) -> Result<PersonDetail, StoreError> {
-    let name: String = conn
-        .query_row("SELECT display_name FROM person WHERE id = ?1", [id], |r| {
-            r.get(0)
-        })
+    let (name, avatar, pronouns, hidden_from_ai) = conn
+        .query_row(
+            "SELECT display_name, avatar, pronouns, hidden_from_ai FROM person WHERE id = ?1",
+            [id],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+        )
         .optional()?
         .ok_or(StoreError::NotFound)?;
     let list =
@@ -79,6 +100,9 @@ pub fn detail(conn: &Connection, id: &str, since: &str) -> Result<PersonDetail, 
     Ok(PersonDetail {
         id: id.to_string(),
         name,
+        avatar,
+        pronouns,
+        hidden_from_ai,
         you_owe: list(
             "p.state = 'open' AND p.direction IN ('mine', 'self')",
             soonest,
@@ -112,6 +136,29 @@ pub fn rename(conn: &Connection, id: &str, name: &str, at: &str) -> Result<(), S
     let changed = conn.execute(
         "UPDATE person SET display_name = ?2, updated_at = ?3 WHERE id = ?1",
         params![id, name, at],
+    )?;
+    if changed == 0 {
+        return Err(StoreError::NotFound);
+    }
+    Ok(())
+}
+
+/// Gives a person a picture from [`AVATARS`], or their first letter for
+/// `None`, and their pronouns, if they gave any.
+pub fn set_look(
+    conn: &Connection,
+    id: &str,
+    avatar: Option<&str>,
+    pronouns: Option<&str>,
+    at: &str,
+) -> Result<(), StoreError> {
+    if avatar.is_some_and(|a| !is_avatar(a)) {
+        return Err(StoreError::UnknownAvatar);
+    }
+    let pronouns = pronouns.map(str::trim).filter(|p| !p.is_empty());
+    let changed = conn.execute(
+        "UPDATE person SET avatar = ?2, pronouns = ?3, updated_at = ?4 WHERE id = ?1",
+        params![id, avatar, pronouns, at],
     )?;
     if changed == 0 {
         return Err(StoreError::NotFound);
@@ -230,5 +277,22 @@ mod tests {
         let again = find_or_add(&conn, "rohan", "2026-10-14").expect("find");
         assert_eq!(first, again);
         assert_eq!(names(&conn).expect("names"), ["Rohan"]);
+    }
+
+    #[test]
+    fn anyone_can_have_any_picture_and_their_own_pronouns() {
+        let conn = open_in_memory().expect("open");
+        let id = find_or_add(&conn, "Ananya", "x").expect("add");
+        set_look(&conn, &id, Some("beard"), Some(" she/her "), "y").expect("look");
+        let ananya = detail(&conn, &id, "2026-10-01T00:00:00Z").expect("detail");
+        assert_eq!(ananya.avatar.as_deref(), Some("beard"));
+        assert_eq!(ananya.pronouns.as_deref(), Some("she/her"));
+        assert!(matches!(
+            set_look(&conn, &id, Some("dragon"), None, "y"),
+            Err(StoreError::UnknownAvatar)
+        ));
+        set_look(&conn, &id, None, Some(""), "z").expect("back to a letter");
+        let ananya = detail(&conn, &id, "2026-10-01T00:00:00Z").expect("detail");
+        assert_eq!((ananya.avatar, ananya.pronouns), (None, None));
     }
 }

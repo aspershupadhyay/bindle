@@ -57,6 +57,18 @@ impl Jot {
     }
 }
 
+/// Where a new promise came from: typed by the person, or suggested by a
+/// connected AI (handbook P8). Either way it waits in Sort.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Origin<'a> {
+    Typed,
+    /// Suggested by the named AI client, with its reason, if it gave one.
+    Ai {
+        client: &'a str,
+        reason: Option<&'a str>,
+    },
+}
+
 /// Saves a jot as a new promise waiting in Sort, with its source and a
 /// `created` event, all in one transaction.
 ///
@@ -65,6 +77,16 @@ impl Jot {
 pub fn jot_down(
     conn: &mut Connection,
     jot: &Jot,
+    now: DateTime<Utc>,
+) -> Result<Promise, StoreError> {
+    insert(conn, jot, Origin::Typed, now)
+}
+
+/// Saves a new unsorted promise from `origin`. See [`jot_down`].
+pub(crate) fn insert(
+    conn: &mut Connection,
+    jot: &Jot,
+    origin: Origin,
     now: DateTime<Utc>,
 ) -> Result<Promise, StoreError> {
     let title = jot.title.trim();
@@ -79,11 +101,15 @@ pub fn jot_down(
     } else {
         (jot.when, None)
     };
+    let (kind, label, actor, reason) = match origin {
+        Origin::Typed => ("typed", None, "user", None),
+        Origin::Ai { client, reason } => ("ai", Some(client), "ai", reason),
+    };
 
     let tx = conn.transaction()?;
     tx.execute(
-        "INSERT INTO source (id, kind, snippet, captured_at) VALUES (?1, 'typed', ?2, ?3)",
-        params![source_id, jot.text, at],
+        "INSERT INTO source (id, kind, label, snippet, captured_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+        params![source_id, kind, label, jot.text, at],
     )?;
     let person_id = match &jot.person {
         Some(name) => Some(people::find_or_add(&tx, name, &at)?),
@@ -92,8 +118,8 @@ pub fn jot_down(
     tx.execute(
         "INSERT INTO promise (id, title, direction, strength, person_id, source_id,
                               do_on, do_on_has_time, due, due_has_time, tz,
-                              amount_minor, currency, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?14)",
+                              amount_minor, currency, origin, origin_client, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?16)",
         params![
             id,
             title,
@@ -108,13 +134,20 @@ pub fn jot_down(
             jot.tz,
             jot.amount.as_ref().map(|m| m.minor),
             jot.amount.as_ref().map(|m| m.currency.as_str()),
+            if kind == "ai" { "ai" } else { "user" },
+            label,
             at,
         ],
     )?;
-    let data = serde_json::json!({ "unsure_words": jot.unsure_words }).to_string();
+    let mut data = serde_json::json!({ "unsure_words": jot.unsure_words });
+    if let Some(reason) = reason {
+        data["reason"] = reason.into();
+    }
+    let data = data.to_string();
     tx.execute(
-        "INSERT INTO promise_event (id, promise_id, at, kind, data) VALUES (?1, ?2, ?3, 'created', ?4)",
-        params![Uuid::now_v7().to_string(), id, at, data],
+        "INSERT INTO promise_event (id, promise_id, at, actor, kind, data)
+         VALUES (?1, ?2, ?3, ?4, 'created', ?5)",
+        params![Uuid::now_v7().to_string(), id, at, actor, data],
     )?;
     tx.commit()?;
     get(conn, &id)
@@ -142,15 +175,22 @@ pub struct SortItem {
     pub typed: Option<String>,
     /// Words that could mean two things, such as "kal", to ask about.
     pub unsure_words: Option<String>,
+    /// The AI that suggested it ("Claude"), when it was not typed.
+    pub suggested_by: Option<String>,
+    /// Why the AI suggested it, in its own words.
+    pub reason: Option<String>,
 }
 
 /// Everything waiting in Sort, oldest first.
 pub fn sort_queue(conn: &Connection) -> Result<Vec<SortItem>, StoreError> {
     let sql = format!(
-        "SELECT {COLUMNS}, source.snippet,
-                (SELECT json_extract(e.data, '$.unsure_words') FROM promise_event e
-                 WHERE e.promise_id = p.id AND e.kind = 'created')
+        "SELECT {COLUMNS}, source.snippet, c.unsure_words,
+                CASE WHEN source.kind = 'ai' THEN source.label END, c.reason
          {FROM} LEFT JOIN source ON source.id = p.source_id
+         LEFT JOIN (SELECT promise_id,
+                           json_extract(data, '$.unsure_words') AS unsure_words,
+                           json_extract(data, '$.reason') AS reason
+                    FROM promise_event WHERE kind = 'created') c ON c.promise_id = p.id
          WHERE p.state = 'unsorted' ORDER BY p.created_at, p.id"
     );
     let mut stmt = conn.prepare(&sql)?;
@@ -159,6 +199,8 @@ pub fn sort_queue(conn: &Connection) -> Result<Vec<SortItem>, StoreError> {
             promise: read_row(row)?,
             typed: row.get(17)?,
             unsure_words: row.get(18)?,
+            suggested_by: row.get(19)?,
+            reason: row.get(20)?,
         })
     })?;
     Ok(rows.collect::<Result<_, _>>()?)

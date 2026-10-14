@@ -7,6 +7,9 @@
 //! `user_version`. A failed migration rolls back and leaves the file untouched
 //! (handbook P10, Data checks).
 
+pub mod ai;
+pub mod backup;
+pub mod export;
 pub mod home;
 pub mod lifecycle;
 pub mod people;
@@ -35,6 +38,10 @@ const MIGRATIONS: &[(&str, &str)] = &[
         "0005_notifications",
         include_str!("../migrations/0005_notifications.sql"),
     ),
+    (
+        "0006_ai_and_avatars",
+        include_str!("../migrations/0006_ai_and_avatars.sql"),
+    ),
 ];
 
 /// Everything that can go wrong in the store.
@@ -62,6 +69,16 @@ pub enum StoreError {
     EmptyName,
     #[error("there is already someone called {0}")]
     NameTaken(String),
+    #[error("Bindle's AI connection is off. Turn it on in Settings.")]
+    AiOff,
+    #[error("the AI connection can read but not suggest. Change that in Settings.")]
+    AiReadOnly,
+    #[error("{0} suggestions are already waiting in Sort. Sort those first.")]
+    TooManySuggestions(u32),
+    #[error("that is not one of the pictures")]
+    UnknownAvatar,
+    #[error("file error: {0}")]
+    Io(#[from] std::io::Error),
     #[error("database error: {0}")]
     Sqlite(#[from] rusqlite::Error),
     #[error("migration {name} failed: {source}")]

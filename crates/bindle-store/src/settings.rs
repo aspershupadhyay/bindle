@@ -5,6 +5,7 @@
 //! the `setting` table. Missing fields take their defaults, so adding a
 //! setting later needs no migration.
 
+use crate::ai::AiAccess;
 use crate::StoreError;
 use bindle_core::notify::NoticeSettings;
 use chrono::NaiveTime;
@@ -32,6 +33,10 @@ pub struct Settings {
     pub timed_reminders: bool,
     /// "system", "light" or "dark".
     pub theme: String,
+    /// How far a connected AI may go. Off until the person turns it on.
+    pub ai_access: AiAccess,
+    /// The person's own picture, one of [`crate::people::AVATARS`].
+    pub avatar: Option<String>,
 }
 
 impl Default for Settings {
@@ -45,6 +50,8 @@ impl Default for Settings {
             morning_note: false,
             timed_reminders: true,
             theme: "system".into(),
+            ai_access: AiAccess::Off,
+            avatar: None,
         }
     }
 }
@@ -84,6 +91,13 @@ pub fn save(conn: &Connection, settings: &Settings) -> Result<Settings, StoreErr
         .map(Into::into);
     if !matches!(clean.theme.as_str(), "system" | "light" | "dark") {
         clean.theme = "system".into();
+    }
+    if clean
+        .avatar
+        .as_deref()
+        .is_some_and(|a| !crate::people::is_avatar(a))
+    {
+        clean.avatar = None;
     }
     // Plain strings, booleans and times: serialising cannot fail.
     let json = serde_json::to_string(&clean).expect("settings serialise");
