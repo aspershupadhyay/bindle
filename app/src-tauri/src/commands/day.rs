@@ -29,6 +29,15 @@ pub fn save_settings(app: AppHandle, db: Managed<Db>, settings: Settings) -> Rep
     Ok(saved)
 }
 
+/// Tells every window the settings as saved now, after a restore.
+pub(crate) fn announce_settings(app: &AppHandle, db: &Managed<Db>) {
+    if let Ok(conn) = lock(db) {
+        if let Ok(saved) = settings::load(&conn) {
+            let _ = app.emit(SETTINGS_CHANGED, &saved);
+        }
+    }
+}
+
 /// Shows one notification now, so the person can see what they look like.
 #[tauri::command]
 pub fn test_notification(app: AppHandle) {

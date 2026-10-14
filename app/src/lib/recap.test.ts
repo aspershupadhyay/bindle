@@ -15,7 +15,7 @@ function promise(title: string, patch: Partial<BindlePromise> = {}): BindlePromi
 }
 
 function rohan(patch: Partial<PersonDetail>): PersonDetail {
-  return { id: "r", name: "Rohan", you_owe: [], they_owe: [], kept_lately: [], ...patch };
+  return { id: "r", name: "Rohan", avatar: null, pronouns: null, hidden_from_ai: false, you_owe: [], they_owe: [], kept_lately: [], ...patch };
 }
 
 describe("recapMessage", () => {

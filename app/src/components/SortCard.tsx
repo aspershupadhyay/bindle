@@ -78,7 +78,14 @@ export function SortCard({ item }: { item: SortItem }) {
   const asksFirstStep = direction !== "theirs";
   return (
     <form className="card sort-card" onSubmit={submit} aria-label={`Sort: ${promise.title}`}>
-      {item.typed && item.typed.trim() !== promise.title && <p className="muted small typed">You typed “{item.typed.trim()}”</p>}
+      {item.suggested_by ? (
+        <p className="suggested">
+          <span className="suggested-by">Suggested by {item.suggested_by}</span>
+          <span className="muted small">{item.reason ?? "Keep it only if it is yours."}</span>
+        </p>
+      ) : (
+        item.typed && item.typed.trim() !== promise.title && <p className="muted small typed">You typed “{item.typed.trim()}”</p>
+      )}
       {item.unsure_words && (
         <p className="note">
           “{item.unsure_words}” can mean more than one thing. Check the day and time below.

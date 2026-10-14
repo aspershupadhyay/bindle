@@ -11,12 +11,30 @@ pub mod commands;
 #[cfg(desktop)]
 pub mod jot_window;
 pub mod reminders;
+pub mod watch;
 
+use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::Manager;
 
 /// The open database, shared by every command.
 pub struct Db(pub Mutex<rusqlite::Connection>);
+
+/// Where the database and its safety copies live.
+pub struct Paths {
+    pub db: PathBuf,
+    pub safety: PathBuf,
+}
+
+/// Starts the app, or only the AI connection when started with `--mcp`.
+pub fn main() -> std::process::ExitCode {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.iter().any(|a| a == "--mcp") {
+        return bindle_mcp::run_from_args(args);
+    }
+    run();
+    std::process::ExitCode::SUCCESS
+}
 
 /// Starts the app.
 pub fn run() {
@@ -25,11 +43,17 @@ pub fn run() {
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&dir)?;
-            let conn = bindle_store::open(&dir.join("bindle.db"))?;
+            let paths = Paths {
+                db: dir.join("bindle.db"),
+                safety: dir.join("safety copies"),
+            };
+            let conn = bindle_store::open(&paths.db)?;
             app.manage(Db(Mutex::new(conn)));
+            app.manage(paths);
             #[cfg(desktop)]
             jot_window::register(app.handle())?;
             reminders::start(app.handle().clone());
+            watch::start(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -64,6 +88,13 @@ pub fn run() {
             commands::day::test_notification,
             commands::day::wrap_up_view,
             commands::day::finish_wrap_up,
+            commands::data::ai_connection,
+            commands::data::export_data,
+            commands::data::safety_copies,
+            commands::data::make_safety_copy,
+            commands::data::restore_safety_copy,
+            commands::data::set_person_look,
+            commands::data::set_person_hidden,
         ])
         .run(tauri::generate_context!())
         .expect("Bindle could not start");

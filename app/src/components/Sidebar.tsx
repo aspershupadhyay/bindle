@@ -4,8 +4,9 @@
 // The left rail: logo, the Life and Work switch, the screens of the current
 // mode, spaces, and Jot down (v2 design, Main and Desk).
 
-import logo from "../art/bindle-24.png";
-import avatar from "../art/avatar-s.png";
+import { Avatar } from "./Avatar";
+import { Logo } from "./Logo";
+import { useSettings } from "../lib/settings";
 import type { Mode } from "../lib/commands";
 import { screens, settingsScreen, type ScreenId } from "../screens";
 import { Icon } from "./Icon";
@@ -20,10 +21,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ mode, current, unsorted, onMode, onScreen, onJotDown }: SidebarProps) {
+  const { settings } = useSettings();
   return (
     <aside className="sidebar" aria-label="Bindle navigation">
       <div className="brand">
-        <img className="sprite" src={logo} alt="Bindle logo, a cloth bag tied to a stick" width={48} height={48} />
+        <Logo size={48} alt="Bindle logo, a cloth bag tied to a stick" />
         <div>
           <div className="brand-name">Bindle</div>
           <div className="brand-line">Carry less in your head</div>
@@ -57,7 +59,7 @@ export function Sidebar({ mode, current, unsorted, onMode, onScreen, onJotDown }
       <div className="spaces">
         <div className="eyebrow">Spaces</div>
         <div className="space">
-          <img className="sprite avatar" src={avatar} alt="" width={24} height={24} />
+          <Avatar name={settings.name ?? "Me"} avatar={settings.avatar} size={32} />
           Mine<span className="space-note">private</span>
         </div>
       </div>

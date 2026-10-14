@@ -5,10 +5,13 @@
 // other, and a recap you can send. Bindle copies the recap; you send it.
 
 import { useCallback, useEffect, useState } from "react";
+import { Avatar } from "../components/Avatar";
 import { Chips } from "../components/Chips";
+import { PersonEdit } from "../components/PersonEdit";
+import { ScreenArt, ScreenTitle } from "../components/ScreenTitle";
 import { useNotify } from "../components/Undo";
 import { chipsForPromise } from "../lib/chips";
-import { commands, errorMessage, onPromisesChanged, type PersonDetail, type PersonSummary, type Promise as BindlePromise } from "../lib/commands";
+import { commands, onPromisesChanged, type PersonDetail, type PersonSummary, type Promise as BindlePromise } from "../lib/commands";
 import { recapMessage } from "../lib/recap";
 
 export function People() {
@@ -35,11 +38,14 @@ export function People() {
   return (
     <div className="page">
       <header className="sort-head">
-        <h1 className="display">People</h1>
+        <ScreenTitle art="people">People</ScreenTitle>
         <p className="lead">{people.length === 0 ? "No one yet." : "Who you owe, and who owes you."}</p>
       </header>
       {people.length === 0 ? (
-        <p className="card empty">When a promise names someone, like “send the deck to Priya”, they appear here.</p>
+        <div className="card all-sorted">
+          <ScreenArt name="people" scale={3} />
+          <p>When a promise names someone, like “send the deck to Priya”, they appear here.</p>
+        </div>
       ) : (
         <div className="people-columns">
           <div className="people-list">
@@ -50,7 +56,7 @@ export function People() {
               {shown.map((p) => (
                 <li key={p.id}>
                   <button type="button" className="person-button" aria-current={chosen === p.id ? "true" : undefined} onClick={() => setChosen(p.id)}>
-                    <span className="initial honey" aria-hidden="true">{p.name.charAt(0).toUpperCase()}</span>
+                    <Avatar name={p.name} avatar={p.avatar} size={32} />
                     <span className="promise-main">
                       <span className="promise-title">{p.name}</span>
                       <span className="muted small">{owes(p)}</span>
@@ -78,7 +84,7 @@ function owes(p: PersonSummary): string {
 function Person({ id }: { id: string }) {
   const notify = useNotify();
   const [person, setPerson] = useState<PersonDetail | null>(null);
-  const [renaming, setRenaming] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
   const refresh = useCallback(() => {
     commands.personDetail(id).then(setPerson, () => setPerson(null));
@@ -101,34 +107,20 @@ function Person({ id }: { id: string }) {
     }
   }
 
-  async function rename() {
-    if (renaming === null) return;
-    try {
-      await commands.renamePerson(id, renaming);
-      setRenaming(null);
-    } catch (error) {
-      notify(errorMessage(error));
-    }
-  }
-
   return (
     <div className="person-detail">
       <div className="person-head">
-        {renaming === null ? (
-          <>
-            <h2 className="person-name">{person.name}</h2>
-            <button type="button" className="link-button small" onClick={() => setRenaming(person.name)}>
-              Rename
-            </button>
-          </>
-        ) : (
-          <form className="rename" onSubmit={(e) => (e.preventDefault(), void rename())}>
-            <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="New name" autoFocus />
-            <button type="submit" className="button-primary small-primary">Save</button>
-            <button type="button" className="button-quiet" onClick={() => setRenaming(null)}>Cancel</button>
-          </form>
-        )}
+        <Avatar name={person.name} avatar={person.avatar} size={64} />
+        <div>
+          <h2 className="person-name">{person.name}</h2>
+          {person.pronouns && <div className="muted small">{person.pronouns}</div>}
+        </div>
+        <button type="button" className="link-button small" aria-expanded={editing} onClick={() => setEditing(!editing)}>
+          {editing ? "Close" : "Edit"}
+        </button>
       </div>
+      {editing && <PersonEdit person={person} onDone={() => setEditing(false)} />}
+      {person.hidden_from_ai && <p className="muted small">Kept from AI: a connected AI never sees {person.name} or these promises.</p>}
 
       <Side title="You'll do" empty={`Nothing you owe ${person.name}.`} promises={person.you_owe} />
       <Side title={`${person.name} will do`} empty={`Nothing ${person.name} owes you.`} promises={person.they_owe} />

@@ -6,7 +6,7 @@
 // ones the person ticks are turned on.
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import logo from "../art/bindle-24.png";
+import { Logo } from "../components/Logo";
 import hills from "../art/hills.png";
 import { JotField } from "../components/JotField";
 import { useSettings } from "../lib/settings";
@@ -56,7 +56,7 @@ export function FirstRun() {
 
         {step === "welcome" && (
           <>
-            <img className="sprite" src={logo} alt="Bindle logo, a cloth bag tied to a stick" width={96} height={96} />
+            <Logo size={96} alt="Bindle logo, a cloth bag tied to a stick" />
             <h1 className="display">Bindle</h1>
             <p className="lead">Everything that needs you, in one bag.</p>
             <p>

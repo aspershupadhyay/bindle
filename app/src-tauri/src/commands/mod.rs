@@ -6,9 +6,11 @@
 //! Each command has a matching TypeScript wrapper in `app/src/lib/commands.ts`.
 //! Keep the two in step: same names, same argument names, same shapes.
 //! Sort, the lifecycle and Undo live in [`lifecycle`]; Home in [`home`]; Promises, People
-//! and search in [`browse`]; Settings, first run and Wrap up in [`day`].
+//! and search in [`browse`]; Settings, first run and Wrap up in [`day`]; the AI
+//! connection, export, safety copies and people's pictures in [`data`].
 
 pub mod browse;
+pub mod data;
 pub mod day;
 pub mod home;
 pub mod lifecycle;

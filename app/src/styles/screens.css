@@ -28,7 +28,7 @@
 .person-button:hover { background: var(--sand-soft); }
 .person-button[aria-current="true"] { background: var(--clay-wash); }
 .person-detail { flex: 999 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
-.person-head { display: flex; align-items: baseline; gap: 14px; }
+.person-head { display: flex; align-items: center; gap: 14px; }
 .person-name { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 32px; }
 .person-detail h3 { margin: 0; font-size: 15px; font-weight: 600; }
 .rename { display: flex; gap: 8px; align-items: center; }
@@ -37,3 +37,35 @@
 .recap .section-head { margin-bottom: 0; align-items: center; }
 .recap-text { margin: 0; white-space: pre-wrap; font-family: var(--font-body); font-size: 14px; color: var(--ink-mid); background: var(--sand-soft); border-radius: var(--radius-control); padding: 12px 14px; }
 .recap p { margin: 0; }
+
+/* Screen titles with pixel icons, and people's pictures (week 7) */
+.screen-title { display: flex; align-items: center; gap: 14px; }
+.screen-title h1 { margin: 0; }
+.avatar-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.avatar-choice {
+  padding: 4px; border-radius: 12px; border: 2px solid transparent; background: none; cursor: pointer;
+  display: flex; line-height: 0;
+}
+.avatar-choice:hover { background: var(--sand-soft); }
+.avatar-choice[aria-pressed="true"] { border-color: var(--clay); background: var(--clay-wash); }
+.avatar-choice:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+.person-look { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+.person-look .settings-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.suggested { margin: 0; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.suggested-by { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--sage-wash); color: var(--sage-text); }
+.config-block { font-family: var(--font-mono); font-size: 12px; background: var(--sand-soft); border-radius: var(--radius-control); padding: 12px; overflow-x: auto; white-space: pre; margin: 0; }
+.ai-log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.ai-log li { display: flex; gap: 10px; }
+.ai-log time { color: var(--ink-soft); font-variant-numeric: tabular-nums; flex: none; width: 110px; }
+.copies { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.copies li { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
+
+/* The logo on dark: the brand sheet's tile drops the ink outline. */
+.logo-dark { display: none; }
+:root[data-theme="dark"] .logo-light { display: none; }
+:root[data-theme="dark"] .logo-dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .logo-light { display: none; }
+  :root:not([data-theme="light"]) .logo-dark { display: block; }
+}
+.settings-card h3 { margin: 4px 0 0; }

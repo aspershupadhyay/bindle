@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BrowseRow } from "../components/BrowseRow";
 import { Icon } from "../components/Icon";
+import { ScreenTitle } from "../components/ScreenTitle";
 import { commands, errorMessage, onPromisesChanged, type Promise as BindlePromise, type State, type StateCounts } from "../lib/commands";
 
 const tabs: { state: State; label: string; empty: string }[] = [
@@ -67,7 +68,7 @@ export function Promises({ focusSearch, onOpenSort }: PromisesProps) {
   return (
     <div className="page">
       <header className="sort-head">
-        <h1 className="display">Promises</h1>
+        <ScreenTitle art="promises">Promises</ScreenTitle>
         <label className="search-field">
           <Icon name="search" size={18} />
           <span className="visually-hidden">Search every promise</span>

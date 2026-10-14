@@ -18,6 +18,8 @@ let settings: Settings = {
   morning_note: false,
   timed_reminders: true,
   theme: "system",
+  ai_access: "off",
+  avatar: null,
 };
 const changes = new Map<string, { before: BindlePromise; undone: boolean }>();
 const listeners = new Map<string, Set<() => void>>();
@@ -51,7 +53,7 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
     case "sort_queue":
       return promises
         .filter((p) => p.state === "unsorted")
-        .map((promise): SortItem => ({ promise, typed: promise.title, unsure_words: null })) as T;
+        .map((promise): SortItem => ({ promise, typed: promise.title, unsure_words: null, suggested_by: null, reason: null })) as T;
     case "sort_promise":
       return change(id, (p) => applySorting(p, args.sorting as Sorting, args.to as State)) as T;
     case "mark_done":
@@ -106,6 +108,16 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
       } as T;
     case "finish_wrap_up":
       return undefined as T;
+    case "ai_connection":
+      return { command: "bindle", args: ["--mcp", "--db", "bindle.db"], config: "{}", log: [] } as T;
+    case "safety_copies":
+      return [] as T;
+    case "export_data":
+    case "make_safety_copy":
+    case "restore_safety_copy":
+    case "set_person_look":
+    case "set_person_hidden":
+      throw { message: "this works in the desktop app only" };
     case "add_to_top3":
     case "remove_from_top3":
     case "nudge":

@@ -62,6 +62,10 @@ export interface SortItem {
   promise: Promise;
   typed: string | null;
   unsure_words: string | null;
+  /** The AI that suggested it ("Claude"), when it was not typed. */
+  suggested_by: string | null;
+  /** Why the AI suggested it, in its words. */
+  reason: string | null;
 }
 
 /** What the person chose in Sort. */
@@ -119,9 +123,14 @@ export interface StateCounts {
   let_go: number;
 }
 
+/** The pictures a person can have. Each names what is drawn, not who someone is. */
+export const AVATARS = ["short", "long", "curly", "bun", "beard", "turban", "scarf", "cap", "grey"] as const;
+export type Avatar = (typeof AVATARS)[number];
+
 export interface PersonSummary {
   id: string;
   name: string;
+  avatar: Avatar | null;
   you_owe: number;
   they_owe: number;
 }
@@ -129,6 +138,9 @@ export interface PersonSummary {
 export interface PersonDetail {
   id: string;
   name: string;
+  avatar: Avatar | null;
+  pronouns: string | null;
+  hidden_from_ai: boolean;
   you_owe: Promise[];
   they_owe: Promise[];
   kept_lately: Promise[];
@@ -144,6 +156,35 @@ export interface Settings {
   morning_note: boolean;
   timed_reminders: boolean;
   theme: "system" | "light" | "dark";
+  /** How far a connected AI may go. */
+  ai_access: AiAccess;
+  /** The person's own picture. */
+  avatar: Avatar | null;
+}
+
+export type AiAccess = "off" | "read" | "suggest";
+
+/** One thing a connected AI read or suggested. */
+export interface AiLogEntry {
+  at: string;
+  client: string;
+  tool: string;
+  detail: string;
+}
+
+/** How to connect an AI app to Bindle. */
+export interface AiConnection {
+  command: string;
+  args: string[];
+  config: string;
+  log: AiLogEntry[];
+}
+
+/** One safety copy of the database. */
+export interface SafetyCopy {
+  file_name: string;
+  made_at: string;
+  bytes: number;
 }
 
 export interface WrapUpView {
@@ -207,6 +248,14 @@ export const commands = {
   wrapUpView: () => call<WrapUpView>("wrap_up_view"),
   finishWrapUp: (mindLoad: number | null, note: string | null) => call<void>("finish_wrap_up", { mindLoad, note }),
   hideJot: () => call<void>("hide_jot"),
+  aiConnection: () => call<AiConnection>("ai_connection"),
+  exportData: (format: "json" | "csv") => call<string>("export_data", { format }),
+  safetyCopies: () => call<SafetyCopy[]>("safety_copies"),
+  makeSafetyCopy: () => call<SafetyCopy>("make_safety_copy"),
+  restoreSafetyCopy: (fileName: string) => call<SafetyCopy>("restore_safety_copy", { fileName }),
+  setPersonLook: (id: string, avatar: Avatar | null, pronouns: string | null) =>
+    call<void>("set_person_look", { id, avatar, pronouns }),
+  setPersonHidden: (id: string, hidden: boolean) => call<void>("set_person_hidden", { id, hidden }),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),
 };

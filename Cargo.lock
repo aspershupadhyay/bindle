@@ -248,12 +248,14 @@ name = "bindle-app"
 version = "0.0.1"
 dependencies = [
  "bindle-core",
+ "bindle-mcp",
  "bindle-parse",
  "bindle-store",
  "chrono",
  "iana-time-zone",
  "rusqlite",
  "serde",
+ "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-global-shortcut",
@@ -268,6 +270,19 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "bindle-mcp"
+version = "0.0.1"
+dependencies = [
+ "bindle-core",
+ "bindle-parse",
+ "bindle-store",
+ "chrono",
+ "iana-time-zone",
+ "rusqlite",
+ "serde_json",
 ]
 
 [[package]]

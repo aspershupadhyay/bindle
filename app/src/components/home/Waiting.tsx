@@ -5,12 +5,15 @@
 // friendly message for the person to send themselves. Bindle never sends it
 // (handbook principle 6).
 
-import type { HomeView, Promise as BindlePromise } from "../../lib/commands";
+import type { Avatar, HomeView, Promise as BindlePromise } from "../../lib/commands";
 import { commands, errorMessage } from "../../lib/commands";
 import { nudgeMessage, waitingWords, withPerson } from "../../lib/home";
+import { usePictures } from "../../lib/pictures";
+import { Avatar as AvatarPicture } from "../Avatar";
 import { useNotify } from "../Undo";
 
 export function Waiting({ waiting }: { waiting: HomeView["waiting_on_others"] }) {
+  const pictures = usePictures();
   if (waiting.length === 0) return null;
   return (
     <section aria-labelledby="waiting">
@@ -20,14 +23,14 @@ export function Waiting({ waiting }: { waiting: HomeView["waiting_on_others"] })
       </div>
       <ul className="card list">
         {waiting.map((w, i) => (
-          <WaitingRow key={w.promise.id} promise={w.promise} lastNudged={w.last_nudged} tone={i % 2 === 0 ? "honey" : "sage"} />
+          <WaitingRow key={w.promise.id} promise={w.promise} lastNudged={w.last_nudged} tone={i % 2 === 0 ? "honey" : "sage"} picture={pictures.get((w.promise.person ?? "").toLowerCase()) ?? null} />
         ))}
       </ul>
     </section>
   );
 }
 
-function WaitingRow({ promise, lastNudged, tone }: { promise: BindlePromise; lastNudged: string | null; tone: "honey" | "sage" }) {
+function WaitingRow({ promise, lastNudged, tone, picture }: { promise: BindlePromise; lastNudged: string | null; tone: "honey" | "sage"; picture: Avatar | null }) {
   const notify = useNotify();
 
   async function nudge() {
@@ -49,9 +52,13 @@ function WaitingRow({ promise, lastNudged, tone }: { promise: BindlePromise; las
 
   return (
     <li className="waiting-row">
-      <span className={`initial ${tone}`} aria-hidden="true">
-        {(promise.person ?? promise.title).charAt(0).toUpperCase()}
-      </span>
+      {picture ? (
+        <AvatarPicture name={promise.person ?? ""} avatar={picture} size={32} />
+      ) : (
+        <span className={`initial ${tone}`} aria-hidden="true">
+          {(promise.person ?? promise.title).charAt(0).toUpperCase()}
+        </span>
+      )}
       <span className="promise-main">
         <span className="promise-title">{withPerson(promise)}</span>
         <span className="muted small">{waitingWords(promise, lastNudged, new Date())}</span>

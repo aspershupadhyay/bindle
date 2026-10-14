@@ -4,6 +4,9 @@
 // Settings (handbook P6 and P9). Every change saves at once.
 
 import { useEffect, useState } from "react";
+import { AvatarPicker } from "../components/Avatar";
+import { AiSection } from "../components/settings/AiSection";
+import { DataSection } from "../components/settings/DataSection";
 import { useNotify } from "../components/Undo";
 import { commands, errorMessage, type AppInfo, type Settings as SettingsData } from "../lib/commands";
 import { useSettings } from "../lib/settings";
@@ -37,6 +40,10 @@ export function Settings() {
           <span className="field-label">What Bindle calls you</span>
           <input value={name} onChange={(e) => setName(e.target.value)} onBlur={() => void save({ name: name.trim() || null })} placeholder="Your first name" />
         </label>
+        <div className="field">
+          <span className="field-label">Your picture</span>
+          <AvatarPicker name={settings.name ?? "Me"} value={settings.avatar} onPick={(avatar) => void save({ avatar })} />
+        </div>
       </section>
 
       <section className="card settings-card" aria-labelledby="evening">
@@ -85,6 +92,9 @@ export function Settings() {
         </div>
       </section>
 
+      <AiSection />
+      <DataSection />
+
       <section className="card settings-card" aria-labelledby="keys">
         <h2 id="keys">Shortcuts</h2>
         <dl className="keys">
@@ -107,7 +117,7 @@ export function Settings() {
             <dd>{info.schema_version}</dd>
           </dl>
         )}
-        <p className="muted small">Everything stays on this device. Nothing is sent anywhere.</p>
+        <p className="muted small">Everything stays on this device. Nothing is sent anywhere unless you connect an AI app, and then only what you allow above.</p>
       </section>
     </div>
   );

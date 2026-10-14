@@ -13,7 +13,7 @@ import "@fontsource/inter/600.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "./tokens.css";
 import "./app.css";
-import logo from "./art/bindle-24.png";
+import { Logo } from "./components/Logo";
 import { JotField } from "./components/JotField";
 import { commands, onJotOpened, onSettingsChanged } from "./lib/commands";
 import { applyTheme } from "./lib/settings";
@@ -51,7 +51,7 @@ function JotWindow() {
   return (
     <div className="jot-window">
       <div className="jot-window-head">
-        <img className="sprite" src={logo} alt="" width={24} height={24} />
+        <Logo size={24} />
         <span>Jot down</span>
         <span className="muted small jot-window-tip">Enter to save · Esc to close</span>
       </div>

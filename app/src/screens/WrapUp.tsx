@@ -6,7 +6,7 @@
 // how full your head feels. That last answer stays private: never a score.
 
 import { useCallback, useEffect, useState } from "react";
-import logo from "../art/bindle-24.png";
+import { ScreenArt, ScreenTitle } from "../components/ScreenTitle";
 import { Chips } from "../components/Chips";
 import { Icon } from "../components/Icon";
 import { useNotify, useOfferUndo } from "../components/Undo";
@@ -47,7 +47,7 @@ export function WrapUp({ onDone }: { onDone: () => void }) {
     return (
       <div className="page wrap-page">
         <div className="card all-sorted">
-          <img className="sprite" src={logo} alt="" width={96} height={96} />
+          <ScreenArt name="wrapUp" scale={3} />
           <h1 className="display">Day closed.</h1>
           <p>Everything is in the bag. Rest well.</p>
           <button type="button" className="button-quiet" onClick={onDone}>Back to Home</button>
@@ -61,7 +61,7 @@ export function WrapUp({ onDone }: { onDone: () => void }) {
     <div className="page wrap-page">
       <header className="sort-head">
         <div className="muted small">{dateLine(new Date())}</div>
-        <h1 className="display">Wrap up</h1>
+        <ScreenTitle art="wrapUp">Wrap up</ScreenTitle>
         <p className="lead">
           {view.wrapped_up_at
             ? `You wrapped up at ${timeLabel(new Date(view.wrapped_up_at).toTimeString().slice(0, 8))}. You can go again.`

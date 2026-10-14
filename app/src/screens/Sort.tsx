@@ -5,7 +5,7 @@
 // decides what it is. One at a time, a few seconds each.
 
 import { useCallback, useEffect, useState } from "react";
-import logo from "../art/bindle-24.png";
+import { ScreenArt, ScreenTitle } from "../components/ScreenTitle";
 import { SortCard } from "../components/SortCard";
 import { commands, onPromisesChanged, type SortItem } from "../lib/commands";
 
@@ -26,7 +26,7 @@ export function Sort() {
   return (
     <div className="page sort-page">
       <header className="sort-head">
-        <h1 className="display">Sort</h1>
+        <ScreenTitle art="sort">Sort</ScreenTitle>
         <p className="lead">
           {queue.length === 0
             ? "All sorted."
@@ -48,7 +48,7 @@ export function Sort() {
         </>
       ) : (
         <div className="card all-sorted">
-          <img className="sprite" src={logo} alt="" width={96} height={96} />
+          <ScreenArt name="sort" scale={3} />
           <p>Nothing waits here. Anything you jot down comes here until you decide what it is.</p>
         </div>
       )}
