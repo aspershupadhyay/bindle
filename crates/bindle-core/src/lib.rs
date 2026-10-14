@@ -7,6 +7,8 @@
 //! Callers pass "today" in, so every rule is easy to test.
 //! The rules come from the handbook, chapter P5 (data model).
 
+pub mod notify;
+
 use chrono::{Datelike, Duration, NaiveDate, NaiveTime};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

@@ -305,5 +305,10 @@ fn the_summary_counts_today_and_the_people_waiting_on_you() {
     );
     let view = read(&conn);
     assert_eq!(view.today_count, 3);
+    assert_eq!(
+        today_count(&conn, today()).expect("count"),
+        3,
+        "the quick count agrees"
+    );
     assert_eq!(view.people_waiting_on_you, 2);
 }

@@ -37,6 +37,8 @@ pub struct HomeView {
     pub today_count: usize,
     /// Different people your open promises for today or earlier are with.
     pub people_waiting_on_you: usize,
+    /// Today has been wrapped up.
+    pub wrapped_up: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -144,7 +146,19 @@ pub fn home(
         this_week: week_counts(conn, week_start)?,
         today_count,
         people_waiting_on_you: people.len(),
+        wrapped_up: crate::wrap_up::is_wrapped_up(conn, today)?,
     })
+}
+
+/// Your open promises for `day`: the count Home and the morning note use.
+pub fn today_count(conn: &Connection, day: NaiveDate) -> Result<usize, StoreError> {
+    Ok(conn.query_row(
+        "SELECT COUNT(*) FROM promise WHERE state = 'open'
+           AND (direction IS NULL OR direction != 'theirs')
+           AND substr(coalesce(due, do_on), 1, 10) = ?1",
+        [day_text(day)],
+        |r| r.get(0),
+    )?)
 }
 
 /// Open promises, plus done ones from this week or in today's top 3.

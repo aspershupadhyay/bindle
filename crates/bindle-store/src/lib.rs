@@ -12,6 +12,8 @@ pub mod lifecycle;
 pub mod people;
 pub mod promises;
 pub mod search;
+pub mod settings;
+pub mod wrap_up;
 
 use rusqlite::Connection;
 use std::path::Path;
@@ -29,6 +31,10 @@ const MIGRATIONS: &[(&str, &str)] = &[
         include_str!("../migrations/0003_later_and_undo.sql"),
     ),
     ("0004_search", include_str!("../migrations/0004_search.sql")),
+    (
+        "0005_notifications",
+        include_str!("../migrations/0005_notifications.sql"),
+    ),
 ];
 
 /// Everything that can go wrong in the store.
