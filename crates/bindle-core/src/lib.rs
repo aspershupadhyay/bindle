@@ -7,7 +7,7 @@
 //! Callers pass "today" in, so every rule is easy to test.
 //! The rules come from the handbook, chapter P5 (data model).
 
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveTime};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -86,10 +86,25 @@ stored_words!(Direction { Mine => "mine", Theirs => "theirs", SelfPromise => "se
 stored_words!(Strength { Firm => "firm", Soft => "soft" });
 stored_words!(Mode { Life => "life", Work => "work" });
 
+/// A day, with a time of day when the person gave one.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct When {
+    pub day: NaiveDate,
+    pub time: Option<NaiveTime>,
+}
+
+/// An amount of money in minor units (paise, cents), so sums never drift.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Money {
+    /// For example 234000 for ₹2,340.
+    pub minor: i64,
+    /// ISO 4217 code, for example "INR".
+    pub currency: String,
+}
+
 /// A promise as the app sees it: the fields every screen needs.
 ///
-/// Dates are plain calendar days (`YYYY-MM-DD`); times of day come later with
-/// the `*_has_time` columns. Timestamps are RFC 3339 text, as stored.
+/// Days and times are local to the person. Timestamps are RFC 3339 text, as stored.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Promise {
     pub id: String,
@@ -99,8 +114,13 @@ pub struct Promise {
     pub strength: Strength,
     pub mode: Mode,
     pub first_step: Option<String>,
-    pub do_on: Option<NaiveDate>,
-    pub due: Option<NaiveDate>,
+    /// The day it is planned for.
+    pub do_on: Option<When>,
+    /// The day it must be done by.
+    pub due: Option<When>,
+    pub amount: Option<Money>,
+    /// The display name of the person it is with.
+    pub person: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -108,7 +128,14 @@ pub struct Promise {
 impl Promise {
     /// Running late, measured against `today`. See [`is_running_late`].
     pub fn is_running_late(&self, today: NaiveDate) -> bool {
-        is_running_late(self.state, self.strength, self.due, self.do_on, today)
+        let day = |when: Option<When>| when.map(|w| w.day);
+        is_running_late(
+            self.state,
+            self.strength,
+            day(self.due),
+            day(self.do_on),
+            today,
+        )
     }
 }
 
