@@ -55,6 +55,39 @@ export interface Promise {
   updated_at: string;
 }
 
+/** A promise waiting in Sort, with what was typed and words to check. */
+export interface SortItem {
+  promise: Promise;
+  typed: string | null;
+  unsure_words: string | null;
+}
+
+/** What the person chose in Sort. */
+export interface Sorting {
+  title: string;
+  direction: Direction | null;
+  strength: Strength;
+  person: string | null;
+  first_step: string | null;
+  when: When | null;
+  is_deadline: boolean;
+}
+
+/** A saved change, with the event that can undo it. */
+export interface Change {
+  promise: Promise;
+  event_id: string;
+}
+
+/** One line of a promise's history. */
+export interface HistoryEntry {
+  id: string;
+  at: string;
+  kind: string;
+  actor: string;
+  undone: boolean;
+}
+
 export interface AppInfo {
   version: string;
   schema_version: number;
@@ -79,6 +112,17 @@ export const commands = {
   jotDown: (text: string) => call<Promise>("jot_down", { text }),
   readJot: (text: string) => call<Reading>("read_jot", { text }),
   showJot: () => call<void>("show_jot"),
+  sortQueue: () => call<SortItem[]>("sort_queue"),
+  sortPromise: (id: string, sorting: Sorting, to: "open" | "later" | "let_go") =>
+    call<Change>("sort_promise", { id, sorting, to }),
+  markDone: (id: string) => call<Change>("mark_done", { id }),
+  reopen: (id: string) => call<Change>("reopen", { id }),
+  letGo: (id: string) => call<Change>("let_go", { id }),
+  movePromise: (id: string, when: When, isDeadline: boolean) =>
+    call<Change>("move_promise", { id, when, isDeadline }),
+  undo: (eventId: string) => call<Change>("undo", { eventId }),
+  undoLast: () => call<Change | null>("undo_last"),
+  history: (id: string) => call<HistoryEntry[]>("history", { id }),
   hideJot: () => call<void>("hide_jot"),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),
@@ -88,12 +132,12 @@ export const commands = {
 export const inDesktopApp = isTauri;
 
 /**
- * Runs `handler` whenever a promise is saved, in any window.
+ * Runs `handler` whenever any promise is saved or changed, in any window.
  * Returns a function that stops listening.
  */
-export function onPromiseSaved(handler: () => void): () => void {
-  if (!isTauri()) return previewEvents.on("promise-saved", handler);
-  const stop = listen("promise-saved", handler);
+export function onPromisesChanged(handler: () => void): () => void {
+  if (!isTauri()) return previewEvents.on("promises-changed", handler);
+  const stop = listen("promises-changed", handler);
   return () => void stop.then((unlisten) => unlisten());
 }
 

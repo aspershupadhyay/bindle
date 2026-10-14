@@ -3,26 +3,28 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
-import { commands, inDesktopApp, onPromiseSaved, type Mode, type Promise as BindlePromise } from "./lib/commands";
+import { UndoProvider } from "./components/Undo";
+import { commands, inDesktopApp, onPromisesChanged, type Mode } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Home } from "./screens/Home";
 import { Settings } from "./screens/Settings";
+import { Sort } from "./screens/Sort";
 import { Soon } from "./screens/Soon";
 
 export function App() {
   const [mode, setMode] = useState<Mode>("life");
   const [current, setCurrent] = useState<ScreenId>("home");
-  const [unsorted, setUnsorted] = useState<BindlePromise[]>([]);
+  const [unsorted, setUnsorted] = useState(0);
   const jotRef = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(() => {
-    commands.listPromises("unsorted").then(setUnsorted, () => setUnsorted([]));
+    commands.countPromises("unsorted").then(setUnsorted, () => setUnsorted(0));
   }, []);
 
   useEffect(() => {
     refresh();
-    // Saves from the Jot down window, or from Home, refresh every list.
-    return onPromiseSaved(refresh);
+    // Changes from any window, or any screen, refresh the badge.
+    return onPromisesChanged(refresh);
   }, [refresh]);
 
   const jotDown = useCallback(() => {
@@ -55,24 +57,28 @@ export function App() {
   }
 
   return (
-    <div className="shell">
-      <Sidebar
-        mode={mode}
-        current={current}
-        unsorted={unsorted.length}
-        onMode={switchMode}
-        onScreen={setCurrent}
-        onJotDown={jotDown}
-      />
-      <main className="main">
-        {current === "home" ? (
-          <Home ref={jotRef} unsorted={unsorted} />
-        ) : current === "settings" ? (
-          <Settings />
-        ) : (
-          <Soon screen={findScreen(current)} />
-        )}
-      </main>
-    </div>
+    <UndoProvider>
+      <div className="shell">
+        <Sidebar
+          mode={mode}
+          current={current}
+          unsorted={unsorted}
+          onMode={switchMode}
+          onScreen={setCurrent}
+          onJotDown={jotDown}
+        />
+        <main className="main">
+          {current === "home" ? (
+            <Home ref={jotRef} onOpenSort={() => setCurrent("sort")} />
+          ) : current === "sort" ? (
+            <Sort />
+          ) : current === "settings" ? (
+            <Settings />
+          ) : (
+            <Soon screen={findScreen(current)} />
+          )}
+        </main>
+      </div>
+    </UndoProvider>
   );
 }

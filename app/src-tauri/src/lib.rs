@@ -37,6 +37,15 @@ pub fn run() {
             commands::hide_jot,
             commands::list_promises,
             commands::count_promises,
+            commands::lifecycle::sort_queue,
+            commands::lifecycle::sort_promise,
+            commands::lifecycle::mark_done,
+            commands::lifecycle::reopen,
+            commands::lifecycle::let_go,
+            commands::lifecycle::move_promise,
+            commands::lifecycle::undo,
+            commands::lifecycle::undo_last,
+            commands::lifecycle::history,
         ])
         .run(tauri::generate_context!())
         .expect("Bindle could not start");

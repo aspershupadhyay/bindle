@@ -5,6 +5,9 @@
 //!
 //! Each command has a matching TypeScript wrapper in `app/src/lib/commands.ts`.
 //! Keep the two in step: same names, same argument names, same shapes.
+//! Sort, the lifecycle and Undo live in [`lifecycle`].
+
+pub mod lifecycle;
 
 use crate::Db;
 use bindle_core::{Promise, State};
@@ -13,8 +16,8 @@ use bindle_store::{people, promises, StoreError};
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, State as Managed};
 
-/// Sent to every window after a promise is saved, so lists refresh.
-pub const PROMISE_SAVED: &str = "promise-saved";
+/// Sent to every window after any promise is saved or changed, so lists refresh.
+pub const PROMISES_CHANGED: &str = "promises-changed";
 
 /// What the views receive when a command fails. The message is plain words,
 /// safe to show as is.
@@ -31,7 +34,7 @@ impl From<StoreError> for CommandError {
     }
 }
 
-type Reply<T> = Result<T, CommandError>;
+pub(crate) type Reply<T> = Result<T, CommandError>;
 
 /// Facts about this build, shown in Settings and used by the first screen.
 #[derive(Debug, Serialize, PartialEq, Eq)]
@@ -63,7 +66,7 @@ pub fn read_jot(db: Managed<Db>, text: String) -> Reply<Reading> {
 
 /// Saves what was typed in Jot down, with what Bindle understood from it.
 /// The reply arrives only after the write is committed, so the view can say
-/// "Saved" honestly. Every window then hears [`PROMISE_SAVED`].
+/// "Saved" honestly. Every window then hears [`PROMISES_CHANGED`].
 #[tauri::command]
 pub fn jot_down(app: AppHandle, db: Managed<Db>, text: String) -> Reply<Promise> {
     let mut conn = lock(&db)?;
@@ -71,9 +74,14 @@ pub fn jot_down(app: AppHandle, db: Managed<Db>, text: String) -> Reply<Promise>
     let reading = bindle_parse::read(&text, chrono::Local::now().naive_local(), &known);
     let jot = jot_from(&text, reading, iana_time_zone::get_timezone().ok());
     let promise = promises::jot_down(&mut conn, &jot, chrono::Utc::now())?;
-    // The promise is saved; a window missing the news only shows it later.
-    let _ = app.emit(PROMISE_SAVED, &promise.id);
+    announce(&app);
     Ok(promise)
+}
+
+/// Tells every window that promises changed. The change is already saved, so
+/// a window that misses the news only shows it a little later.
+pub(crate) fn announce(app: &AppHandle) {
+    let _ = app.emit(PROMISES_CHANGED, ());
 }
 
 /// Turns what the parser read into what the store saves.
@@ -124,7 +132,9 @@ pub fn count_promises(db: Managed<Db>, state: State) -> Reply<u32> {
     Ok(promises::count_by_state(&conn, state)?)
 }
 
-fn lock<'a>(db: &'a Managed<Db>) -> Reply<std::sync::MutexGuard<'a, rusqlite::Connection>> {
+pub(crate) fn lock<'a>(
+    db: &'a Managed<Db>,
+) -> Reply<std::sync::MutexGuard<'a, rusqlite::Connection>> {
     db.0.lock().map_err(|_| CommandError {
         message: "the database is busy after an earlier error; please restart Bindle".into(),
     })

@@ -1,31 +1,41 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
-// Life Home (v2 design, Main). This first version has the greeting, Jot down
-// and what is waiting in Sort. Top 3, Running late and Waiting on others
-// arrive with week 4.
+// Life Home (v2 design, Main). This version has the greeting, Jot down, what
+// is coming up and what waits in Sort. Top 3, Running late and Waiting on
+// others arrive with week 4.
 
-import { forwardRef } from "react";
+import { forwardRef, useCallback, useEffect, useState } from "react";
 import hills from "../art/hills.png";
 import { Chips } from "../components/Chips";
 import { JotField } from "../components/JotField";
+import { PromiseRow } from "../components/PromiseRow";
 import { chipsForPromise } from "../lib/chips";
-import type { Promise as BindlePromise } from "../lib/commands";
+import { commands, onPromisesChanged, type Promise as BindlePromise } from "../lib/commands";
 import { dateLine, greeting } from "../lib/days";
 
-interface HomeProps {
-  unsorted: BindlePromise[];
-}
-
-export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ unsorted }, jotRef) {
+export const Home = forwardRef<HTMLInputElement, { onOpenSort: () => void }>(function Home({ onOpenSort }, jotRef) {
   const now = new Date();
+  const [unsorted, setUnsorted] = useState<BindlePromise[]>([]);
+  const [open, setOpen] = useState<BindlePromise[]>([]);
+
+  const refresh = useCallback(() => {
+    commands.listPromises("unsorted").then(setUnsorted, () => setUnsorted([]));
+    commands.listPromises("open").then((list) => setOpen(byDay(list)), () => setOpen([]));
+  }, []);
+
+  useEffect(() => {
+    refresh();
+    return onPromisesChanged(refresh);
+  }, [refresh]);
+
   return (
     <div className="page">
       <header className="home-header">
         <div className="home-hello">
           <div className="muted small">{dateLine(now)}</div>
           <h1 className="display">{greeting(now)}.</h1>
-          <p className="lead">{summary(unsorted.length)}</p>
+          <p className="lead">{summary(open.length, unsorted.length)}</p>
           <JotField ref={jotRef} />
         </div>
         <figure className="scene-frame">
@@ -39,16 +49,30 @@ export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ unso
         </figure>
       </header>
 
-      <section aria-labelledby="in-sort">
+      <section aria-labelledby="coming-up">
         <div className="section-head">
-          <h2 id="in-sort">Waiting in Sort</h2>
-          <span className="muted small">{unsorted.length === 0 ? "Nothing yet" : `${unsorted.length}, oldest first`}</span>
+          <h2 id="coming-up">Coming up</h2>
+          <span className="muted small">{open.length === 0 ? "Nothing yet" : `${open.length}, soonest first`}</span>
         </div>
-        {unsorted.length === 0 ? (
-          <p className="card empty">
-            Jot down anything you promised, or anything someone promised you. It waits here until you sort it.
-          </p>
+        {open.length === 0 ? (
+          <p className="card empty">Promises you keep in Sort show up here, soonest first.</p>
         ) : (
+          <ul className="card list">
+            {open.map((p) => (
+              <PromiseRow key={p.id} promise={p} />
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {unsorted.length > 0 && (
+        <section aria-labelledby="in-sort">
+          <div className="section-head">
+            <h2 id="in-sort">Waiting in Sort</h2>
+            <button type="button" className="button-quiet small-button" onClick={onOpenSort}>
+              Sort now
+            </button>
+          </div>
           <ul className="card list">
             {unsorted.map((p) => (
               <li key={p.id}>
@@ -57,13 +81,24 @@ export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ unso
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      )}
     </div>
   );
 });
 
-function summary(unsorted: number): string {
-  if (unsorted === 0) return "Nothing needs you right now.";
-  return unsorted === 1 ? "1 thing waiting in Sort." : `${unsorted} things waiting in Sort.`;
+function summary(open: number, unsorted: number): string {
+  const parts: string[] = [];
+  if (open > 0) parts.push(open === 1 ? "1 promise coming up" : `${open} promises coming up`);
+  if (unsorted > 0) parts.push(`${unsorted} waiting in Sort`);
+  return parts.length === 0 ? "Nothing needs you right now." : `${parts.join(", ")}.`;
+}
+
+/** Soonest first; promises with no day (soft ones) go last. */
+function byDay(list: BindlePromise[]): BindlePromise[] {
+  const key = (p: BindlePromise) => {
+    const when = p.due ?? p.do_on;
+    return when ? `${when.day}T${when.time ?? "99"}` : "9999";
+  };
+  return [...list].sort((a, b) => key(a).localeCompare(key(b)));
 }
