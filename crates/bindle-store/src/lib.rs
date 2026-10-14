@@ -7,6 +7,7 @@
 //! `user_version`. A failed migration rolls back and leaves the file untouched
 //! (handbook P10, Data checks).
 
+pub mod people;
 pub mod promises;
 
 use rusqlite::Connection;

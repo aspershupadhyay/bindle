@@ -6,38 +6,114 @@
 //! Every write also records a `promise_event`, so history is never lost.
 //! Callers pass "now" in, which keeps every function easy to test.
 
-use crate::StoreError;
-use bindle_core::{Direction, Mode, Promise, State, Strength};
-use chrono::{DateTime, NaiveDate, SecondsFormat, Utc};
+use crate::{people, StoreError};
+use bindle_core::{Direction, Mode, Money, Promise, State, Strength, When};
+use chrono::{DateTime, NaiveDate, NaiveTime, SecondsFormat, Utc};
 use rusqlite::{params, Connection, Row};
 use uuid::Uuid;
 
-const COLUMNS: &str = "id, title, state, direction, strength, mode, first_step, \
-                       do_on, due, created_at, updated_at";
+const COLUMNS: &str = "p.id, p.title, p.state, p.direction, p.strength, p.mode, p.first_step, \
+                       p.do_on, p.do_on_has_time, p.due, p.due_has_time, \
+                       p.amount_minor, p.currency, person.display_name, p.created_at, p.updated_at";
+const FROM: &str = "FROM promise p LEFT JOIN person ON person.id = p.person_id";
 
-/// Saves what the person typed as a new promise waiting in Sort.
+/// What Jot down saves. Everything except the text is a suggestion read from
+/// it; the promise still waits in Sort for the person to confirm.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Jot {
+    /// Exactly what was typed. Kept as the promise's source, so nothing is lost.
+    pub text: String,
+    pub title: String,
+    pub when: Option<When>,
+    /// `when` is a deadline ("by Friday"), not a plan.
+    pub is_deadline: bool,
+    pub amount: Option<Money>,
+    pub person: Option<String>,
+    pub direction: Option<Direction>,
+    pub strength: Strength,
+    /// The person's time zone (IANA name), so times keep their meaning.
+    pub tz: Option<String>,
+    /// The words that could mean another day ("kal"), when there were some.
+    /// Kept in the `created` event so Sort can ask about them.
+    pub unsure_words: Option<String>,
+}
+
+impl Jot {
+    /// A jot where nothing was understood: the title is the text.
+    pub fn plain(text: &str) -> Self {
+        Self {
+            text: text.to_string(),
+            title: text.trim().to_string(),
+            when: None,
+            is_deadline: false,
+            amount: None,
+            person: None,
+            direction: None,
+            strength: Strength::Firm,
+            tz: None,
+            unsure_words: None,
+        }
+    }
+}
+
+/// Saves a jot as a new promise waiting in Sort, with its source and a
+/// `created` event, all in one transaction.
 ///
-/// The title is trimmed. An empty title is refused, so "Saved" never shows
-/// for nothing (handbook principle 2).
+/// An empty title is refused, so "Saved" never shows for nothing
+/// (handbook principle 2).
 pub fn jot_down(
     conn: &mut Connection,
-    title: &str,
+    jot: &Jot,
     now: DateTime<Utc>,
 ) -> Result<Promise, StoreError> {
-    let title = title.trim();
+    let title = jot.title.trim();
     if title.is_empty() {
         return Err(StoreError::EmptyTitle);
     }
     let id = Uuid::now_v7().to_string();
+    let source_id = Uuid::now_v7().to_string();
     let at = now.to_rfc3339_opts(SecondsFormat::Millis, true);
+    let (do_on, due) = if jot.is_deadline {
+        (None, jot.when)
+    } else {
+        (jot.when, None)
+    };
+
     let tx = conn.transaction()?;
     tx.execute(
-        "INSERT INTO promise (id, title, created_at, updated_at) VALUES (?1, ?2, ?3, ?3)",
-        params![id, title, at],
+        "INSERT INTO source (id, kind, snippet, captured_at) VALUES (?1, 'typed', ?2, ?3)",
+        params![source_id, jot.text, at],
     )?;
+    let person_id = match &jot.person {
+        Some(name) => Some(people::find_or_add(&tx, name, &at)?),
+        None => None,
+    };
     tx.execute(
-        "INSERT INTO promise_event (id, promise_id, at, kind) VALUES (?1, ?2, ?3, 'created')",
-        params![Uuid::now_v7().to_string(), id, at],
+        "INSERT INTO promise (id, title, direction, strength, person_id, source_id,
+                              do_on, do_on_has_time, due, due_has_time, tz,
+                              amount_minor, currency, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?14)",
+        params![
+            id,
+            title,
+            jot.direction.map(Direction::as_str),
+            jot.strength.as_str(),
+            person_id,
+            source_id,
+            do_on.map(stored_when),
+            do_on.is_some_and(|w| w.time.is_some()),
+            due.map(stored_when),
+            due.is_some_and(|w| w.time.is_some()),
+            jot.tz,
+            jot.amount.as_ref().map(|m| m.minor),
+            jot.amount.as_ref().map(|m| m.currency.as_str()),
+            at,
+        ],
+    )?;
+    let data = serde_json::json!({ "unsure_words": jot.unsure_words }).to_string();
+    tx.execute(
+        "INSERT INTO promise_event (id, promise_id, at, kind, data) VALUES (?1, ?2, ?3, 'created', ?4)",
+        params![Uuid::now_v7().to_string(), id, at, data],
     )?;
     tx.commit()?;
     get(conn, &id)
@@ -45,13 +121,13 @@ pub fn jot_down(
 
 /// Reads one promise by id.
 pub fn get(conn: &Connection, id: &str) -> Result<Promise, StoreError> {
-    let sql = format!("SELECT {COLUMNS} FROM promise WHERE id = ?1");
+    let sql = format!("SELECT {COLUMNS} {FROM} WHERE p.id = ?1");
     Ok(conn.query_row(&sql, [id], read_row)?)
 }
 
 /// Every promise in `state`, oldest first.
 pub fn list_by_state(conn: &Connection, state: State) -> Result<Vec<Promise>, StoreError> {
-    let sql = format!("SELECT {COLUMNS} FROM promise WHERE state = ?1 ORDER BY created_at, id");
+    let sql = format!("SELECT {COLUMNS} {FROM} WHERE p.state = ?1 ORDER BY p.created_at, p.id");
     let mut stmt = conn.prepare(&sql)?;
     let rows = stmt.query_map([state.as_str()], read_row)?;
     Ok(rows.collect::<Result<_, _>>()?)
@@ -66,7 +142,22 @@ pub fn count_by_state(conn: &Connection, state: State) -> Result<u32, StoreError
     )?)
 }
 
+/// A day as stored: `2026-10-14`, or `2026-10-14T20:30` with a time.
+fn stored_when(when: When) -> String {
+    match when.time {
+        Some(time) => format!("{}T{}", when.day.format("%Y-%m-%d"), time.format("%H:%M")),
+        None => when.day.format("%Y-%m-%d").to_string(),
+    }
+}
+
 fn read_row(row: &Row) -> rusqlite::Result<Promise> {
+    let amount = match (
+        row.get::<_, Option<i64>>(11)?,
+        row.get::<_, Option<String>>(12)?,
+    ) {
+        (Some(minor), Some(currency)) => Some(Money { minor, currency }),
+        _ => None,
+    };
     Ok(Promise {
         id: row.get(0)?,
         title: row.get(1)?,
@@ -75,10 +166,12 @@ fn read_row(row: &Row) -> rusqlite::Result<Promise> {
         strength: word(row, 4, Strength::from_word)?,
         mode: word(row, 5, Mode::from_word)?,
         first_step: row.get(6)?,
-        do_on: day(row, 7)?,
-        due: day(row, 8)?,
-        created_at: row.get(9)?,
-        updated_at: row.get(10)?,
+        do_on: when(row, 7, 8)?,
+        due: when(row, 9, 10)?,
+        amount,
+        person: row.get(13)?,
+        created_at: row.get(14)?,
+        updated_at: row.get(15)?,
     })
 }
 
@@ -99,14 +192,23 @@ fn optional_word<T>(
         .transpose()
 }
 
-/// Reads the date part of a stored day or day-and-time.
-fn day(row: &Row, index: usize) -> rusqlite::Result<Option<NaiveDate>> {
-    let text: Option<String> = row.get(index)?;
-    text.map(|t| {
-        let date_part = t.get(..10).unwrap_or(&t);
-        NaiveDate::parse_from_str(date_part, "%Y-%m-%d").map_err(|_| bad_value(index, t))
-    })
-    .transpose()
+/// Reads a stored day, and its time when the `has_time` column says so.
+fn when(row: &Row, index: usize, has_time_index: usize) -> rusqlite::Result<Option<When>> {
+    let Some(text) = row.get::<_, Option<String>>(index)? else {
+        return Ok(None);
+    };
+    let has_time: bool = row.get(has_time_index)?;
+    let day = text
+        .get(..10)
+        .and_then(|d| NaiveDate::parse_from_str(d, "%Y-%m-%d").ok())
+        .ok_or_else(|| bad_value(index, text.clone()))?;
+    let time = match (has_time, text.get(11..16)) {
+        (true, Some(t)) => Some(
+            NaiveTime::parse_from_str(t, "%H:%M").map_err(|_| bad_value(index, text.clone()))?,
+        ),
+        _ => None,
+    };
+    Ok(Some(When { day, time }))
 }
 
 fn bad_value(index: usize, text: String) -> rusqlite::Error {
@@ -118,73 +220,5 @@ fn bad_value(index: usize, text: String) -> rusqlite::Error {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::open_in_memory;
-    use chrono::TimeZone;
-
-    fn now() -> DateTime<Utc> {
-        Utc.with_ymd_and_hms(2026, 10, 14, 18, 30, 0).unwrap()
-    }
-
-    #[test]
-    fn a_jotted_down_promise_waits_in_sort() {
-        let mut conn = open_in_memory().expect("open");
-        let promise = jot_down(&mut conn, "  Pay electricity bill ", now()).expect("save");
-        assert_eq!(promise.title, "Pay electricity bill");
-        assert_eq!(promise.state, State::Unsorted);
-        assert_eq!(promise.mode, Mode::Life);
-        assert_eq!(count_by_state(&conn, State::Unsorted).expect("count"), 1);
-    }
-
-    #[test]
-    fn jotting_down_records_a_created_event() {
-        let mut conn = open_in_memory().expect("open");
-        let promise = jot_down(&mut conn, "Call mom", now()).expect("save");
-        let kind: String = conn
-            .query_row(
-                "SELECT kind FROM promise_event WHERE promise_id = ?1",
-                [&promise.id],
-                |row| row.get(0),
-            )
-            .expect("event");
-        assert_eq!(kind, "created");
-    }
-
-    #[test]
-    fn an_empty_jot_is_refused_and_nothing_is_saved() {
-        let mut conn = open_in_memory().expect("open");
-        assert!(matches!(
-            jot_down(&mut conn, "   ", now()),
-            Err(StoreError::EmptyTitle)
-        ));
-        assert_eq!(count_by_state(&conn, State::Unsorted).expect("count"), 0);
-    }
-
-    #[test]
-    fn promises_are_listed_oldest_first() {
-        let mut conn = open_in_memory().expect("open");
-        jot_down(&mut conn, "First", now()).expect("save");
-        jot_down(&mut conn, "Second", now() + chrono::Duration::minutes(1)).expect("save");
-        let titles: Vec<_> = list_by_state(&conn, State::Unsorted)
-            .expect("list")
-            .into_iter()
-            .map(|p| p.title)
-            .collect();
-        assert_eq!(titles, ["First", "Second"]);
-    }
-
-    #[test]
-    fn stored_days_and_words_read_back_as_core_types() {
-        let mut conn = open_in_memory().expect("open");
-        let promise = jot_down(&mut conn, "Book Diwali tickets", now()).expect("save");
-        conn.execute(
-            "UPDATE promise SET state = 'open', direction = 'self', due = '2026-10-17T09:00' WHERE id = ?1",
-            [&promise.id],
-        )
-        .expect("update");
-        let read = get(&conn, &promise.id).expect("read");
-        assert_eq!(read.direction, Some(Direction::SelfPromise));
-        assert_eq!(read.due, NaiveDate::from_ymd_opt(2026, 10, 17));
-    }
-}
+#[path = "promises_tests.rs"]
+mod tests;
