@@ -12,17 +12,45 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # Started by hand from the Actions tab: GitHub makes the tag when it
+  # publishes the release.
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Tag for the release, such as v0.0.1"
+        required: true
 
 permissions:
   contents: write
 
 jobs:
+  # One job makes the release (and, when started by hand, its tag), so the
+  # four builds below never race to create it.
+  release:
+    name: Make the release
+    runs-on: ubuntu-latest
+    outputs:
+      id: ${{ steps.make.outputs.id }}
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+    steps:
+      - id: make
+        run: |
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "Bindle $TAG" \
+              --notes "Installers for Windows, macOS and Linux. See CHANGELOG.md for what changed. Not signed yet: Windows and macOS ask once before opening (see the download page)."
+          fi
+          echo "id=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json databaseId --jq .databaseId)" >> "$GITHUB_OUTPUT"
+
   build:
     name: Installers (${{ matrix.name }})
+    needs: release
     runs-on: ${{ matrix.os }}
     env:
       HAS_WINDOWS_CERT: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
+      HAS_APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -68,23 +96,26 @@ jobs:
           $config = @{ bundle = @{ windows = @{ certificateThumbprint = $cert.Thumbprint } } } | ConvertTo-Json -Compress -Depth 4
           "args=--config $config" >> $env:GITHUB_OUTPUT
 
-      - uses: tauri-apps/tauri-action@v0
+      # macOS signing and notarisation, only when the secrets exist: an empty
+      # certificate would make the build try, and fail, to sign.
+      - name: macOS signing
+        if: runner.os == 'macOS' && env.HAS_APPLE_CERT == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # macOS signing and notarisation. Empty secrets mean an unsigned build.
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            echo "$name=${!name}" >> "$GITHUB_ENV"
+          done
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: app
-          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
-          releaseName: Bindle ${{ github.ref_name }}
-          releaseBody: |
-            Installers for Windows, macOS and Linux. See CHANGELOG.md for what changed.
-            Signed only where the signing secrets were set; see docs/RELEASING.md.
-          releaseDraft: false
-          prerelease: false
+          releaseId: ${{ needs.release.outputs.id }}
           args: ${{ matrix.args }} ${{ steps.windows-cert.outputs.args }}
