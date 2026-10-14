@@ -38,3 +38,13 @@
 - Home greets you by name.
 - Dark mode now has dark backgrounds for chips and notes.
 - Styles are split into one file per area.
+- AI connection (handbook P8): `bindle --mcp` is an MCP server over stdio, with five tools: read Home, list promises, search, read people, and suggest a promise. Off until you choose read only or read and suggest in Settings, checked on every call. Suggestions are read like a jot and wait in Sort marked "Suggested by Claude" with the AI's reason, at most 10 at a time. An AI never changes, finishes or removes a promise. People marked "Keep from AI" are hidden from it with their promises, and Settings lists what an AI read or suggested in the last 90 days.
+- The app notices changes made outside it, such as a suggestion arriving, and refreshes within two seconds.
+- Export everything as JSON, or promises as CSV for a spreadsheet (cells that look like formulas are made safe).
+- Safety copies: one a day, the last 14 kept, and "Make a copy now". Putting one back copies today's data first, so it can be undone.
+- People's pictures: nine pixel pictures named for what they show (short hair, long hair, curly hair, a bun, a beard, a turban, a headscarf, a cap, grey hair), or the first letter. Anyone can pick any picture, for themselves or anyone else, and pronouns can be added in their own words. Pictures show on People, Home and the sidebar.
+- Pixel icons for Sort, Promises, People and Wrap up, also used for their empty states.
+- The logo uses the brand sheet's "on dark" version in the dark theme, so it no longer disappears into the sidebar.
+- "Buy diyas for Diwali" no longer makes Diwali a person: festivals, months, weekdays and places are never read as names.
+- CI also runs on pushes to working branches, and can be started by hand.
+- Migration 0006: pictures and pronouns for people, and the AI log.
