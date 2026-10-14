@@ -31,3 +31,10 @@
 - People: everyone your promises are with, what you owe each other, what was kept in the last 30 days, and renaming. Send recap writes a short, friendly summary with dates in full and copies it for you to send. Bindle never sends it.
 - Migration 0004: database triggers keep the search index in step with every change, including Undo and renamed people, and fill it for existing promises.
 - Lists that fail to load now say so, instead of looking empty.
+- First run: welcome, your name, your evenings and which reminders you want, and a first jot. Every step can be skipped.
+- Wrap up: what you kept today, a quick decision on each open promise (done, tomorrow, let go, all undoable), tomorrow's top 3, and how full your head feels, which stays private and is never shown as a score. Home shows a Wrap up card.
+- Reminders (handbook P9): at the time you give a promise (even before it is sorted), at wrap-up time if you ask, and a morning note if you ask. At most three a day, none from 10 PM to 7 AM, only within 15 minutes of their time, never twice, and never about being late. Migration 0005 remembers what was sent.
+- Settings: your name, wrap-up time and reminder, reminders, a test reminder, light, dark or system theme, shortcuts, and the build. Changes save at once and reach every window.
+- Home greets you by name.
+- Dark mode now has dark backgrounds for chips and notes.
+- Styles are split into one file per area.
