@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
-import { commands, type Mode, type Promise as BindlePromise } from "./lib/commands";
+import { commands, inDesktopApp, onPromiseSaved, type Mode, type Promise as BindlePromise } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Home } from "./screens/Home";
 import { Settings } from "./screens/Settings";
@@ -19,17 +19,26 @@ export function App() {
     commands.listPromises("unsorted").then(setUnsorted, () => setUnsorted([]));
   }, []);
 
-  useEffect(refresh, [refresh]);
+  useEffect(() => {
+    refresh();
+    // Saves from the Jot down window, or from Home, refresh every list.
+    return onPromiseSaved(refresh);
+  }, [refresh]);
 
   const jotDown = useCallback(() => {
+    if (inDesktopApp()) {
+      void commands.showJot();
+      return;
+    }
+    // In a browser preview there is no second window: use the field on Home.
     setMode("life");
     setCurrent("home");
-    // Wait a frame so Home is on screen before focusing its field.
     requestAnimationFrame(() => jotRef.current?.focus());
   }, []);
 
   useEffect(() => {
-    // In-app shortcut. The system-wide one comes with the Jot down window in week 2.
+    // Alt+Shift+J is claimed system-wide when the desktop allows it. Where it
+    // is not (some Wayland sessions), this still catches it inside Bindle.
     function onKey(event: KeyboardEvent) {
       if (event.altKey && event.shiftKey && event.code === "KeyJ") {
         event.preventDefault();
@@ -57,7 +66,7 @@ export function App() {
       />
       <main className="main">
         {current === "home" ? (
-          <Home ref={jotRef} unsorted={unsorted} onSaved={refresh} />
+          <Home ref={jotRef} unsorted={unsorted} />
         ) : current === "settings" ? (
           <Settings />
         ) : (

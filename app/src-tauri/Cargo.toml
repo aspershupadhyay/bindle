@@ -19,8 +19,13 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 bindle-core = { path = "../../crates/bindle-core" }
+bindle-parse = { path = "../../crates/bindle-parse" }
 bindle-store = { path = "../../crates/bindle-store" }
 chrono.workspace = true
+iana-time-zone = "0.1"
 rusqlite.workspace = true
 serde.workspace = true
 tauri = { version = "2", features = [] }
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-global-shortcut = "2"

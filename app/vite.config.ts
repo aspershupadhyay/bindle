@@ -15,5 +15,9 @@ export default defineConfig({
   },
   build: {
     target: "es2022",
+    // Two windows, two pages: the app and the small Jot down window.
+    rollupOptions: {
+      input: { main: "index.html", jot: "jot.html" },
+    },
   },
 });

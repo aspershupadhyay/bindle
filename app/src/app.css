@@ -116,8 +116,8 @@ kbd {
 .card { background: var(--card); border: 1px solid var(--sand); border-radius: var(--radius-card); }
 .card.empty { margin: 0; padding: 16px; color: var(--ink-soft); }
 .card.list { list-style: none; margin: 0; padding: 0; }
-.card.list li { padding: 14px 16px; font-weight: 500; }
-.card.list li + li { border-top: 1px solid var(--sand); }
+.card.list > li { padding: 14px 16px; font-weight: 500; }
+.card.list > li + li { border-top: 1px solid var(--sand); }
 
 .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
 .section-head h2, .about h2 { margin: 0; font-size: 15px; font-weight: 600; }
@@ -150,7 +150,7 @@ kbd {
   font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft);
   background: var(--sand-soft); border-radius: 6px; padding: 3px 7px;
 }
-.jot-status { min-height: 20px; font-size: 13px; color: var(--ink-soft); padding-left: 4px; }
+.jot-status { font-size: 13px; color: var(--ink-soft); padding-left: 4px; margin-left: auto; }
 .jot-status.saved { color: var(--sage-text); font-weight: 600; }
 .jot-status.error, .error-text { color: var(--error); }
 
@@ -168,3 +168,29 @@ kbd {
   .sidebar { position: static; height: auto; flex-basis: auto; }
   .display { font-size: 34px; }
 }
+
+/* Chips */
+
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font-size: 12.5px; color: var(--ink-mid); background: var(--sand-soft);
+  border-radius: 999px; padding: 3px 10px; font-variant-numeric: tabular-nums;
+}
+.chip.check { color: var(--honey-text); background: var(--honey-wash); font-weight: 600; }
+.chip.soft { color: var(--ink-soft); background: transparent; border: 1px dashed var(--sand); }
+
+.jot-under { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
+.card.list > li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.promise-title { flex: 1 1 200px; min-width: 0; }
+
+/* The Jot down window */
+
+.jot-body { background: var(--card); overflow: hidden; }
+.jot-window {
+  height: 100vh; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px;
+  border: 1px solid var(--sand); border-radius: var(--radius-card);
+}
+.jot-window-head { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; font-size: 17px; }
+.jot-window-tip { margin-left: auto; font-family: var(--font-body); font-weight: 400; }
+.jot-window .jot { margin-top: 0; }
+.jot-window .jot-field { box-shadow: none; }

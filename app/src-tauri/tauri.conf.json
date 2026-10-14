@@ -17,7 +17,21 @@
         "width": 1280,
         "height": 860,
         "minWidth": 720,
-        "minHeight": 560
+        "minHeight": 560,
+        "url": "index.html"
+      },
+      {
+        "label": "jot",
+        "url": "jot.html",
+        "title": "Jot down",
+        "width": 600,
+        "height": 148,
+        "resizable": false,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "center": true
       }
     ],
     "security": {

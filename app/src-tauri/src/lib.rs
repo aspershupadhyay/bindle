@@ -8,6 +8,8 @@
 //! All rules live in `bindle-core`; all SQL lives in `bindle-store`.
 
 pub mod commands;
+#[cfg(desktop)]
+pub mod jot_window;
 
 use std::sync::Mutex;
 use tauri::Manager;
@@ -23,11 +25,16 @@ pub fn run() {
             std::fs::create_dir_all(&dir)?;
             let conn = bindle_store::open(&dir.join("bindle.db"))?;
             app.manage(Db(Mutex::new(conn)));
+            #[cfg(desktop)]
+            jot_window::register(app.handle())?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             commands::app_info,
             commands::jot_down,
+            commands::read_jot,
+            commands::show_jot,
+            commands::hide_jot,
             commands::list_promises,
             commands::count_promises,
         ])

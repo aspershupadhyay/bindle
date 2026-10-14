@@ -68,7 +68,7 @@ export function Sidebar({ mode, current, unsorted, onMode, onScreen, onJotDown }
           Jot down
         </button>
         <div className="shortcut">
-          <kbd>Alt</kbd><kbd>Shift</kbd><kbd>J</kbd> in Bindle
+          <kbd>Alt</kbd><kbd>Shift</kbd><kbd>J</kbd> anywhere
         </div>
         <button
           type="button"

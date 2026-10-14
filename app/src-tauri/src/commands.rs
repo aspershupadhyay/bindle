@@ -8,9 +8,13 @@
 
 use crate::Db;
 use bindle_core::{Promise, State};
-use bindle_store::{promises, StoreError};
+use bindle_parse::Reading;
+use bindle_store::{people, promises, StoreError};
 use serde::Serialize;
-use tauri::State as Managed;
+use tauri::{AppHandle, Emitter, State as Managed};
+
+/// Sent to every window after a promise is saved, so lists refresh.
+pub const PROMISE_SAVED: &str = "promise-saved";
 
 /// What the views receive when a command fails. The message is plain words,
 /// safe to show as is.
@@ -45,12 +49,65 @@ pub fn app_info() -> AppInfo {
     }
 }
 
-/// Saves what was typed in Jot down. The reply arrives only after the write is
-/// committed, so the view can say "Saved" honestly.
+/// Reads a line as it is typed, so the views can show chips for the day,
+/// time, amount and person before anything is saved.
 #[tauri::command]
-pub fn jot_down(db: Managed<Db>, title: String) -> Reply<Promise> {
+pub fn read_jot(db: Managed<Db>, text: String) -> Reply<Reading> {
+    let known = people::names(&*lock(&db)?)?;
+    Ok(bindle_parse::read(
+        &text,
+        chrono::Local::now().naive_local(),
+        &known,
+    ))
+}
+
+/// Saves what was typed in Jot down, with what Bindle understood from it.
+/// The reply arrives only after the write is committed, so the view can say
+/// "Saved" honestly. Every window then hears [`PROMISE_SAVED`].
+#[tauri::command]
+pub fn jot_down(app: AppHandle, db: Managed<Db>, text: String) -> Reply<Promise> {
     let mut conn = lock(&db)?;
-    Ok(promises::jot_down(&mut conn, &title, chrono::Utc::now())?)
+    let known = people::names(&conn)?;
+    let reading = bindle_parse::read(&text, chrono::Local::now().naive_local(), &known);
+    let jot = jot_from(&text, reading, iana_time_zone::get_timezone().ok());
+    let promise = promises::jot_down(&mut conn, &jot, chrono::Utc::now())?;
+    // The promise is saved; a window missing the news only shows it later.
+    let _ = app.emit(PROMISE_SAVED, &promise.id);
+    Ok(promise)
+}
+
+/// Turns what the parser read into what the store saves.
+fn jot_from(text: &str, reading: Reading, tz: Option<String>) -> promises::Jot {
+    promises::Jot {
+        unsure_words: reading.unsure_words,
+        text: text.to_string(),
+        title: reading.title,
+        when: reading.when,
+        is_deadline: reading.is_deadline,
+        amount: reading.amount,
+        person: reading.person,
+        direction: reading.direction,
+        strength: reading.strength,
+        tz,
+    }
+}
+
+/// Opens the Jot down window, as Alt+Shift+J does.
+#[tauri::command]
+pub fn show_jot(app: AppHandle) {
+    #[cfg(desktop)]
+    crate::jot_window::show(&app);
+    #[cfg(not(desktop))]
+    let _ = app;
+}
+
+/// Puts the Jot down window away.
+#[tauri::command]
+pub fn hide_jot(app: AppHandle) {
+    #[cfg(desktop)]
+    crate::jot_window::hide(&app);
+    #[cfg(not(desktop))]
+    let _ = app;
 }
 
 /// Lists every promise in one state, oldest first.
@@ -80,6 +137,24 @@ mod tests {
     #[test]
     fn app_info_reports_the_latest_schema() {
         assert_eq!(app_info().schema_version, bindle_store::latest_version());
+    }
+
+    #[test]
+    fn a_jot_keeps_the_typed_text_and_the_reading() {
+        let now = chrono::NaiveDate::from_ymd_opt(2026, 10, 14)
+            .and_then(|d| d.and_hms_opt(18, 30, 0))
+            .expect("valid time");
+        let text = "Pay electricity bill ₹2,340 by friday";
+        let jot = jot_from(
+            text,
+            bindle_parse::read(text, now, &[]),
+            Some("Asia/Kolkata".into()),
+        );
+        assert_eq!(jot.text, text);
+        assert_eq!(jot.title, "Pay electricity bill");
+        assert!(jot.is_deadline);
+        assert_eq!(jot.amount.map(|m| m.minor), Some(234_000));
+        assert_eq!(jot.tz.as_deref(), Some("Asia/Kolkata"));
     }
 
     #[test]

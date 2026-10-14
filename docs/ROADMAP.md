@@ -35,3 +35,4 @@ One developer, a working build every week. Each stage has a gate before the next
 - [x] `bindle-store`: schema and migrations 0001 and 0002
 - [x] `bindle-sync`: hybrid logical clocks and field merges
 - [x] Week 1: Tauri shell with the v2 sidebar, Life and Work switch, Home, Settings and placeholder screens; `Promise` core type; store reads and writes with history; typed commands (`app_info`, `jot_down`, `list_promises`, `count_promises`); CI building the app on Windows, macOS and Linux
+- [x] Week 2: Jot down window on Alt+Shift+J from anywhere, live chips while typing, and `bindle-parse` reading days, times, money, people, who owes it and how firm it is, in English and Hinglish, with its test table
