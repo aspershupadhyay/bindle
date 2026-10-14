@@ -9,3 +9,4 @@
 pub mod github;
 pub mod imap;
 pub mod mail;
+pub mod youtube;

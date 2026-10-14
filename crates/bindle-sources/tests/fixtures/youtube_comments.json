@@ -1,0 +1,7 @@
+{"items":[
+ {"id":"t1","snippet":{"videoId":"vid1","totalReplyCount":0,"topLevelComment":{"snippet":{"authorDisplayName":"@kunal","authorChannelId":{"value":"UCkunal"},"textOriginal":"Which model did you use for the screen reading?","likeCount":3,"publishedAt":"2026-10-13T09:00:00Z"}}}},
+ {"id":"t2","snippet":{"videoId":"vid1","totalReplyCount":1,"topLevelComment":{"snippet":{"authorDisplayName":"@neha","authorChannelId":{"value":"UCneha"},"textOriginal":"Loved it","likeCount":0,"publishedAt":"2026-10-12T09:00:00Z"}}},"replies":{"comments":[{"snippet":{"authorDisplayName":"@aspersh","authorChannelId":{"value":"UCaspershaspershaspersh1"},"textOriginal":"Thank you!","likeCount":0,"publishedAt":"2026-10-12T10:00:00Z"}}]}},
+ {"id":"t3","snippet":{"videoId":"vid1","totalReplyCount":0,"topLevelComment":{"snippet":{"authorDisplayName":"@aspersh","authorChannelId":{"value":"UCaspershaspershaspersh1"},"textOriginal":"Chapters are in the description","likeCount":5,"publishedAt":"2026-10-11T13:00:00Z"}}}},
+ {"id":"t4","snippet":{"videoId":"vid2","totalReplyCount":0,"topLevelComment":{"snippet":{"authorDisplayName":"@old","authorChannelId":{"value":"UCold"},"textOriginal":"From long ago","likeCount":0,"publishedAt":"2026-09-01T09:00:00Z"}}}},
+ {"id":"t5","snippet":{"videoId":"elsewhere","totalReplyCount":0,"topLevelComment":{"snippet":{"authorDisplayName":"@x","textOriginal":"On a video not read","likeCount":0,"publishedAt":"2026-10-13T09:00:00Z"}}}}
+]}
