@@ -49,6 +49,48 @@ jobs:
       - name: Test
         run: cargo test --workspace
 
+  desktop:
+    name: Desktop app (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Webview, WebDriver and a virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev librsvg2-dev webkit2gtk-driver xvfb dbus-x11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Build the views
+        working-directory: app
+        run: |
+          npm ci
+          npx vite build
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: desktop
+      - name: Build the app and the relay
+        run: |
+          cargo build -p bindle-app --features tauri/custom-protocol
+          cargo build -p bindle-relay
+      - name: Install tauri-driver
+        run: cargo install tauri-driver --locked
+      # Two copies of the real app share a space through a local relay.
+      - name: Desktop checks
+        env:
+          BINDLE_SHOTS: ${{ runner.temp }}/desktop-shots
+        run: dbus-run-session -- xvfb-run -a -s "-screen 0 1280x860x24" app/scripts/desktop/run.sh
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-screenshots
+          path: ${{ runner.temp }}/desktop-shots
+          if-no-files-found: ignore
+
   web:
     name: Views
     runs-on: ubuntu-latest
