@@ -11,7 +11,7 @@ A calm, local-first app that carries your promises, from your life and your work
   <img src="docs/design/hero-hills.png" alt="Pixel art: a traveller with a bindle walking over green hills at sunset" width="768">
 </p>
 
-> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. The Life core loop is in place; Promises, People and Wrap up come next.
+> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. Promises lists everything by state with search across all of it (Ctrl+K), and People shows what you and each person owe each other, with a recap you can send. Wrap up, notifications and first run come next.
 
 <p align="center">
   <img src="docs/screens/week-4-home.png" alt="Life Home in the Bindle desktop app: top 3 with one done, Waiting on others with a nudge, Coming up, and the week strip with a full Friday in honey" width="768">
@@ -21,6 +21,9 @@ A calm, local-first app that carries your promises, from your life and your work
 </p>
 <p align="center">
   <img src="docs/screens/week-3-sort.png" alt="Sort: one promise at a time, with who will do it, when, a deadline box, a first step, and an Undo bar after the last one was kept" width="768">
+</p>
+<p align="center">
+  <img src="docs/screens/week-5-people.png" alt="People: a list of people with what each owes, and one person's page with what they will do and a recap ready to copy" width="768">
 </p>
 
 ## What Bindle is
@@ -71,20 +74,20 @@ The brand sheet is in [docs/design/v2/brand.png](docs/design/v2/brand.png). The 
 ```
 bindle/
   app/
-    src/             React views: shell, Home, Sort, Settings, the Jot down window
+    src/             React views: shell, Home, Sort, Promises, People, Settings, the Jot down window
     src/art/         pixel sprites at 1x (scale by whole numbers only)
     src/tokens.css   design tokens
     src-tauri/       the Tauri desktop app and its typed commands
   crates/
     bindle-core/     promise rules: states, allowed changes, running late
     bindle-parse/    understands what you type: days, times, money, people, English and Hinglish
-    bindle-store/    SQLite schema, migrations, Sort, history and Undo
+    bindle-store/    SQLite schema, migrations, Sort, history, Undo, Home, People and search
     bindle-sync/     hybrid logical clocks and merges for Bindle Cloud
   design/            design sources, sprites and render tools
   docs/              handbook mirror and designs
 ```
 
-Coming next: Promises and People with Send recap, and search (week 5 of the plan in [docs/ROADMAP.md](docs/ROADMAP.md)).
+Coming next: Wrap up, notifications, first run and Settings (week 6 of the plan in [docs/ROADMAP.md](docs/ROADMAP.md)).
 
 Alt+Shift+J is claimed system-wide where the desktop allows it. Some Wayland sessions do not let apps claim global shortcuts; there it works inside Bindle, and the Jot down button is always there.
 

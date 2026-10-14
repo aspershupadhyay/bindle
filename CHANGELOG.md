@@ -26,3 +26,8 @@
 - Nudge copies a friendly message for you to send yourself, and remembers when you nudged. Bindle never sends it.
 - `bindle-core`: a promise's day, the Monday-to-Sunday week, and a day capacity of 5.
 - `bindle-store`: one read for all of Home, the top 3 (three at most, gaps close up), and nudges.
+- Promises: every promise by state (Open, Later, Done, Let go) with counts, and the action that fits each: mark done, plan it, or open again.
+- Search across every promise, its first step, note and person, from the start of each word, in any case, Hindi included. Ctrl+K (Cmd+K) or "/" opens it from anywhere. Ten thousand promises search in under 10 ms; a test holds it under 100 ms.
+- People: everyone your promises are with, what you owe each other, what was kept in the last 30 days, and renaming. Send recap writes a short, friendly summary with dates in full and copies it for you to send. Bindle never sends it.
+- Migration 0004: database triggers keep the search index in step with every change, including Undo and renamed people, and fill it for existing promises.
+- Lists that fail to load now say so, instead of looking empty.
