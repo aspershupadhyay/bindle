@@ -336,7 +336,11 @@ fn optional_word<T>(
 }
 
 /// Reads a stored day, and its time when the `has_time` column says so.
-fn when(row: &Row, index: usize, has_time_index: usize) -> rusqlite::Result<Option<When>> {
+pub(crate) fn when(
+    row: &Row,
+    index: usize,
+    has_time_index: usize,
+) -> rusqlite::Result<Option<When>> {
     let Some(text) = row.get::<_, Option<String>>(index)? else {
         return Ok(None);
     };

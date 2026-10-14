@@ -162,6 +162,62 @@ export interface Settings {
   avatar: Avatar | null;
   /** Life or Work, as last chosen. Jot down saves promises in this mode. */
   mode: Mode;
+  /** How many things the Board's Making lane holds before it says so. */
+  making_limit: number;
+}
+
+export type MailKind = "reply" | "waiting" | "promise";
+
+/** A promise Bindle noticed in an email you wrote. */
+export interface NoticedPromise {
+  title: string;
+  when: When | null;
+  is_deadline: boolean;
+}
+
+/** An email that needs you, as `bindle_store::mail::MailItem` sends it. */
+export interface MailItem {
+  id: string;
+  kind: MailKind;
+  subject: string;
+  person: string;
+  address: string;
+  at: string;
+  snippet: string;
+  url: string;
+  noticed: NoticedPromise | null;
+  gone: boolean;
+  promise: { id: string; state: State } | null;
+}
+
+/** The Gmail connection. The app password is never sent to the views. */
+export interface MailAccount {
+  address: string | null;
+  synced_at: string | null;
+  error: string | null;
+}
+
+export interface InboxView {
+  account: MailAccount;
+  reply: MailItem[];
+  waiting: MailItem[];
+  noticed: MailItem[];
+  finished: MailItem[];
+  hidden: number;
+}
+
+/** A promise on the Board, with where it came from ("GitHub owner/repo#42", "Gmail"). */
+export interface BoardCard {
+  promise: Promise;
+  from: string | null;
+}
+
+export interface BoardView {
+  ideas: BoardCard[];
+  next: BoardCard[];
+  making: BoardCard[];
+  waiting: BoardCard[];
+  shipped: BoardCard[];
 }
 
 export type WorkKind = "review" | "mine" | "issue";
@@ -305,6 +361,18 @@ export const commands = {
   githubRefresh: () => call<GithubAccount>("github_refresh"),
   makePromise: (itemId: string) => call<Promise>("make_promise", { itemId }),
   openOnGithub: (url: string) => call<void>("open_on_github", { url }),
+  inboxView: () => call<InboxView>("inbox_view"),
+  repliesOwed: () => call<number>("replies_owed"),
+  gmailPasswordPage: () => call<string>("gmail_password_page"),
+  gmailConnect: (address: string, password: string) => call<MailAccount>("gmail_connect", { address, password }),
+  gmailDisconnect: () => call<void>("gmail_disconnect"),
+  gmailRefresh: () => call<MailAccount>("gmail_refresh"),
+  mailMakePromise: (itemId: string) => call<Promise>("mail_make_promise", { itemId }),
+  mailDismiss: (itemId: string) => call<void>("mail_dismiss", { itemId }),
+  mailRestore: (itemId: string) => call<void>("mail_restore", { itemId }),
+  openInGmail: (url: string) => call<void>("open_in_gmail", { url }),
+  boardView: () => call<BoardView>("board_view"),
+  setMaking: (id: string, making: boolean) => call<void>("set_making", { id, making }),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),
 };
@@ -326,6 +394,13 @@ export function onPromisesChanged(handler: () => void): () => void {
 export function onWorkChanged(handler: () => void): () => void {
   if (!isTauri()) return previewEvents.on("work-changed", handler);
   const stop = listen("work-changed", handler);
+  return () => void stop.then((unlisten) => unlisten());
+}
+
+/** Runs `handler` after each look at Gmail, or when it is connected or disconnected. */
+export function onMailChanged(handler: () => void): () => void {
+  if (!isTauri()) return previewEvents.on("mail-changed", handler);
+  const stop = listen("mail-changed", handler);
   return () => void stop.then((unlisten) => unlisten());
 }
 

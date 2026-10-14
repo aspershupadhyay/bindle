@@ -40,6 +40,8 @@ pub struct Settings {
     pub avatar: Option<String>,
     /// Life or Work, as last chosen. Jot down saves promises in this mode.
     pub mode: Mode,
+    /// How many things the Board's Making lane holds before it says so.
+    pub making_limit: u32,
 }
 
 impl Default for Settings {
@@ -56,6 +58,7 @@ impl Default for Settings {
             ai_access: AiAccess::Off,
             avatar: None,
             mode: Mode::Life,
+            making_limit: 2,
         }
     }
 }
@@ -93,6 +96,7 @@ pub fn save(conn: &Connection, settings: &Settings) -> Result<Settings, StoreErr
         .map(str::trim)
         .filter(|n| !n.is_empty())
         .map(Into::into);
+    clean.making_limit = clean.making_limit.clamp(1, 9);
     if !matches!(clean.theme.as_str(), "system" | "light" | "dark") {
         clean.theme = "system".into();
     }

@@ -9,9 +9,11 @@
 
 pub mod ai;
 pub mod backup;
+pub mod board;
 pub mod export;
 pub mod home;
 pub mod lifecycle;
+pub mod mail;
 pub mod people;
 pub mod promises;
 pub mod search;
@@ -47,6 +49,10 @@ const MIGRATIONS: &[(&str, &str)] = &[
         "0007_work_items",
         include_str!("../migrations/0007_work_items.sql"),
     ),
+    (
+        "0008_mail_and_board",
+        include_str!("../migrations/0008_mail_and_board.sql"),
+    ),
 ];
 
 /// Everything that can go wrong in the store.
@@ -80,6 +86,8 @@ pub enum StoreError {
     AiReadOnly,
     #[error("{0} suggestions are already waiting in Sort. Sort those first.")]
     TooManySuggestions(u32),
+    #[error("only an open promise can be in Making")]
+    NotForMaking,
     #[error("that is already a promise")]
     AlreadyPromised,
     #[error("that is not one of the pictures")]

@@ -6,8 +6,9 @@
 // rules are not checked: the real ones live in Rust. It exists so screens can
 // be tried and screenshotted without building the desktop app.
 
+import { hideMail, sampleBoard, sampleInbox, sampleMail } from "./preview-mail";
 import { sampleCodeView, sampleWork } from "./preview-work";
-import type { Change, GithubAccount, HomeView, Settings, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
+import type { Change, GithubAccount, HomeView, MailAccount, Settings, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
 
 const promises: BindlePromise[] = [];
 let settings: Settings = {
@@ -22,7 +23,10 @@ let settings: Settings = {
   ai_access: "off",
   avatar: null,
   mode: "life",
+  making_limit: 2,
 };
+let gmail: MailAccount = { address: null, synced_at: null, error: null };
+const making = new Set<string>();
 let github: GithubAccount = { login: null, synced_at: null, error: null };
 const changes = new Map<string, { before: BindlePromise; undone: boolean }>();
 const listeners = new Map<string, Set<() => void>>();
@@ -150,6 +154,47 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
       previewEvents.emit("work-changed");
       return promise as T;
     }
+    case "inbox_view":
+      return sampleInbox(gmail) as T;
+    case "replies_owed":
+      return sampleInbox(gmail).reply.length as T;
+    case "gmail_password_page":
+      return "https://myaccount.google.com/apppasswords" as T;
+    case "gmail_connect":
+    case "gmail_refresh":
+      if (name === "gmail_connect" && !String(args.password).trim()) throw { message: "paste the app password from Google first" };
+      gmail = { address: String(args.address ?? gmail.address ?? "sparsh@gmail.com"), synced_at: new Date().toISOString(), error: null };
+      previewEvents.emit("mail-changed");
+      return gmail as T;
+    case "gmail_disconnect":
+      gmail = { address: null, synced_at: null, error: null };
+      previewEvents.emit("mail-changed");
+      return undefined as T;
+    case "mail_make_promise": {
+      const item = sampleMail.find((m) => m.id === args.itemId);
+      if (!item) throw { message: "that promise is not here any more" };
+      const title = item.noticed?.title ?? (item.kind === "waiting" ? `${item.person.split(" ")[0]} to reply: ${item.subject}` : `Reply to ${item.person.split(" ")[0]}: ${item.subject}`);
+      const promise = { ...jotDown(title), mode: "work" as const, person: item.person };
+      promises[promises.length - 1] = promise;
+      item.promise = { id: promise.id, state: "unsorted" };
+      previewEvents.emit("mail-changed");
+      return promise as T;
+    }
+    case "mail_dismiss":
+    case "mail_restore":
+      hideMail(String(args.itemId), name === "mail_dismiss");
+      previewEvents.emit("mail-changed");
+      return undefined as T;
+    case "open_in_gmail":
+      window.open(String(args.url), "_blank", "noopener");
+      return undefined as T;
+    case "board_view":
+      return sampleBoard(promises, making) as T;
+    case "set_making":
+      if (args.making) making.add(id);
+      else making.delete(id);
+      previewEvents.emit("promises-changed");
+      return undefined as T;
     case "open_on_github":
       window.open(String(args.url), "_blank", "noopener");
       return undefined as T;

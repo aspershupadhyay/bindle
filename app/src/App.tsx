@@ -5,10 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { UndoProvider } from "./components/Undo";
 import { UpdateBar } from "./components/UpdateBar";
-import { commands, inDesktopApp, onPromisesChanged, onWorkChanged, type Mode } from "./lib/commands";
+import { commands, inDesktopApp, onMailChanged, onPromisesChanged, onWorkChanged, type Mode } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
+import { Board } from "./screens/Board";
 import { Code } from "./screens/Code";
 import { Home } from "./screens/Home";
+import { Inbox } from "./screens/Inbox";
 import { useSettings } from "./lib/settings";
 import { UpdatesProvider } from "./lib/updates";
 import { FirstRun } from "./screens/FirstRun";
@@ -26,6 +28,7 @@ export function App() {
   const [current, setCurrent] = useState<ScreenId>(screens[settings.mode][0].id);
   const [unsorted, setUnsorted] = useState(0);
   const [reviewsOwed, setReviewsOwed] = useState(0);
+  const [repliesOwed, setRepliesOwed] = useState(0);
   const [focusSearch, setFocusSearch] = useState(0);
   const jotRef = useRef<HTMLInputElement>(null);
 
@@ -43,6 +46,17 @@ export function App() {
     const count = () => commands.reviewsOwed().then(setReviewsOwed, () => setReviewsOwed(0));
     count();
     return onWorkChanged(count);
+  }, []);
+
+  useEffect(() => {
+    const count = () => commands.repliesOwed().then(setRepliesOwed, () => setRepliesOwed(0));
+    count();
+    return onMailChanged(count);
+  }, []);
+
+  const openSort = useCallback(() => {
+    setMode("life");
+    setCurrent("sort");
   }, []);
 
   const jotDown = useCallback(() => {
@@ -106,6 +120,7 @@ export function App() {
             current={current}
             unsorted={unsorted}
             reviewsOwed={reviewsOwed}
+            repliesOwed={repliesOwed}
             onMode={switchMode}
             onScreen={setCurrent}
             onJotDown={jotDown}
@@ -128,12 +143,11 @@ export function App() {
             ) : current === "wrapUp" ? (
               <WrapUp onDone={() => setCurrent("home")} />
             ) : current === "code" ? (
-              <Code
-                onOpenSort={() => {
-                  setMode("life");
-                  setCurrent("sort");
-                }}
-              />
+              <Code onOpenSort={openSort} />
+            ) : current === "inbox" ? (
+              <Inbox onOpenSort={openSort} />
+            ) : current === "board" ? (
+              <Board />
             ) : current === "settings" ? (
               <Settings />
             ) : (

@@ -95,6 +95,24 @@ export function Settings() {
         </div>
       </section>
 
+      <section className="card settings-card" aria-labelledby="work">
+        <h2 id="work">Work</h2>
+        <label className="field">
+          <span className="field-label">The Board's Making lane holds</span>
+          <input
+            type="number"
+            min={1}
+            max={9}
+            value={settings.making_limit}
+            onChange={(e) => {
+              const limit = Number(e.target.value);
+              if (limit >= 1 && limit <= 9) void save({ making_limit: limit });
+            }}
+          />
+        </label>
+        <p className="muted small">When more than this are in progress, the Board says so. It never stops you. GitHub and Gmail are connected from Code and Inbox.</p>
+      </section>
+
       <AiSection />
       <DataSection />
 

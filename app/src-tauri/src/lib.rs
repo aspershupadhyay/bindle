@@ -11,6 +11,7 @@ pub mod commands;
 #[cfg(desktop)]
 pub mod jot_window;
 pub mod reminders;
+pub mod secrets;
 pub mod watch;
 
 use std::path::PathBuf;
@@ -73,6 +74,7 @@ pub fn run() {
             reminders::start(app.handle().clone());
             watch::start(app.handle().clone());
             commands::work::start(app.handle().clone());
+            commands::mail::start(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -122,6 +124,18 @@ pub fn run() {
             commands::work::github_refresh,
             commands::work::make_promise,
             commands::work::open_on_github,
+            commands::mail::inbox_view,
+            commands::mail::replies_owed,
+            commands::mail::gmail_password_page,
+            commands::mail::gmail_connect,
+            commands::mail::gmail_disconnect,
+            commands::mail::gmail_refresh,
+            commands::mail::mail_make_promise,
+            commands::mail::mail_dismiss,
+            commands::mail::mail_restore,
+            commands::mail::open_in_gmail,
+            commands::board::board_view,
+            commands::board::set_making,
         ])
         .run(tauri::generate_context!())
         .expect("Bindle could not start");

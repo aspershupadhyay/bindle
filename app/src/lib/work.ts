@@ -4,7 +4,7 @@
 // Words for the Code screen (handbook P3 and P14): how long something has
 // waited, and the one or two sentences at the top.
 
-import type { CodeView, WorkItem } from "./commands";
+import type { BoardView, CodeView, InboxView, WorkItem } from "./commands";
 
 const numberWords = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 
@@ -75,4 +75,56 @@ export function promiseNote(item: WorkItem): string | null {
     case "let_go":
       return null;
   }
+}
+
+/** The sentences under the Inbox title. */
+export function inboxSummary(view: InboxView): string {
+  const replies = view.reply.length;
+  const first =
+    replies === 0
+      ? "No email is waiting on your reply."
+      : replies === 1
+        ? `${view.reply[0].person} is waiting on your reply.`
+        : `${countWord(replies)} emails are waiting on your reply.`;
+  const extras: string[] = [];
+  if (view.noticed.length > 0) {
+    extras.push(
+      view.noticed.length === 1
+        ? "Bindle noticed a promise you made in an email."
+        : `Bindle noticed ${countWord(view.noticed.length).toLowerCase()} promises you made in emails.`,
+    );
+  }
+  if (view.waiting.length > 0) {
+    extras.push(
+      `${countWord(view.waiting.length)} ${view.waiting.length === 1 ? "question of yours is" : "questions of yours are"} still waiting.`,
+    );
+  }
+  return [first, ...extras].join(" ");
+}
+
+/** The sentence under the Board title. Never a score: just where things are. */
+export function boardSummary(view: BoardView, limit: number): string {
+  const making = view.making.length;
+  if (making === 0) return view.next.length > 0 ? "Nothing in progress. Start one from Next." : "Nothing in progress, and nothing next.";
+  const things = making === 1 ? "One thing is" : `${countWord(making)} things are`;
+  return `${things} in progress, and your limit is ${countWord(limit).toLowerCase()}.`;
+}
+
+/** Where a card came from: "from Code · latch #42", "from Inbox", or nothing. */
+export function cardFrom(from: string | null): string | null {
+  if (!from) return null;
+  if (from.startsWith("GitHub ")) {
+    const ref = from.slice("GitHub ".length);
+    const [repo, number] = ref.split("#");
+    return `from Code · ${repo.split("/").pop()} #${number}`;
+  }
+  if (from === "Gmail") return "from Inbox";
+  return null;
+}
+
+/** Which source a card belongs to, for the Board's filter. */
+export function cardSource(from: string | null): "code" | "inbox" | "other" {
+  if (from?.startsWith("GitHub ")) return "code";
+  if (from === "Gmail") return "inbox";
+  return "other";
 }

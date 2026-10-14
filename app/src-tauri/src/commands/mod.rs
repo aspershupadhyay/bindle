@@ -8,13 +8,16 @@
 //! Sort, the lifecycle and Undo live in [`lifecycle`]; Home in [`home`]; Promises, People
 //! and search in [`browse`]; Settings, first run and Wrap up in [`day`]; the AI
 //! connection, export, safety copies and people's pictures in [`data`]; GitHub
-//! and the Code screen in [`work`].
+//! and the Code screen in [`work`]; Gmail and Inbox in [`mail`]; the Board in
+//! [`board`].
 
+pub mod board;
 pub mod browse;
 pub mod data;
 pub mod day;
 pub mod home;
 pub mod lifecycle;
+pub mod mail;
 pub mod work;
 
 use crate::Db;

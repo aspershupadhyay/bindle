@@ -5,9 +5,7 @@
 //! and Make it a promise. Bindle only reads from GitHub; it never comments,
 //! merges or closes anything.
 //!
-//! The token lives in the system keychain (macOS Keychain, Windows
-//! Credential Manager, or the Secret Service on Linux), never in the
-//! database or a safety copy.
+//! The token lives in the system keychain (see [`crate::secrets`]).
 
 use super::{announce, lock, CommandError, Reply};
 use crate::Db;
@@ -26,8 +24,8 @@ pub const WORK_CHANGED: &str = "work-changed";
 const FIRST_LOOK: Duration = Duration::from_secs(20);
 const LOOK_EVERY: Duration = Duration::from_secs(15 * 60);
 
-const KEYCHAIN_SERVICE: &str = "app.bindle.desktop";
-const KEYCHAIN_USER: &str = "github-token";
+/// The GitHub token's name in the system keychain.
+const TOKEN: &str = "github-token";
 
 impl From<GithubError> for CommandError {
     fn from(error: GithubError) -> Self {
@@ -35,20 +33,6 @@ impl From<GithubError> for CommandError {
             message: error.to_string(),
         }
     }
-}
-
-/// Runs a keychain call on its own thread. Some keychains run their own
-/// event loop, which must not start inside the app's async runtime.
-fn keychain<T: Send + 'static>(
-    call: impl FnOnce(keyring::Entry) -> keyring::Result<T> + Send + 'static,
-) -> keyring::Result<T> {
-    std::thread::spawn(move || call(keyring::Entry::new(KEYCHAIN_SERVICE, KEYCHAIN_USER)?))
-        .join()
-        .unwrap_or(Err(keyring::Error::NoEntry))
-}
-
-fn saved_token() -> Option<String> {
-    keychain(|entry| entry.get_password()).ok()
 }
 
 /// Everything the Code screen shows.
@@ -79,10 +63,7 @@ pub async fn github_connect(app: AppHandle, token: String) -> Reply<GithubAccoun
         });
     }
     let login = Client::new(&token)?.login().await?;
-    let to_keep = token.clone();
-    keychain(move |entry| entry.set_password(&to_keep)).map_err(|e| CommandError {
-        message: format!("Bindle could not keep the token in the system keychain: {e}"),
-    })?;
+    crate::secrets::set(TOKEN, &token).map_err(|message| CommandError { message })?;
     {
         let db = app.state::<Db>();
         let conn = lock(&db)?;
@@ -100,14 +81,7 @@ pub async fn github_connect(app: AppHandle, token: String) -> Reply<GithubAccoun
 /// Forgets the token and what GitHub listed. Promises already made stay.
 #[tauri::command]
 pub async fn github_disconnect(app: AppHandle) -> Reply<()> {
-    match keychain(|entry| entry.delete_credential()) {
-        Ok(()) | Err(keyring::Error::NoEntry) => {}
-        Err(e) => {
-            return Err(CommandError {
-                message: format!("Bindle could not remove the token from the keychain: {e}"),
-            })
-        }
-    }
+    crate::secrets::forget(TOKEN).map_err(|message| CommandError { message })?;
     {
         let db = app.state::<Db>();
         let conn = lock(&db)?;
@@ -158,7 +132,7 @@ fn is_github_link(url: &str) -> bool {
 /// account's error, so the Code screen can say what went wrong.
 pub(crate) async fn refresh(app: &AppHandle) -> Reply<GithubAccount> {
     let db = app.state::<Db>();
-    let Some(token) = saved_token() else {
+    let Some(token) = crate::secrets::get(TOKEN) else {
         return Ok(work::github_account(&*lock(&db)?)?);
     };
     let found = match Client::new(&token) {

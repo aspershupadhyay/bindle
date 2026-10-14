@@ -7,3 +7,5 @@
 //! when the person says so.
 
 pub mod github;
+pub mod gmail;
+pub mod mail;
