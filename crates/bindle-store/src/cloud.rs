@@ -344,8 +344,14 @@ pub fn collect_changes(
         return Ok(0);
     }
     let tx = conn.transaction()?;
+    let at = stamp_text(now);
     for op in &ops {
         remember(&tx, space, op)?;
+        // This person carries the space too, so they are listed here as
+        // well as on everyone else's devices.
+        if let Some(("member", account)) = op.record.split_once(':') {
+            write_member_field(&tx, space, account, &op.field, op.value.as_deref(), &at)?;
+        }
     }
     tx.execute(
         "INSERT INTO sync_outbox (space_id, batch) VALUES (?1, ?2)",

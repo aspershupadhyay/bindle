@@ -139,6 +139,19 @@ fn a_promise_shared_on_one_device_appears_on_the_other() {
 }
 
 #[test]
+fn whoever_makes_a_space_carries_it_on_their_own_device_too() {
+    let mut a = sparsh();
+    assert!(members(&a.conn, SPACE).unwrap().is_empty());
+    a.send(t(1));
+    let carried = members(&a.conn, SPACE).unwrap();
+    assert_eq!(carried.len(), 1);
+    assert_eq!(
+        (carried[0].account.as_str(), carried[0].name.as_str()),
+        ("acct-sparsh", "Sparsh")
+    );
+}
+
+#[test]
 fn nothing_changed_means_nothing_to_send_and_echoes_change_nothing() {
     let (mut a, mut b) = (sparsh(), wifey());
     shared_bill(&mut a);
