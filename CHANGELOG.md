@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Work mode remembers itself: Bindle opens in Life or Work, whichever you chose last, and Jot down saves into that mode. Its window says "Work" when it will, and work promises show a Work chip.
+- GitHub (read only): connect with a personal access token, kept in the system keychain. Bindle reads the pull requests waiting on your review, your own pull requests and the issues assigned to you, every 15 minutes or on "Look now". It never comments, merges or closes anything.
+- Code screen: who is waiting on you, tiles for reviews, pull requests and issues, and each item with "Make it a promise" and "Open" on GitHub. The sidebar shows how many reviews you owe.
+- Make it a promise: a work promise waits in Sort, such as "Review latch #42: Permission prompts" for kunal-m. When GitHub stops listing the item, Code asks whether the promise is done.
+- `bindle-sources` crate and migration 0007 (`work_item`).
+
 ## 0.0.2 (14 October 2026)
 
 - Updates from inside Bindle: it looks for a new version shortly after opening and every six hours, shows a bar with "Install and restart" or "Later", and checks the download's signature before installing. Settings, About has "Check for a new version". Works for the Windows installer, macOS, and Linux AppImage, .deb and .rpm. Copies of v0.0.1 cannot update themselves, so v0.0.1 users install the next version once by hand.

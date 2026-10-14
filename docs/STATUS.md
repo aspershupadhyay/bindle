@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: week 8 (14 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 9 and 10 (14 October 2026).
 
 ## Built
 
@@ -29,6 +29,14 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] Accessibility (week 8): skip link, a main landmark on every screen, live announcements, visible focus, colour contrast checked by 48 tests (primary buttons were darkened to pass), and an audit script that finds unnamed buttons, missing alt text and unlabelled fields (none left)
 - [x] Linux (week 8): the blank window on some graphics drivers is avoided, a shortcut that cannot be claimed never stops the app, and the .deb package builds, installs with a menu entry, and runs the AI connection (.rpm and AppImage are configured)
 
+### Work mode (weeks 9 and 10)
+- [x] Mode switch: Bindle opens in the mode you last chose; Jot down saves into it and says "Work" in its window; work promises carry a Work chip
+- [x] `bindle-sources`: GitHub, read only. Reviews you owe, your pull requests and issues assigned to you, from three searches; plain errors for a refused token, missing permissions, rate limits and no internet; tested against a local stand-in server
+- [x] The token lives in the system keychain (Keychain, Credential Manager or Secret Service), never in the database, exports or safety copies. Bindle looks again every 15 minutes, and on "Look now"
+- [x] Code screen (v2 design): a summary that names who is waiting, tiles, three lists, "Open" on GitHub, and Disconnect
+- [x] Make it a promise: a work promise in Sort, titled "Review latch #42: …" with the author as the person; once GitHub stops listing it, Code asks "Finished on GitHub?" and offers Mark done (nothing is closed by itself)
+- [x] Migration 0007 (`work_item`), and the accessibility audit now covers Code
+
 ### Project
 - [x] Handbook mirror, roadmap, changelog, contributing guide, DCO and licence headers
 - [x] CI on Windows, macOS and Linux: format, lint, tests, views and licence headers. It runs on pushes to `main`, to working branches, and on pull requests. First full run passed on all three on 14 October 2026
@@ -42,6 +50,8 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] GitHub's language bar counts design mockups as documentation
 
 ## Being worked on now
+
+- [ ] Weeks 9–10 gate, "real review requests become promises": connect your own GitHub in the desktop app (Work → Code), make a promise from a real review request, and keep it. The cloud session that built this cannot reach GitHub's search, so this needs the real app
 
 - [ ] Week 8 gate, "all acceptance checks pass": the automated checks pass. The hands-on checks in [ACCEPTANCE.md](ACCEPTANCE.md) still need a person on a real Windows and macOS machine
 - [ ] Signed builds need the Apple and Windows certificates added as repository secrets. Only the owner can do this
@@ -58,6 +68,9 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [ ] Some Wayland desktops refuse global shortcuts. Bindle then works with the in-app shortcut only; a desktop-portal shortcut would fix this
 
 ### Known rough edges
+- [ ] GitHub needs the system keychain. A Linux desktop with no Secret Service (some minimal window managers) cannot keep the token, so Code cannot connect there yet
+- [ ] GitHub sign-in uses a personal access token. A "Sign in with GitHub" button needs a registered GitHub app (OAuth device flow), which only the owner can create
+- [ ] Each search reads at most 100 items
 - [ ] Putting back an old safety copy also brings back that day's settings (by design, but it can surprise)
 - [ ] When an AI's suggestion mentions an amount, Bindle stores it as the promise's amount
 - [ ] A person with no promises left stays on People; there is no archive yet
@@ -65,7 +78,6 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [ ] `bindle-parse/tests/table.rs` is just over 400 lines; split it when it next grows
 
 ### After Tier 1 (the roadmap's next stages)
-- [ ] Weeks 9–10: mode switch, GitHub source, Code screen, Make it a promise
 - [ ] Weeks 11–12: Gmail source, Inbox, Board
 - [ ] Weeks 13–14: Insights and the Work Desk
 - [ ] Weeks 15–17: Bindle Cloud: accounts, Mine and Ours, invites, recovery kit (sync and end-to-end encryption)

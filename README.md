@@ -11,7 +11,7 @@ A calm, local-first app that carries your promises, from your life and your work
   <img src="docs/design/hero-hills.png" alt="Pixel art: a traveller with a bindle walking over green hills at sunset" width="768">
 </p>
 
-> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. Promises lists everything by state with search across all of it (Ctrl+K), and People shows what you and each person owe each other, with a recap you can send. Wrap up closes the day in about a minute, reminders are quiet by default (at most three a day), and a new person reaches Home in under a minute. An AI app such as Claude can connect over MCP, when you allow it, to read Home and suggest promises that wait in Sort for you. Everything exports to JSON or CSV, and safety copies are made every day. Week 8 added accessibility checks, Linux fixes and a release workflow; see [docs/STATUS.md](docs/STATUS.md) for what is done and what is left.
+> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. Promises lists everything by state with search across all of it (Ctrl+K), and People shows what you and each person owe each other, with a recap you can send. Wrap up closes the day in about a minute, reminders are quiet by default (at most three a day), and a new person reaches Home in under a minute. An AI app such as Claude can connect over MCP, when you allow it, to read Home and suggest promises that wait in Sort for you. Everything exports to JSON or CSV, and safety copies are made every day. Week 8 added accessibility checks, Linux fixes, a release workflow and updates from inside the app. Weeks 9 and 10 bring Work mode to life: connect GitHub and the Code screen shows the reviews people are waiting on, your pull requests and your issues, and any of them becomes a promise in one click. See [docs/STATUS.md](docs/STATUS.md) for what is done and what is left.
 
 <p align="center">
   <img src="docs/screens/week-4-home.png" alt="Life Home in the Bindle desktop app: top 3 with one done, Waiting on others with a nudge, Coming up, and the week strip with a full Friday in honey" width="768">
@@ -30,6 +30,9 @@ A calm, local-first app that carries your promises, from your life and your work
 </p>
 <p align="center">
   <img src="docs/screens/week-7-sort-suggested.png" alt="Sort showing a promise suggested by Claude, with its reason, waiting for the person to keep it or let it go" width="768">
+</p>
+<p align="center">
+  <img src="docs/screens/week-9-code.png" alt="Work, Code: two people waiting on reviews, tiles for reviews, pull requests and issues, and each item with Make it a promise and Open (sample data)" width="768">
 </p>
 
 ## What Bindle is
@@ -74,7 +77,7 @@ Installers for Windows, macOS and Linux are on the [releases page](https://githu
 | Local data | SQLite (bundled, WAL, FTS5); SQLCipher once cloud is on |
 | UI | React, TypeScript, Vite, Radix, cmdk, TanStack Query, Zustand, Motion |
 | Charts and board | Custom SVG on d3-scale and d3-shape; dnd-kit |
-| Work sources | Gmail, Microsoft Graph, GitHub, YouTube, Instagram Graph (OAuth with PKCE, tokens in the OS keychain) |
+| Work sources | GitHub now, with a personal access token; then Gmail, Microsoft Graph, YouTube and Instagram Graph (OAuth with PKCE). Tokens live in the OS keychain |
 | AI connection | MCP server in Rust over stdio (`bindle --mcp`), off by default; read only or read and suggest |
 | Bindle Cloud | Rust (Axum) sync server, Postgres on Supabase, Fly.io, Cloudflare R2 backups |
 | Sync | Hybrid logical clocks, field-level merges, XChaCha20-Poly1305 and X25519 end-to-end encryption |
