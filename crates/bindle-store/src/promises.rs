@@ -164,6 +164,55 @@ pub fn sort_queue(conn: &Connection) -> Result<Vec<SortItem>, StoreError> {
     Ok(rows.collect::<Result<_, _>>()?)
 }
 
+/// How many promises are in each state, for the tabs on the Promises screen.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct StateCounts {
+    pub unsorted: u32,
+    pub open: u32,
+    pub later: u32,
+    pub done: u32,
+    pub let_go: u32,
+}
+
+/// Counts promises in every state in one pass.
+pub fn state_counts(conn: &Connection) -> Result<StateCounts, StoreError> {
+    let mut counts = StateCounts::default();
+    let mut stmt = conn.prepare("SELECT state, COUNT(*) FROM promise GROUP BY state")?;
+    let rows = stmt.query_map([], |row| {
+        Ok((row.get::<_, String>(0)?, row.get::<_, u32>(1)?))
+    })?;
+    for row in rows {
+        let (state, n) = row?;
+        match State::from_word(&state) {
+            Some(State::Unsorted) => counts.unsorted = n,
+            Some(State::Open) => counts.open = n,
+            Some(State::Later) => counts.later = n,
+            Some(State::Done) => counts.done = n,
+            Some(State::LetGo) => counts.let_go = n,
+            None => {}
+        }
+    }
+    Ok(counts)
+}
+
+/// One state's promises for the Promises screen, at most `limit`: open ones
+/// soonest first (no day last), done and let go newest first, others oldest first.
+pub fn list_for_screen(
+    conn: &Connection,
+    state: State,
+    limit: usize,
+) -> Result<Vec<Promise>, StoreError> {
+    let order = match state {
+        State::Open => "coalesce(p.due, p.do_on) IS NULL, coalesce(p.due, p.do_on), p.created_at",
+        State::Done | State::LetGo => "p.closed_at DESC",
+        State::Unsorted | State::Later => "p.created_at",
+    };
+    let sql = format!("SELECT {COLUMNS} {FROM} WHERE p.state = ?1 ORDER BY {order}, p.id LIMIT ?2");
+    let mut stmt = conn.prepare(&sql)?;
+    let rows = stmt.query_map(rusqlite::params![state.as_str(), limit as i64], read_row)?;
+    Ok(rows.collect::<Result<_, _>>()?)
+}
+
 /// How many promises are in `state`. Used for badges such as "4 new" on Sort.
 pub fn count_by_state(conn: &Connection, state: State) -> Result<u32, StoreError> {
     Ok(conn.query_row(

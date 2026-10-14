@@ -11,6 +11,7 @@ pub mod home;
 pub mod lifecycle;
 pub mod people;
 pub mod promises;
+pub mod search;
 
 use rusqlite::Connection;
 use std::path::Path;
@@ -27,6 +28,7 @@ const MIGRATIONS: &[(&str, &str)] = &[
         "0003_later_and_undo",
         include_str!("../migrations/0003_later_and_undo.sql"),
     ),
+    ("0004_search", include_str!("../migrations/0004_search.sql")),
 ];
 
 /// Everything that can go wrong in the store.
@@ -50,6 +52,10 @@ pub enum StoreError {
     NotForTopThree,
     #[error("only an open promise someone owes you can be nudged")]
     NotNudgeable,
+    #[error("a person needs a name")]
+    EmptyName,
+    #[error("there is already someone called {0}")]
+    NameTaken(String),
     #[error("database error: {0}")]
     Sqlite(#[from] rusqlite::Error),
     #[error("migration {name} failed: {source}")]

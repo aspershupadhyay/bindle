@@ -175,3 +175,51 @@ fn stored_days_and_words_read_back_as_core_types() {
         NaiveDate::from_ymd_opt(2026, 10, 17)
     );
 }
+
+#[test]
+fn counts_cover_every_state_in_one_pass() {
+    let mut conn = open_in_memory().expect("open");
+    jot_down(&mut conn, &Jot::plain("One"), now()).expect("save");
+    jot_down(&mut conn, &Jot::plain("Two"), now()).expect("save");
+    let counts = state_counts(&conn).expect("counts");
+    assert_eq!(
+        counts,
+        StateCounts {
+            unsorted: 2,
+            ..StateCounts::default()
+        }
+    );
+}
+
+#[test]
+fn open_promises_list_soonest_first_with_no_day_last() {
+    let mut conn = open_in_memory().expect("open");
+    for (title, day) in [
+        ("No day", None),
+        ("Friday", Some(16)),
+        ("Thursday", Some(15)),
+    ] {
+        let when = day.map(|d| When {
+            day: NaiveDate::from_ymd_opt(2026, 10, d).unwrap(),
+            time: None,
+        });
+        let id = jot_down(
+            &mut conn,
+            &Jot {
+                when,
+                ..Jot::plain(title)
+            },
+            now(),
+        )
+        .expect("save")
+        .id;
+        conn.execute("UPDATE promise SET state = 'open' WHERE id = ?1", [&id])
+            .expect("open");
+    }
+    let titles: Vec<_> = list_for_screen(&conn, State::Open, 10)
+        .expect("list")
+        .into_iter()
+        .map(|p| p.title)
+        .collect();
+    assert_eq!(titles, ["Thursday", "Friday", "No day"]);
+}
