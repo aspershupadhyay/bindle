@@ -11,6 +11,7 @@ pub mod ai;
 pub mod backup;
 pub mod board;
 pub mod cloud;
+pub mod creator;
 pub mod export;
 pub mod home;
 pub mod insights;
@@ -59,6 +60,10 @@ const MIGRATIONS: &[(&str, &str)] = &[
     (
         "0010_cloud_sync",
         include_str!("../migrations/0010_cloud_sync.sql"),
+    ),
+    (
+        "0011_creator",
+        include_str!("../migrations/0011_creator.sql"),
     ),
 ];
 
