@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Gmail (read only): connect with an app password, kept in the system keychain. Bindle opens the inbox and sent mail read-only, never marks anything as read, and never sends email.
+- Inbox: who is waiting on your reply, your questions still waiting after a day, and promises you wrote in an email ("I'll send the first concept by Friday" becomes "Send the first concept, by Fri"). Newsletters, receipts and alerts never count. Make it a promise, Add to promises, Not needed (with Undo) and Open in Gmail. The sidebar shows how many emails wait on your reply.
+- Board: work promises in Ideas, Next, Making, Waiting and Shipped this week, filtered by where they came from. Start, Not now, Done and Plan it on each card. Making has a limit (2 by default, in Settings), which Bindle mentions but never enforces.
+- Migration 0008 (`mail_item`, and the Board's Making lane).
+
 - Work mode remembers itself: Bindle opens in Life or Work, whichever you chose last, and Jot down saves into that mode. Its window says "Work" when it will, and work promises show a Work chip.
 - GitHub (read only): connect with a personal access token, kept in the system keychain. Bindle reads the pull requests waiting on your review, your own pull requests and the issues assigned to you, every 15 minutes or on "Look now". It never comments, merges or closes anything.
 - Code screen: who is waiting on you, tiles for reviews, pull requests and issues, and each item with "Make it a promise" and "Open" on GitHub. The sidebar shows how many reviews you owe.

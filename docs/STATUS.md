@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 9 and 10 (14 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 11 and 12 (14 October 2026).
 
 ## Built
 
@@ -37,6 +37,13 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] Make it a promise: a work promise in Sort, titled "Review latch #42: …" with the author as the person; once GitHub stops listing it, Code asks "Finished on GitHub?" and offers Mark done (nothing is closed by itself)
 - [x] Migration 0007 (`work_item`), and the accessibility audit now covers Code
 
+### Work mode (weeks 11 and 12)
+- [x] Gmail, read only: IMAP with an app password in the system keychain. Inbox and sent mail are opened read-only and fetched with `BODY.PEEK`, so nothing is marked as read; Bindle never sends email. Tested against a local stand-in IMAP server that also checks no mailbox-changing command is ever sent
+- [x] Triage: threads waiting on your reply (To or Cc you), your questions with no answer after a day, and promises you wrote, read with Jot down's parser from the day you wrote them. Newsletters, receipts, alerts and no-reply senders never count. Only the last two weeks are read
+- [x] Inbox screen (v2 design): a summary, a list in three groups, a reading pane with Make it a promise, Not needed (with Undo; Gmail is not touched) and Open in Gmail, and "Bindle noticed a promise" with Add to promises. Answered threads move to "Answered already?" when their promise is still open
+- [x] Board (v2 design): Ideas, Next, Making, Waiting and Shipped this week, filtered by Code, Inbox or Other. Start, Not now, Done and Plan it are buttons, so it works from the keyboard. The Making limit (2 by default, in Settings → Work) is a gentle note, never a block
+- [x] Migration 0008 (`mail_item`, the Board's Making lane); the accessibility audit covers Inbox and Board
+
 ### Project
 - [x] Handbook mirror, roadmap, changelog, contributing guide, DCO and licence headers
 - [x] CI on Windows, macOS and Linux: format, lint, tests, views and licence headers. It runs on pushes to `main`, to working branches, and on pull requests. First full run passed on all three on 14 October 2026
@@ -51,6 +58,7 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 
 ## Being worked on now
 
+- [ ] Weeks 11–12 gate, "a week of email triage from Bindle": connect Gmail (Work → Inbox, with an app password), then triage from Bindle for a week. The cloud session that built this cannot reach Gmail, so this needs the real app
 - [ ] Weeks 9–10 gate, "real review requests become promises": connect your own GitHub in the desktop app (Work → Code), make a promise from a real review request, and keep it. The cloud session that built this cannot reach GitHub's search, so this needs the real app
 
 - [ ] Week 8 gate, "all acceptance checks pass": the automated checks pass. The hands-on checks in [ACCEPTANCE.md](ACCEPTANCE.md) still need a person on a real Windows and macOS machine
@@ -71,6 +79,9 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [ ] GitHub needs the system keychain. A Linux desktop with no Secret Service (some minimal window managers) cannot keep the token, so Code cannot connect there yet
 - [ ] GitHub sign-in uses a personal access token. A "Sign in with GitHub" button needs a registered GitHub app (OAuth device flow), which only the owner can create
 - [ ] Each search reads at most 100 items
+- [ ] Gmail uses an app password, which needs 2-Step Verification on the Google account. "Sign in with Google" needs a Google Cloud app that only the owner can register (and Google's review for Gmail access)
+- [ ] Inbox reads the newest 200 emails of the last two weeks in each folder, and only the start of each email
+- [ ] Gmail only for now; Outlook and other IMAP mailboxes come in weeks 18–20
 - [ ] Putting back an old safety copy also brings back that day's settings (by design, but it can surprise)
 - [ ] When an AI's suggestion mentions an amount, Bindle stores it as the promise's amount
 - [ ] A person with no promises left stays on People; there is no archive yet
@@ -78,7 +89,6 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [ ] `bindle-parse/tests/table.rs` is just over 400 lines; split it when it next grows
 
 ### After Tier 1 (the roadmap's next stages)
-- [ ] Weeks 11–12: Gmail source, Inbox, Board
 - [ ] Weeks 13–14: Insights and the Work Desk
 - [ ] Weeks 15–17: Bindle Cloud: accounts, Mine and Ours, invites, recovery kit (sync and end-to-end encryption)
 - [ ] Weeks 18–20: Creator (YouTube, Instagram), Outlook and IMAP, phone build
