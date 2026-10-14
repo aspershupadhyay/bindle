@@ -121,6 +121,18 @@ def wrap_up_icon():
     cv.line(2, 28, 29, 28, 'n')
     return cv
 
+def ai_icon():
+    """Two speech bubbles: the person and an AI, with a small spark."""
+    cv = C(32, 32)
+    cv.rect(2, 4, 19, 16, 'k'); cv.rect(3, 5, 18, 15, 'w')
+    cv.line(5, 8, 15, 8, 'T'); cv.line(5, 11, 12, 11, 'T')
+    cv.ascii(4, 17, ["kk", "k."])
+    cv.rect(11, 14, 29, 26, 'k'); cv.rect(12, 15, 28, 25, 'q')
+    cv.line(14, 18, 25, 18, 'g'); cv.line(14, 21, 22, 21, 'g')
+    cv.ascii(26, 27, ["kk", ".k"])
+    cv.ascii(24, 1, ["..h..", "..h..", "hhyhh", "..h..", "..h.."])
+    return cv
+
 # ---------- people pictures, 16x16 ----------
 DISC = [
     "......####......",
@@ -191,7 +203,7 @@ def logo_on_dark(src, out):
 if __name__ == '__main__':
     import os
     os.makedirs('png', exist_ok=True)
-    for name, fn in [('sort', sort_icon), ('promises', promises_icon), ('people', people_icon), ('wrap-up', wrap_up_icon)]:
+    for name, fn in [('sort', sort_icon), ('promises', promises_icon), ('people', people_icon), ('wrap-up', wrap_up_icon), ('ai', ai_icon)]:
         fn().save(f'png/{name}.png')
     for name in AVATARS:
         avatar(name).save(f'png/av-{name}.png')

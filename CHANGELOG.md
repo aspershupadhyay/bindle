@@ -52,3 +52,6 @@
 - Linux: the WebKitGTK DMA-BUF renderer is turned off by default, which fixes a blank window on some graphics drivers. Package details for .deb, .rpm and AppImage.
 - Release workflow: a version tag builds installers for Windows, macOS (Apple silicon and Intel) and Linux on a draft release. They are signed when the Apple and Windows certificates are added as secrets (docs/RELEASING.md).
 - docs/STATUS.md (what is built, in progress and left) and docs/ACCEPTANCE.md (every acceptance check and its state).
+- A download page (`site/`, published to GitHub Pages) in Bindle's pixel style. It finds the latest installers for the visitor's system.
+- Releases are published as soon as they are built, so the download page can link to them.
+- GitHub's language bar now counts the design mockups as documentation, so it shows the app's real languages.

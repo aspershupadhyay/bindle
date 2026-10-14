@@ -2,8 +2,8 @@
 # Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
 # Builds installers for Windows, macOS and Linux when a version tag such as
-# v0.1.0 is pushed, and puts them on a draft GitHub release for a person to
-# check and publish. Signing happens only when its secrets are set (see
+# v0.1.0 is pushed, and publishes them on a GitHub release, where the
+# download page (site/) finds them. Signing happens only when its secrets are set (see
 # docs/RELEASING.md); without them the installers are built unsigned, and
 # the release notes say so.
 
@@ -85,6 +85,6 @@ jobs:
           releaseBody: |
             Installers for Windows, macOS and Linux. See CHANGELOG.md for what changed.
             Signed only where the signing secrets were set; see docs/RELEASING.md.
-          releaseDraft: true
-          prerelease: true
+          releaseDraft: false
+          prerelease: false
           args: ${{ matrix.args }} ${{ steps.windows-cert.outputs.args }}
