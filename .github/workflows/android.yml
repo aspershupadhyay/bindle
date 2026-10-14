@@ -3,7 +3,8 @@
 
 # Builds Bindle for Android phones (weeks 18 to 20): a debug APK that can be
 # installed on a phone to try Ours there. Started by hand from the Actions
-# tab, or by a version tag. The Android project is generated here by
+# tab (once this file is on main), by a version tag, or by a push that
+# changes the app shell or this file. The Android project is generated here by
 # `tauri android init`; nothing Android-specific is kept in the repository
 # besides `app/src-tauri/tauri.android.conf.json`.
 
@@ -13,6 +14,12 @@ on:
   workflow_dispatch:
   push:
     tags: ["v*"]
+    branches: ["**"]
+    paths:
+      - "app/src-tauri/**"
+      - "app/package.json"
+      - "app/package-lock.json"
+      - ".github/workflows/android.yml"
 
 jobs:
   apk:
