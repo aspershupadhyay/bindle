@@ -12,10 +12,11 @@ use chrono::{DateTime, NaiveDate, NaiveTime, SecondsFormat, Utc};
 use rusqlite::{params, Connection, Row};
 use uuid::Uuid;
 
-const COLUMNS: &str = "p.id, p.title, p.state, p.direction, p.strength, p.mode, p.first_step, \
+pub(crate) const COLUMNS: &str = "p.id, p.title, p.state, p.direction, p.strength, p.mode, p.first_step, \
                        p.do_on, p.do_on_has_time, p.due, p.due_has_time, \
-                       p.amount_minor, p.currency, person.display_name, p.created_at, p.updated_at";
-const FROM: &str = "FROM promise p LEFT JOIN person ON person.id = p.person_id";
+                       p.amount_minor, p.currency, person.display_name, p.created_at, p.updated_at, \
+                       p.closed_at";
+pub(crate) const FROM: &str = "FROM promise p LEFT JOIN person ON person.id = p.person_id";
 
 /// What Jot down saves. Everything except the text is a suggestion read from
 /// it; the promise still waits in Sort for the person to confirm.
@@ -156,8 +157,8 @@ pub fn sort_queue(conn: &Connection) -> Result<Vec<SortItem>, StoreError> {
     let rows = stmt.query_map([], |row| {
         Ok(SortItem {
             promise: read_row(row)?,
-            typed: row.get(16)?,
-            unsure_words: row.get(17)?,
+            typed: row.get(17)?,
+            unsure_words: row.get(18)?,
         })
     })?;
     Ok(rows.collect::<Result<_, _>>()?)
@@ -180,7 +181,7 @@ pub(crate) fn stored_when(when: When) -> String {
     }
 }
 
-fn read_row(row: &Row) -> rusqlite::Result<Promise> {
+pub(crate) fn read_row(row: &Row) -> rusqlite::Result<Promise> {
     let amount = match (
         row.get::<_, Option<i64>>(11)?,
         row.get::<_, Option<String>>(12)?,
@@ -202,6 +203,7 @@ fn read_row(row: &Row) -> rusqlite::Result<Promise> {
         person: row.get(13)?,
         created_at: row.get(14)?,
         updated_at: row.get(15)?,
+        closed_at: row.get(16)?,
     })
 }
 

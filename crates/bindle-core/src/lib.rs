@@ -7,7 +7,7 @@
 //! Callers pass "today" in, so every rule is easy to test.
 //! The rules come from the handbook, chapter P5 (data model).
 
-use chrono::{NaiveDate, NaiveTime};
+use chrono::{Datelike, Duration, NaiveDate, NaiveTime};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -123,9 +123,17 @@ pub struct Promise {
     pub person: Option<String>,
     pub created_at: String,
     pub updated_at: String,
+    /// When it was done or let go.
+    pub closed_at: Option<String>,
 }
 
 impl Promise {
+    /// The day that matters for this promise: the deadline if there is one,
+    /// otherwise the planned day.
+    pub fn day(&self) -> Option<NaiveDate> {
+        self.due.or(self.do_on).map(|w| w.day)
+    }
+
     /// Running late, measured against `today`. See [`is_running_late`].
     pub fn is_running_late(&self, today: NaiveDate) -> bool {
         let day = |when: Option<When>| when.map(|w| w.day);
@@ -207,6 +215,16 @@ pub fn is_running_late(
     state == State::Open
         && strength == Strength::Firm
         && due.or(do_on).is_some_and(|date| date < today)
+}
+
+/// How many promises fill a day on the week strip. A day with this many or
+/// more shows in honey, with a gentle note (handbook P6). Never red.
+pub const DAY_CAPACITY: usize = 5;
+
+/// The Monday-to-Sunday week that holds `today`.
+pub fn week_of(today: NaiveDate) -> [NaiveDate; 7] {
+    let monday = today - Duration::days(today.weekday().num_days_from_monday() as i64);
+    std::array::from_fn(|i| monday + Duration::days(i as i64))
 }
 
 /// Returns `true` when someone else owes you this and it is still open.
@@ -328,6 +346,18 @@ mod tests {
     #[test]
     fn moving_a_promise_keeps_it_open() {
         assert!(check_transition(State::Open, State::Open).is_ok());
+    }
+
+    #[test]
+    fn the_week_runs_monday_to_sunday() {
+        let week = week_of(day(2026, 10, 14));
+        assert_eq!(week[0], day(2026, 10, 12));
+        assert_eq!(week[6], day(2026, 10, 18));
+        assert_eq!(
+            week_of(day(2026, 10, 18))[0],
+            day(2026, 10, 12),
+            "Sunday ends the week"
+        );
     }
 
     #[test]

@@ -7,6 +7,7 @@
 //! `user_version`. A failed migration rolls back and leaves the file untouched
 //! (handbook P10, Data checks).
 
+pub mod home;
 pub mod lifecycle;
 pub mod people;
 pub mod promises;
@@ -43,6 +44,12 @@ pub enum StoreError {
     ChangedSince,
     #[error("nothing to undo")]
     NothingToUndo,
+    #[error("today's top 3 is full. Take one out first.")]
+    TopThreeFull,
+    #[error("only open promises can go in the top 3")]
+    NotForTopThree,
+    #[error("only an open promise someone owes you can be nudged")]
+    NotNudgeable,
     #[error("database error: {0}")]
     Sqlite(#[from] rusqlite::Error),
     #[error("migration {name} failed: {source}")]
