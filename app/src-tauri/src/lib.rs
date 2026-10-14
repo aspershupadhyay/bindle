@@ -46,6 +46,10 @@ pub fn run() {
             commands::lifecycle::undo,
             commands::lifecycle::undo_last,
             commands::lifecycle::history,
+            commands::home::home_view,
+            commands::home::add_to_top3,
+            commands::home::remove_from_top3,
+            commands::home::nudge,
         ])
         .run(tauri::generate_context!())
         .expect("Bindle could not start");

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { chipsForPromise } from "../lib/chips";
 import { commands, errorMessage, type HistoryEntry, type Promise as BindlePromise } from "../lib/commands";
 import { Chips } from "./Chips";
+import { Icon } from "./Icon";
 import { useOfferUndo } from "./Undo";
 
 const historyWords: Record<string, string> = {
@@ -22,7 +23,13 @@ const historyWords: Record<string, string> = {
   undone: "Undone",
 };
 
-export function PromiseRow({ promise }: { promise: BindlePromise }) {
+interface PromiseRowProps {
+  promise: BindlePromise;
+  /** Offer "Top 3" when today's top 3 has room. */
+  canAddToTop3?: boolean;
+}
+
+export function PromiseRow({ promise, canAddToTop3 = false }: PromiseRowProps) {
   const offerUndo = useOfferUndo();
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -43,7 +50,19 @@ export function PromiseRow({ promise }: { promise: BindlePromise }) {
         {problem && <span className="error-text small">{problem}</span>}
         <History id={promise.id} />
       </div>
-      <Chips chips={chipsForPromise(promise, new Date())} label="Details" />
+      <div className="row-end">
+        <Chips chips={chipsForPromise(promise, new Date())} label="Details" />
+        {canAddToTop3 && (
+          <button
+            type="button"
+            className="button-quiet small-button top3-add"
+            aria-label={`Add to today's top 3: ${promise.title}`}
+            onClick={() => commands.addToTop3(promise.id).catch((e) => setProblem(errorMessage(e)))}
+          >
+            <Icon name="star" size={13} /> Top 3
+          </button>
+        )}
+      </div>
     </li>
   );
 }

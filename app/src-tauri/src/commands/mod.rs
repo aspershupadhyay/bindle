@@ -5,8 +5,9 @@
 //!
 //! Each command has a matching TypeScript wrapper in `app/src/lib/commands.ts`.
 //! Keep the two in step: same names, same argument names, same shapes.
-//! Sort, the lifecycle and Undo live in [`lifecycle`].
+//! Sort, the lifecycle and Undo live in [`lifecycle`]; Home in [`home`].
 
+pub mod home;
 pub mod lifecycle;
 
 use crate::Db;

@@ -268,3 +268,65 @@ button:disabled { opacity: 0.6; cursor: default; }
 }
 .undo-bar.error { background: var(--error); }
 .promise-main .promise-title { flex: none; }
+
+/* Home layout */
+
+.home-columns { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+.home-today { flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 26px; }
+.home-side { flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.accent { color: var(--clay-text); font-weight: 600; }
+.link-button { border: 0; background: none; padding: 0; color: var(--clay-text); font: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.icon-button { border: 0; background: transparent; color: var(--ink-soft); padding: 4px; border-radius: 6px; display: flex; }
+.icon-button:hover { background: var(--sand-soft); color: var(--ink); }
+
+/* Top 3 */
+
+.top-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 16px; }
+.top-row .promise-title { flex: 1 1 200px; min-width: 0; font-weight: 500; }
+.promise-title.done { color: var(--ink-soft); text-decoration: line-through; font-weight: 400; }
+.tick.ticked { background: var(--sage); border-color: var(--sage); color: var(--card); display: flex; align-items: center; justify-content: center; }
+.chip.kept { color: var(--sage-text); background: var(--sage-wash); font-weight: 500; }
+.suggestions { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.suggestions p { margin: 0; }
+.suggestion { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.suggestion .promise-title { flex: 1 1 200px; min-width: 0; }
+.top3-add { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Running late: honey, never red */
+
+.late-card { padding: 14px 16px; display: flex; flex-direction: column; gap: 16px; box-shadow: inset 4px 0 0 var(--honey); }
+.late-row { display: flex; flex-direction: column; gap: 12px; }
+.late-row + .late-row { border-top: 1px solid var(--sand); padding-top: 14px; }
+.late-line { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.late-line .promise-title { flex: 1 1 200px; min-width: 0; font-weight: 500; }
+.late-words { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--honey-text); }
+.late-dot { width: 8px; height: 8px; border-radius: 2px; background: var(--honey); }
+.late-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding-left: 36px; }
+.late-actions.move { flex-direction: column; align-items: stretch; gap: 10px; }
+.late-buttons { display: flex; gap: 8px; }
+.small-primary { padding: 9px 14px; font-size: 14px; }
+
+/* Waiting on others */
+
+.waiting-row { align-items: center !important; }
+.initial { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex: none; }
+.initial.honey { background: var(--honey-wash); color: var(--honey-text); }
+.initial.sage { background: var(--sage-wash); color: var(--sage-text); }
+
+/* This week */
+
+.week-card { padding: 18px; display: flex; flex-direction: column; gap: 14px; border-radius: 14px; }
+.week-card .section-head { margin-bottom: 0; }
+.week-strip { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: end; }
+.week-strip li { text-align: center; font-size: 11.5px; color: var(--ink-soft); }
+.week-strip li.today { color: var(--ink); font-weight: 600; }
+.week-bar { height: 64px; border-radius: 8px; background: var(--sand-soft); border: 1px solid var(--sand); position: relative; overflow: hidden; margin-bottom: 5px; }
+.today .week-bar { border: 2px solid var(--clay); }
+.week-fill { position: absolute; left: 0; right: 0; bottom: 0; background: var(--pixel-clay-light); }
+.week-fill.now { background: var(--clay); }
+.week-fill.full { background: var(--honey); }
+.week-counts { display: flex; gap: 18px; font-size: 13.5px; color: var(--ink-mid); }
+.week-counts b { font-size: 18px; color: var(--ink); }
+.week-counts .kept-count { color: var(--sage-text); }
+.row-end { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }

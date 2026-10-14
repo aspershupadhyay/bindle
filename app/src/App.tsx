@@ -69,7 +69,7 @@ export function App() {
         />
         <main className="main">
           {current === "home" ? (
-            <Home ref={jotRef} onOpenSort={() => setCurrent("sort")} />
+            <Home ref={jotRef} unsorted={unsorted} onOpenSort={() => setCurrent("sort")} />
           ) : current === "sort" ? (
             <Sort />
           ) : current === "settings" ? (

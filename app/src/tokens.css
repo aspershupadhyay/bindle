@@ -29,7 +29,7 @@
   --honey-wash: #F8EED8;
   --error: #B3261E;      /* real system errors only */
 
-  /* Pixel art helpers: sprites only */
+  /* Pixel art helpers: sprites, and the bars of the week strip */
   --pixel-clay-light: #E89A72;
   --pixel-honey-light: #F0CF85;
   --pixel-stick: #7A5326;

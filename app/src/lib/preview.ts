@@ -6,7 +6,7 @@
 // rules are not checked: the real ones live in Rust. It exists so screens can
 // be tried and screenshotted without building the desktop app.
 
-import type { Change, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
+import type { Change, HomeView, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
 
 const promises: BindlePromise[] = [];
 const changes = new Map<string, { before: BindlePromise; undone: boolean }>();
@@ -60,6 +60,12 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
     }
     case "history":
       return [] as T;
+    case "home_view":
+      return homeView() as T;
+    case "add_to_top3":
+    case "remove_from_top3":
+    case "nudge":
+      throw { message: "the top 3 and nudges work in the desktop app only" };
     default:
       throw { message: `the preview does not know "${name}"` };
   }
@@ -126,8 +132,26 @@ function jotDown(raw: string): BindlePromise {
     person: null,
     created_at: now,
     updated_at: now,
+    closed_at: null,
   };
   promises.push(promise);
   previewEvents.emit("promises-changed");
   return promise;
+}
+
+/** A rough Home: open promises go to Coming up or Waiting on others. */
+function homeView(): HomeView {
+  const open = promises.filter((p) => p.state === "open");
+  return {
+    top3: [],
+    suggestions: [],
+    running_late: [],
+    waiting_on_others: open.filter((p) => p.direction === "theirs").map((promise) => ({ promise, last_nudged: null })),
+    coming_up: open.filter((p) => p.direction !== "theirs"),
+    week: [],
+    day_capacity: 5,
+    this_week: { kept: 0, moved: 0, let_go: 0 },
+    today_count: 0,
+    people_waiting_on_you: 0,
+  };
 }

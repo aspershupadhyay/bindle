@@ -53,6 +53,8 @@ export interface Promise {
   person: string | null;
   created_at: string;
   updated_at: string;
+  /** When it was done or let go. */
+  closed_at: string | null;
 }
 
 /** A promise waiting in Sort, with what was typed and words to check. */
@@ -86,6 +88,26 @@ export interface HistoryEntry {
   kind: string;
   actor: string;
   undone: boolean;
+}
+
+/** Everything Life Home shows, as `bindle_store::home::HomeView` sends it. */
+export interface HomeView {
+  top3: Promise[];
+  suggestions: Promise[];
+  running_late: Promise[];
+  waiting_on_others: { promise: Promise; last_nudged: string | null }[];
+  coming_up: Promise[];
+  week: DayLoad[];
+  day_capacity: number;
+  this_week: { kept: number; moved: number; let_go: number };
+  today_count: number;
+  people_waiting_on_you: number;
+}
+
+export interface DayLoad {
+  day: string;
+  count: number;
+  full: boolean;
 }
 
 export interface AppInfo {
@@ -123,6 +145,10 @@ export const commands = {
   undo: (eventId: string) => call<Change>("undo", { eventId }),
   undoLast: () => call<Change | null>("undo_last"),
   history: (id: string) => call<HistoryEntry[]>("history", { id }),
+  homeView: () => call<HomeView>("home_view"),
+  addToTop3: (id: string) => call<void>("add_to_top3", { id }),
+  removeFromTop3: (id: string) => call<void>("remove_from_top3", { id }),
+  nudge: (id: string) => call<void>("nudge", { id }),
   hideJot: () => call<void>("hide_jot"),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),

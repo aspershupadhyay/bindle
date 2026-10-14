@@ -14,10 +14,16 @@ const SHOW_FOR_MS = 8000;
 type Bar = { text: string; eventId?: string; tone: "plain" | "error" };
 
 const OfferUndo = createContext<(text: string, change: Change) => void>(() => {});
+const Notify = createContext<(text: string) => void>(() => {});
 
 /** Call with words like "Kept" and the change, to show the bar with Undo. */
 export function useOfferUndo() {
   return useContext(OfferUndo);
+}
+
+/** Shows a short message in the same bar, with nothing to undo. */
+export function useNotify() {
+  return useContext(Notify);
 }
 
 export function UndoProvider({ children }: { children: ReactNode }) {
@@ -31,6 +37,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const offer = useCallback((text: string, change: Change) => show({ text, eventId: change.event_id, tone: "plain" }), [show]);
+  const notify = useCallback((text: string) => show({ text, tone: "plain" }), [show]);
 
   const run = useCallback(
     async (undo: () => globalThis.Promise<Change | null>) => {
@@ -60,7 +67,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
 
   return (
     <OfferUndo.Provider value={offer}>
-      {children}
+      <Notify.Provider value={notify}>{children}</Notify.Provider>
       <div className="undo-bar-slot" role="status" aria-live="polite">
         {bar && (
           <div className={`undo-bar ${bar.tone}`}>

@@ -16,7 +16,14 @@ export interface WhenValue {
   soft: boolean;
 }
 
-export function WhenPicker({ value, onChange }: { value: WhenValue; onChange: (next: WhenValue) => void }) {
+interface WhenPickerProps {
+  value: WhenValue;
+  onChange: (next: WhenValue) => void;
+  /** Offer "Sometime". Off when a day is needed, as in Move it. */
+  allowSoft?: boolean;
+}
+
+export function WhenPicker({ value, onChange, allowSoft = true }: WhenPickerProps) {
   const set = (patch: Partial<WhenValue>) => onChange({ ...value, ...patch });
   return (
     <div className="when-picker">
@@ -32,14 +39,16 @@ export function WhenPicker({ value, onChange }: { value: WhenValue; onChange: (n
             {q.label}
           </button>
         ))}
-        <button
-          type="button"
-          className="pill"
-          aria-pressed={value.soft}
-          onClick={() => set({ soft: !value.soft, day: value.soft ? value.day : "", time: value.soft ? value.time : "" })}
-        >
-          Sometime
-        </button>
+        {allowSoft && (
+          <button
+            type="button"
+            className="pill"
+            aria-pressed={value.soft}
+            onClick={() => set({ soft: !value.soft, day: value.soft ? value.day : "", time: value.soft ? value.time : "" })}
+          >
+            Sometime
+          </button>
+        )}
       </div>
       {!value.soft && (
         <div className="when-exact">

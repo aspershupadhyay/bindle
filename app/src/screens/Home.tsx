@@ -1,32 +1,40 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
-// Life Home (v2 design, Main). This version has the greeting, Jot down, what
-// is coming up and what waits in Sort. Top 3, Running late and Waiting on
-// others arrive with week 4.
+// Life Home (v2 design, Main; handbook P6): today's top 3, what is running
+// late, what others owe you, what is coming up, and how full the week is.
 
 import { forwardRef, useCallback, useEffect, useState } from "react";
 import hills from "../art/hills.png";
-import { Chips } from "../components/Chips";
+import { TopThree } from "../components/home/TopThree";
+import { RunningLate } from "../components/home/RunningLate";
+import { Waiting } from "../components/home/Waiting";
+import { WeekStrip } from "../components/home/WeekStrip";
 import { JotField } from "../components/JotField";
 import { PromiseRow } from "../components/PromiseRow";
-import { chipsForPromise } from "../lib/chips";
-import { commands, onPromisesChanged, type Promise as BindlePromise } from "../lib/commands";
+import { commands, onPromisesChanged, type HomeView } from "../lib/commands";
 import { dateLine, greeting } from "../lib/days";
 
-export const Home = forwardRef<HTMLInputElement, { onOpenSort: () => void }>(function Home({ onOpenSort }, jotRef) {
+export const Home = forwardRef<HTMLInputElement, { onOpenSort: () => void; unsorted: number }>(function Home(
+  { onOpenSort, unsorted },
+  jotRef,
+) {
   const now = new Date();
-  const [unsorted, setUnsorted] = useState<BindlePromise[]>([]);
-  const [open, setOpen] = useState<BindlePromise[]>([]);
+  const [view, setView] = useState<HomeView | null>(null);
 
   const refresh = useCallback(() => {
-    commands.listPromises("unsorted").then(setUnsorted, () => setUnsorted([]));
-    commands.listPromises("open").then((list) => setOpen(byDay(list)), () => setOpen([]));
+    commands.homeView().then(setView, () => setView(null));
   }, []);
 
   useEffect(() => {
     refresh();
-    return onPromisesChanged(refresh);
+    // A day boundary or a change anywhere both mean Home should look again.
+    const timer = setInterval(refresh, 60_000);
+    const stop = onPromisesChanged(refresh);
+    return () => {
+      clearInterval(timer);
+      stop();
+    };
   }, [refresh]);
 
   return (
@@ -35,7 +43,7 @@ export const Home = forwardRef<HTMLInputElement, { onOpenSort: () => void }>(fun
         <div className="home-hello">
           <div className="muted small">{dateLine(now)}</div>
           <h1 className="display">{greeting(now)}.</h1>
-          <p className="lead">{summary(open.length, unsorted.length)}</p>
+          {view && <Summary view={view} unsorted={unsorted} onOpenSort={onOpenSort} />}
           <JotField ref={jotRef} />
         </div>
         <figure className="scene-frame">
@@ -49,56 +57,60 @@ export const Home = forwardRef<HTMLInputElement, { onOpenSort: () => void }>(fun
         </figure>
       </header>
 
-      <section aria-labelledby="coming-up">
-        <div className="section-head">
-          <h2 id="coming-up">Coming up</h2>
-          <span className="muted small">{open.length === 0 ? "Nothing yet" : `${open.length}, soonest first`}</span>
-        </div>
-        {open.length === 0 ? (
-          <p className="card empty">Promises you keep in Sort show up here, soonest first.</p>
-        ) : (
-          <ul className="card list">
-            {open.map((p) => (
-              <PromiseRow key={p.id} promise={p} />
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {unsorted.length > 0 && (
-        <section aria-labelledby="in-sort">
-          <div className="section-head">
-            <h2 id="in-sort">Waiting in Sort</h2>
-            <button type="button" className="button-quiet small-button" onClick={onOpenSort}>
-              Sort now
-            </button>
+      {view && (
+        <div className="home-columns">
+          <div className="home-today" aria-label="Today">
+            <TopThree top3={view.top3} suggestions={view.suggestions} />
+            <RunningLate promises={view.running_late} />
+            <Waiting waiting={view.waiting_on_others} />
+            <section aria-labelledby="coming-up">
+              <div className="section-head">
+                <h2 id="coming-up">Coming up</h2>
+                <span className="muted small">{view.coming_up.length === 0 ? "Nothing yet" : "Soonest first"}</span>
+              </div>
+              {view.coming_up.length === 0 ? (
+                <p className="card empty">Promises you keep in Sort show up here, soonest first.</p>
+              ) : (
+                <ul className="card list">
+                  {view.coming_up.map((p) => (
+                    <PromiseRow key={p.id} promise={p} canAddToTop3={view.top3.length < 3} />
+                  ))}
+                </ul>
+              )}
+            </section>
           </div>
-          <ul className="card list">
-            {unsorted.map((p) => (
-              <li key={p.id}>
-                <span className="promise-title">{p.title}</span>
-                <Chips chips={chipsForPromise(p, now)} label="Details" />
-              </li>
-            ))}
-          </ul>
-        </section>
+          <aside className="home-side" aria-label="This week">
+            {view.week.length > 0 && <WeekStrip view={view} />}
+          </aside>
+        </div>
       )}
     </div>
   );
 });
 
-function summary(open: number, unsorted: number): string {
-  const parts: string[] = [];
-  if (open > 0) parts.push(open === 1 ? "1 promise coming up" : `${open} promises coming up`);
-  if (unsorted > 0) parts.push(`${unsorted} waiting in Sort`);
-  return parts.length === 0 ? "Nothing needs you right now." : `${parts.join(", ")}.`;
-}
-
-/** Soonest first; promises with no day (soft ones) go last. */
-function byDay(list: BindlePromise[]): BindlePromise[] {
-  const key = (p: BindlePromise) => {
-    const when = p.due ?? p.do_on;
-    return when ? `${when.day}T${when.time ?? "99"}` : "9999";
-  };
-  return [...list].sort((a, b) => key(a).localeCompare(key(b)));
+/** "3 things today, 2 people waiting on you." Plain, and never a score. */
+function Summary({ view, unsorted, onOpenSort }: { view: HomeView; unsorted: number; onOpenSort: () => void }) {
+  const today = view.today_count;
+  const people = view.people_waiting_on_you;
+  const things = today === 0 ? "Nothing planned for today" : today === 1 ? "1 thing today" : `${today} things today`;
+  return (
+    <p className="lead">
+      {things}
+      {people > 0 ? (
+        <>
+          , <span className="accent">{people === 1 ? "1 person" : `${people} people`} waiting on you.</span>
+        </>
+      ) : (
+        "."
+      )}
+      {unsorted > 0 && (
+        <>
+          {" "}
+          <button type="button" className="link-button" onClick={onOpenSort}>
+            {unsorted} to sort
+          </button>
+        </>
+      )}
+    </p>
+  );
 }
