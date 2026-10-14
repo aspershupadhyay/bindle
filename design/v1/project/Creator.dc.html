@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bindle · Work Creator</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;background:#FAF7F2}
+a{color:#A4502C}a:hover{color:#2B2622}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #C2653D;outline-offset:2px}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 1200px; background: #FAF7F2; color: #2B2622; font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+<aside aria-label="Bindle navigation" style="flex: 1 1 240px; max-width: 264px; min-width: 220px; box-sizing: border-box; padding: 22px 16px; background: #F2ECE3; border-right: 1px solid #E8E1D6; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 6px">
+<img src="/_blob/bee474fdfb41b6c12dec629ef8a0c318" alt="Bindle logo, a cloth bag tied to a stick" style="width: 48px; height: 48px; image-rendering: pixelated">
+<div><div style="font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1">Bindle</div><div style="font-size: 11.5px; color: #6E655C; margin-top: 3px; white-space: nowrap">Carry less in your head</div></div>
+</div>
+<div role="group" aria-label="Mode" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; background: #E8E1D6; border-radius: 10px; padding: 4px">
+<a href="Main.dc.html" style="border-radius: 7px; padding: 8px 0; color: #6E655C; font-weight: 500; font-size: 14px; text-align: center; text-decoration: none">Life</a>
+<button type="button" aria-pressed="true" style="border: 0; border-radius: 7px; padding: 8px 0; background: #FFFDF9; color: #2B2622; font-weight: 600; font-size: 14px; box-shadow: 0 1px 0 #D9CFC0">Work</button>
+</div>
+<nav aria-label="Work" style="display: flex; flex-direction: column; gap: 2px">
+<a href="Desk.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>Desk</a>
+<a href="Inbox.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-10 6L2 7"></path></svg>Inbox<span style="margin-left: auto; font-size: 12px; font-weight: 600">2</span></a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><path d="M6 9v12"></path></svg>Code<span style="margin-left: auto; font-size: 12px; font-weight: 600">3</span></a>
+<a href="Board.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 7v7M12 7v4M16 7v9"></path></svg>Board</a>
+<a href="#" aria-current="page" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; background: #FFFDF9; color: #2B2622; text-decoration: none; font-weight: 600; border: 1px solid #E8E1D6"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A4502C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"></path><circle cx="12" cy="13" r="3"></circle></svg>Creator<span style="margin-left: auto; font-size: 12px; font-weight: 600">1</span></a>
+</nav>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6E655C; padding: 0 12px">Channels</div>
+<a href="#" aria-current="true" style="display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 9px; font-size: 14px; color: #2B2622; text-decoration: none; background: #FFFDF9; border: 1px solid #E8E1D6">@byeliteminds<span style="margin-left: auto; font-size: 12px; color: #6E655C">IG</span></a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 9px; font-size: 14px; color: #2B2622; text-decoration: none">@catchtheerror<span style="margin-left: auto; font-size: 12px; color: #6E655C">IG</span></a>
+<a href="#" style="display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 9px; font-size: 14px; color: #2B2622; text-decoration: none">Aspersh<span style="margin-left: auto; font-size: 12px; color: #6E655C">YT</span></a>
+</div>
+<div style="margin-top: auto"><button type="button" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 10px; padding: 12px 14px; background: #C2653D; color: #FFFDF9; font-weight: 600; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFDF9" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Plan a post</button></div>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px clamp(16px, 3.5vw, 48px) 56px">
+<div style="max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">
+
+<header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
+<div style="display: flex; align-items: center; gap: 16px">
+<img src="/_blob/7ddbdd97276f8a4ab5c0666d17911399" alt="" style="width: 64px; height: 64px; image-rendering: pixelated; background: #F2ECE3; border: 1px solid #E8E1D6; border-radius: 12px; padding: 6px">
+<div>
+<div style="display: flex; gap: 10px; align-items: center; font-size: 13px; color: #6E655C"><span>Work · Creator · Instagram</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8A5F12; background: #F8EED8; border-radius: 6px; padding: 2px 7px">SAMPLE DATA</span></div>
+<h1 style="margin: 2px 0 0; font-family: Newsreader, Georgia, serif; font-weight: 500; font-size: 38px; line-height: 1.05">@byeliteminds</h1>
+</div>
+</div>
+<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+<div role="group" aria-label="Time range" style="display: flex; gap: 2px; background: #E8E1D6; border-radius: 9px; padding: 3px">
+<button type="button" style="border: 0; border-radius: 7px; padding: 6px 12px; background: transparent; font-size: 13px; color: #6E655C">7 days</button>
+<button type="button" aria-pressed="true" style="border: 0; border-radius: 7px; padding: 6px 12px; background: #FFFDF9; font-size: 13px; font-weight: 600; color: #2B2622">30 days</button>
+<button type="button" style="border: 0; border-radius: 7px; padding: 6px 12px; background: transparent; font-size: 13px; color: #6E655C">90 days</button>
+</div>
+<span style="font-size: 12.5px; color: #6E655C">Instagram Graph API · 14 min ago</span>
+</div>
+</header>
+
+<section aria-label="Key numbers, last 30 days" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px">
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px"><div style="font-size: 13px; color: #6E655C">Followers</div><div style="display: flex; align-items: baseline; gap: 8px; margin-top: 6px; flex-wrap: wrap"><span style="font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums">2,104</span><span style="font-size: 12px; font-weight: 600; color: #4F6E55; background: #E6EFE6; border-radius: 999px; padding: 2px 8px">+337 in 30 days</span></div></div>
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px"><div style="font-size: 13px; color: #6E655C">Non-follower reach</div><div style="display: flex; align-items: baseline; gap: 8px; margin-top: 6px; flex-wrap: wrap"><span style="font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums">68%</span><span style="font-size: 12px; font-weight: 600; color: #4F6E55; background: #E6EFE6; border-radius: 999px; padding: 2px 8px">↑ from 59%</span></div></div>
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px"><div style="font-size: 13px; color: #6E655C">Shares</div><div style="display: flex; align-items: baseline; gap: 8px; margin-top: 6px; flex-wrap: wrap"><span style="font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums">864</span><span style="font-size: 12px; font-weight: 600; color: #4F6E55; background: #E6EFE6; border-radius: 999px; padding: 2px 8px">↑ 31%</span></div></div>
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px"><div style="font-size: 13px; color: #6E655C">Saves</div><div style="display: flex; align-items: baseline; gap: 8px; margin-top: 6px; flex-wrap: wrap"><span style="font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums">1,312</span><span style="font-size: 12px; font-weight: 600; color: #8A5F12; background: #F8EED8; border-radius: 999px; padding: 2px 8px">↓ 4%</span></div></div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch">
+<section aria-labelledby="growth" style="flex: 999 1 520px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap"><h2 id="growth" style="margin: 0; font-size: 15px; font-weight: 600">Followers, last 30 days</h2><span style="font-size: 12px; color: #6E655C">Dots mark posts</span></div>
+<svg role="img" aria-label="Followers grew from 1,767 to 2,104 over 30 days. The biggest jump came after the Rare Earth #3 carousel on 11 October." viewBox="0 0 640 232" style="width: 100%; height: auto">
+<g stroke="#E8E1D6" stroke-width="1"><line x1="50" y1="190" x2="610" y2="190"></line><line x1="50" y1="152.2" x2="610" y2="152.2"></line><line x1="50" y1="114.4" x2="610" y2="114.4"></line><line x1="50" y1="76.7" x2="610" y2="76.7"></line><line x1="50" y1="38.9" x2="610" y2="38.9"></line></g>
+<g font-family="Inter, sans-serif" font-size="12" fill="#6E655C" text-anchor="end"><text x="42" y="194">1,700</text><text x="42" y="156">1,800</text><text x="42" y="118">1,900</text><text x="42" y="81">2,000</text><text x="42" y="43">2,100</text></g>
+<polyline points="50,164.7 105,156 160,147.7 215,137.1 270,129.2 325,116.3 380,105.4 435,92.5 490,80.4 545,61.2 600,37.4" fill="none" stroke="#C2653D" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>
+<g fill="#D9A441" stroke="#FFFDF9" stroke-width="2"><circle cx="105" cy="156" r="5"></circle><circle cx="215" cy="137.1" r="5"></circle><circle cx="325" cy="116.3" r="5"></circle><circle cx="435" cy="92.5" r="5"></circle><circle cx="545" cy="61.2" r="5"></circle></g>
+<circle cx="600" cy="37.4" r="5" fill="#C2653D" stroke="#FFFDF9" stroke-width="2"></circle>
+<line x1="545" y1="61.2" x2="545" y2="20" stroke="#2B2622" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="540" y="17" font-family="Inter, sans-serif" font-size="12" fill="#2B2622" text-anchor="end" font-weight="600">Rare Earth #3 · +51 in a day</text>
+<g font-family="Inter, sans-serif" font-size="12" fill="#6E655C" text-anchor="middle"><text x="50" y="212">14 Sep</text><text x="215" y="212">23 Sep</text><text x="380" y="212">2 Oct</text><text x="545" y="212">11 Oct</text><text x="600" y="212" fill="#2B2622" font-weight="600">Today</text></g>
+</svg>
+<p style="margin: 0; font-size: 13.5px; color: #4A433C">Growth sped up after each Rare Earth carousel. Carousels earned <b>3.1x</b> the shares of reels this month.</p>
+</section>
+
+<section aria-labelledby="when" style="flex: 1 1 340px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap"><h2 id="when" style="margin: 0; font-size: 15px; font-weight: 600">Best time to post</h2><span style="font-size: 12px; color: #6E655C">Your reach, IST</span></div>
+<div role="img" aria-label="Reach is highest on weekday mornings between 6 and 9 AM, best on Tuesday and Thursday." style="display: grid; grid-template-columns: 40px repeat(6, minmax(0, 1fr)); gap: 4px; font-size: 11px; color: #6E655C; align-items: center">
+<span></span><span style="text-align: center">6a</span><span style="text-align: center">9a</span><span style="text-align: center">12p</span><span style="text-align: center">3p</span><span style="text-align: center">6p</span><span style="text-align: center">9p</span>
+<span>Mon</span><span style="height: 26px; border-radius: 5px; background: #C2653D"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span>
+<span>Tue</span><span style="height: 26px; border-radius: 5px; background: #A4502C"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span>
+<span>Wed</span><span style="height: 26px; border-radius: 5px; background: #C2653D"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span>
+<span>Thu</span><span style="height: 26px; border-radius: 5px; background: #A4502C"></span><span style="height: 26px; border-radius: 5px; background: #C2653D"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span>
+<span>Fri</span><span style="height: 26px; border-radius: 5px; background: #C2653D"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span>
+<span>Sat</span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span>
+<span>Sun</span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span><span style="height: 26px; border-radius: 5px; background: #E89A72"></span><span style="height: 26px; border-radius: 5px; background: #F6E6DC"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span><span style="height: 26px; border-radius: 5px; background: #F2ECE3"></span>
+</div>
+<div style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #6E655C"><span>Low</span><span style="width: 14px; height: 10px; border-radius: 3px; background: #F2ECE3"></span><span style="width: 14px; height: 10px; border-radius: 3px; background: #F6E6DC"></span><span style="width: 14px; height: 10px; border-radius: 3px; background: #E89A72"></span><span style="width: 14px; height: 10px; border-radius: 3px; background: #C2653D"></span><span style="width: 14px; height: 10px; border-radius: 3px; background: #A4502C"></span><span>High</span></div>
+<p style="margin: 0; font-size: 13.5px; color: #2B2622; background: #F6E6DC; border-radius: 9px; padding: 10px 12px">Best window: <b>6:30 to 8:00 AM</b>, Tuesday and Thursday.</p>
+</section>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch">
+<section aria-labelledby="top" style="flex: 999 1 520px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; overflow: hidden">
+<div style="padding: 16px 18px 10px"><h2 id="top" style="margin: 0; font-size: 15px; font-weight: 600">Top posts, last 30 days</h2></div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px">
+<thead><tr style="background: #F2ECE3; font-size: 12px; color: #6E655C; text-align: right"><th scope="col" style="text-align: left; padding: 9px 18px; font-weight: 600">Post</th><th scope="col" style="padding: 9px 12px; font-weight: 600">Reach</th><th scope="col" style="padding: 9px 12px; font-weight: 600">Shares</th><th scope="col" style="padding: 9px 12px; font-weight: 600">Saves</th><th scope="col" style="padding: 9px 18px; font-weight: 600">Non-followers</th></tr></thead>
+<tbody style="font-variant-numeric: tabular-nums">
+<tr style="border-bottom: 1px solid #F2ECE3; text-align: right"><td style="text-align: left; padding: 12px 18px"><b style="font-weight: 600">Rare Earth #3</b><br><span style="font-size: 12.5px; color: #6E655C">Carousel · 11 Oct</span></td><td style="padding: 12px">14.8K</td><td style="padding: 12px">412</td><td style="padding: 12px">598</td><td style="padding: 12px 18px"><span style="display: inline-flex; align-items: center; gap: 8px">74%<span style="width: 60px; height: 6px; border-radius: 99px; background: #F2ECE3; display: inline-block; overflow: hidden"><span style="display: block; width: 74%; height: 100%; background: #C2653D"></span></span></span></td></tr>
+<tr style="border-bottom: 1px solid #F2ECE3; text-align: right"><td style="text-align: left; padding: 12px 18px"><b style="font-weight: 600">Ferguson, part 2</b><br><span style="font-size: 12.5px; color: #6E655C">Carousel · 2 Oct</span></td><td style="padding: 12px">9.1K</td><td style="padding: 12px">201</td><td style="padding: 12px">340</td><td style="padding: 12px 18px"><span style="display: inline-flex; align-items: center; gap: 8px">66%<span style="width: 60px; height: 6px; border-radius: 99px; background: #F2ECE3; display: inline-block; overflow: hidden"><span style="display: block; width: 66%; height: 100%; background: #C2653D"></span></span></span></td></tr>
+<tr style="text-align: right"><td style="text-align: left; padding: 12px 18px"><b style="font-weight: 600">Greenland in 60 seconds</b><br><span style="font-size: 12.5px; color: #6E655C">Reel · 23 Sep</span></td><td style="padding: 12px">7.6K</td><td style="padding: 12px">133</td><td style="padding: 12px">157</td><td style="padding: 12px 18px"><span style="display: inline-flex; align-items: center; gap: 8px">71%<span style="width: 60px; height: 6px; border-radius: 99px; background: #F2ECE3; display: inline-block; overflow: hidden"><span style="display: block; width: 71%; height: 100%; background: #C2653D"></span></span></span></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section aria-labelledby="plan" style="flex: 1 1 340px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><h2 id="plan" style="margin: 0; font-size: 15px; font-weight: 600">Posting plan</h2><span style="font-size: 12px; color: #6E655C">Planned posts are promises</span></div>
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 46px; text-align: center; flex: none"><span style="display: block; font-size: 11px; color: #6E655C">THU</span><span style="display: block; font-size: 20px; font-weight: 600">16</span></span><span style="flex: 1; min-width: 0; border-left: 3px solid #D9A441; padding-left: 10px"><b style="font-weight: 600; font-size: 14px">Case 019 carousel</b><br><span style="font-size: 12.5px; color: #6E655C">@catchtheerror · 7:00 AM</span></span></div>
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 46px; text-align: center; flex: none"><span style="display: block; font-size: 11px; color: #6E655C">SAT</span><span style="display: block; font-size: 20px; font-weight: 600">18</span></span><span style="flex: 1; min-width: 0; border-left: 3px solid #C2653D; padding-left: 10px"><b style="font-weight: 600; font-size: 14px">Rare Earth #4</b><br><span style="font-size: 12.5px; color: #6E655C">@byeliteminds · 7:15 AM</span></span></div>
+<div style="border-top: 1px solid #E8E1D6; padding-top: 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 13px; color: #6E655C">Comments that need a reply</div>
+<div style="font-size: 14px">“Source for the China export numbers?” <span style="color: #6E655C; font-size: 12.5px">· Rare Earth #3 · 3 h</span></div>
+<div style="font-size: 14px">“Do a part on India's reserves” <span style="color: #6E655C; font-size: 12.5px">· Rare Earth #3 · 6 h</span></div>
+</div>
+<p style="margin: 0; font-size: 12.5px; color: #6E655C">Bindle never posts for you. It reminds, drafts and tracks.</p>
+</section>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

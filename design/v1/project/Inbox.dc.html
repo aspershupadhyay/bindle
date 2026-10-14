@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bindle · Work Inbox</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;background:#FAF7F2}
+a{color:#A4502C}a:hover{color:#2B2622}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #C2653D;outline-offset:2px}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 1000px; background: #FAF7F2; color: #2B2622; font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+
+<aside aria-label="Bindle navigation" style="flex: 1 1 240px; max-width: 264px; min-width: 220px; box-sizing: border-box; padding: 22px 16px; background: #F2ECE3; border-right: 1px solid #E8E1D6; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 6px">
+<img src="/_blob/bee474fdfb41b6c12dec629ef8a0c318" alt="Bindle logo, a cloth bag tied to a stick" style="width: 48px; height: 48px; image-rendering: pixelated">
+<div><div style="font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1">Bindle</div><div style="font-size: 11.5px; color: #6E655C; margin-top: 3px; white-space: nowrap">Carry less in your head</div></div>
+</div>
+<div role="group" aria-label="Mode" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; background: #E8E1D6; border-radius: 10px; padding: 4px">
+<a href="Main.dc.html" style="border-radius: 7px; padding: 8px 0; color: #6E655C; font-weight: 500; font-size: 14px; text-align: center; text-decoration: none">Life</a>
+<button type="button" aria-pressed="true" style="border: 0; border-radius: 7px; padding: 8px 0; background: #FFFDF9; color: #2B2622; font-weight: 600; font-size: 14px; box-shadow: 0 1px 0 #D9CFC0">Work</button>
+</div>
+<nav aria-label="Work" style="display: flex; flex-direction: column; gap: 2px">
+<a href="Desk.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>Desk</a>
+<a href="#" aria-current="page" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; background: #FFFDF9; color: #2B2622; text-decoration: none; font-weight: 600; border: 1px solid #E8E1D6"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A4502C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-10 6L2 7"></path></svg>Inbox<span style="margin-left: auto; font-size: 12px; font-weight: 600">2</span></a>
+<a href="#" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><path d="M6 9v12"></path></svg>Code<span style="margin-left: auto; font-size: 12px; font-weight: 600">3</span></a>
+<a href="Board.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 7v7M12 7v4M16 7v9"></path></svg>Board</a>
+<a href="Creator.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"></path><circle cx="12" cy="13" r="3"></circle></svg>Creator<span style="margin-left: auto; font-size: 12px; font-weight: 600">1</span></a>
+</nav>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6E655C; padding: 0 12px">Mailboxes</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; font-size: 14px"><span style="width: 7px; height: 7px; border-radius: 50%; background: #6B8F71"></span>Personal Gmail<span style="margin-left: auto; font-size: 12px; color: #6E655C">2</span></div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; font-size: 14px; color: #6E655C"><span style="width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid #6E655C; box-sizing: border-box"></span>Add Outlook or IMAP</div>
+</div>
+<div style="margin-top: auto"><button type="button" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 10px; padding: 12px 14px; background: #C2653D; color: #FFFDF9; font-weight: 600; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFDF9" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Jot down</button></div>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px clamp(16px, 3.5vw, 48px) 48px">
+<div style="max-width: 1140px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">
+
+<header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div>
+<div style="display: flex; gap: 10px; align-items: center; font-size: 13px; color: #6E655C"><span>Work · Inbox</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8A5F12; background: #F8EED8; border-radius: 6px; padding: 2px 7px">SAMPLE DATA</span></div>
+<h1 style="margin: 4px 0 4px; font-family: Newsreader, Georgia, serif; font-weight: 500; font-size: 40px; line-height: 1.05">Only what needs you</h1>
+<p style="margin: 0; font-size: 15.5px; color: #4A433C">Bindle hides newsletters and receipts. 2 threads need you, out of 64 today.</p>
+</div>
+<div role="group" aria-label="Show" style="display: flex; gap: 6px; flex-wrap: wrap">
+<button type="button" aria-pressed="true" style="border: 1px solid #2B2622; border-radius: 999px; padding: 6px 12px; background: #2B2622; color: #FFFDF9; font-size: 13px">Needs you 2</button>
+<button type="button" style="border: 1px solid #E8E1D6; border-radius: 999px; padding: 6px 12px; background: #FFFDF9; font-size: 13px; color: #2B2622">Asked you 1</button>
+<button type="button" style="border: 1px solid #E8E1D6; border-radius: 999px; padding: 6px 12px; background: #FFFDF9; font-size: 13px; color: #2B2622">Snoozed 3</button>
+<button type="button" style="border: 1px solid #E8E1D6; border-radius: 999px; padding: 6px 12px; background: #FFFDF9; font-size: 13px; color: #2B2622">Handled</button>
+</div>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch">
+
+<section aria-label="Threads" style="flex: 1 1 340px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column">
+<a href="#" aria-current="true" style="display: flex; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #F2ECE3; text-decoration: none; color: inherit; background: #FBF5EE; box-shadow: inset 3px 0 0 #C2653D">
+<span style="width: 38px; height: 38px; border-radius: 11px; background: #F6E6DC; color: #A4502C; display: flex; align-items: center; justify-content: center; font-weight: 600; flex: none">PS</span>
+<span style="flex: 1; min-width: 0"><span style="display: flex; justify-content: space-between; gap: 8px"><b style="font-weight: 600">Priya Sharma</b><span style="font-size: 12.5px; color: #6E655C">Tue 6:40 PM</span></span><span style="display: block; font-weight: 500; margin-top: 2px">Sponsor brief: Q4 carousel series</span><span style="display: block; font-size: 13px; color: #6E655C; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Could you confirm the 4-post plan by Thursday? Budget is ready…</span><span style="display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600; color: #8A5F12; background: #F8EED8; border-radius: 999px; padding: 2px 8px">Asked you a question</span></span>
+</a>
+<a href="#" style="display: flex; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #F2ECE3; text-decoration: none; color: inherit">
+<span style="width: 38px; height: 38px; border-radius: 11px; background: #E6EFE6; color: #4F6E55; display: flex; align-items: center; justify-content: center; font-weight: 600; flex: none">AS</span>
+<span style="flex: 1; min-width: 0"><span style="display: flex; justify-content: space-between; gap: 8px"><b style="font-weight: 600">Acme Studio</b><span style="font-size: 12.5px; color: #6E655C">5:12 PM</span></span><span style="display: block; font-weight: 500; margin-top: 2px">Invoice 2026-114 needs your approval</span><span style="display: block; font-size: 13px; color: #6E655C; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Hi Sparsh, attached is the invoice for the September edits…</span><span style="display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600; color: #4A433C; background: #F2ECE3; border-radius: 999px; padding: 2px 8px">Unreplied · money</span></span>
+</a>
+<div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 28px 18px; text-align: center">
+<img src="/_blob/52d5c03e4fbafca166dffce4c29f3700" alt="" style="width: 96px; height: 96px; image-rendering: pixelated">
+<p style="margin: 0; font-size: 14px; color: #4A433C">That's everything that needs you.<br><span style="color: #6E655C; font-size: 13px">62 others are waiting quietly in Gmail.</span></p>
+</div>
+</section>
+
+<section aria-label="Selected thread" style="flex: 999 1 460px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; display: flex; flex-direction: column">
+<div style="padding: 20px 24px 16px; border-bottom: 1px solid #E8E1D6; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline"><h2 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 500; font-size: 26px; line-height: 1.15">Sponsor brief: Q4 carousel series</h2><span style="font-size: 13px; color: #6E655C">Waiting 1 day</span></div>
+<div style="font-size: 13.5px; color: #4A433C">Priya Sharma &lt;priya@brightloop.in&gt; to you · Tuesday 6:40 PM</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button type="button" style="display: flex; align-items: center; gap: 6px; border: 0; border-radius: 8px; padding: 9px 14px; background: #C2653D; color: #FFFDF9; font-weight: 600; font-size: 13.5px"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFFDF9" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Make it a promise</button>
+<button type="button" style="border: 1px solid #E8E1D6; border-radius: 8px; padding: 9px 14px; background: #FFFDF9; font-size: 13.5px; color: #2B2622">Draft a reply</button>
+<button type="button" style="border: 1px solid #E8E1D6; border-radius: 8px; padding: 9px 14px; background: #FFFDF9; font-size: 13.5px; color: #2B2622">Snooze</button>
+<button type="button" style="border: 1px solid #E8E1D6; border-radius: 8px; padding: 9px 14px; background: #FFFDF9; font-size: 13.5px; color: #2B2622">Done</button>
+<a href="#" style="display: flex; align-items: center; gap: 6px; padding: 9px 6px; font-size: 13.5px; font-weight: 600">Open in Gmail<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A4502C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"></path></svg></a>
+</div>
+</div>
+<div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; font-size: 15px; color: #2B2622; max-width: 70ch">
+<p style="margin: 0">Hi Sparsh,</p>
+<p style="margin: 0">Loved the Rare Earth series. We'd like to sponsor four carousels on @byeliteminds between November and December, one every two weeks.</p>
+<p style="margin: 0">Could you confirm the 4-post plan and your rate card by Thursday? Our budget is approved and I'd like to lock dates this week.</p>
+<p style="margin: 0">Thanks,<br>Priya</p>
+</div>
+<div style="margin: auto 24px 24px; border: 1px solid #E8E1D6; border-radius: 12px; background: #FAF7F2; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #A4502C"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A4502C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path></svg>Bindle noticed</div>
+<div style="font-size: 14px">A promise you'd make: <b>Send Priya the 4-post plan and rate card</b> by <b>Thursday</b>.</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap"><span style="font-size: 12.5px; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 999px; padding: 3px 10px">I'll do it</span><span style="font-size: 12.5px; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 999px; padding: 3px 10px">Priya Sharma</span><span style="font-size: 12.5px; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 999px; padding: 3px 10px">Thu 16 Oct</span><span style="font-size: 12.5px; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 999px; padding: 3px 10px">Work</span></div>
+<div style="font-size: 12.5px; color: #6E655C">It goes to Sort for your OK. Bindle never sends email for you.</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

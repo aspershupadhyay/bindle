@@ -28,17 +28,19 @@ It has two modes and two kinds of space:
 
 ## Designs
 
-Hand-crafted screens with a warm paper palette and a hand-made pixel art layer.
+Hand-crafted screens with a warm paper palette and a hand-made pixel art layer. Every page has its own small pixel scene in its header. These are from v2 of the design; v1 is kept unchanged next to it.
 
-| Life Home | Work Desk |
+| Work Desk | Code |
 |---|---|
-| <img src="docs/design/01-bindle-life-home.png" alt="Life Home screen" width="420"> | <img src="docs/design/02-bindle-work-desk.png" alt="Work Desk dashboard" width="420"> |
-| **Ours** | **Creator** |
-| <img src="docs/design/03-bindle-ours-sharing.png" alt="Ours shared space" width="420"> | <img src="docs/design/06-bindle-work-creator.png" alt="Creator analytics" width="420"> |
+| <img src="docs/design/v2/desk.png" alt="Work Desk dashboard with a railway platform pixel scene" width="420"> | <img src="docs/design/v2/code.png" alt="Code page with an arcade pixel scene" width="420"> |
+| **Creator, all accounts** | **Creator, one account** |
+| <img src="docs/design/v2/creator.png" alt="Creator overview with every account" width="420"> | <img src="docs/design/v2/creator-cte.png" alt="Creator detail for one account" width="420"> |
 | **Inbox** | **Board** |
-| <img src="docs/design/04-bindle-work-inbox.png" alt="Inbox" width="420"> | <img src="docs/design/05-bindle-work-board.png" alt="Board" width="420"> |
+| <img src="docs/design/v2/inbox.png" alt="Inbox with a post office pixel scene" width="420"> | <img src="docs/design/v2/board.png" alt="Board with a workshop pixel scene" width="420"> |
+| **Life Home** | **Ours** |
+| <img src="docs/design/v2/main.png" alt="Life Home screen" width="420"> | <img src="docs/design/v2/ours.png" alt="Ours shared space with a two-room house pixel scene" width="420"> |
 
-The brand sheet with the palette, type and the full pixel cast is in [docs/design/07-bindle-brand-sheet.png](docs/design/07-bindle-brand-sheet.png).
+The brand sheet is in [docs/design/v2/brand.png](docs/design/v2/brand.png). The design source files, sprites and render script are in [design/](design/README.md).
 
 ## Tech stack
 

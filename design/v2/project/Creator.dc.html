@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bindle · Work Creator</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#FAF7F2}
+a{color:#A4502C}a:hover{color:#2B2622}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid #C2653D;outline-offset:2px}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 1300px; background: #FAF7F2; color: #2B2622; font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.45">
+<aside aria-label="Bindle navigation" style="flex: 1 1 240px; max-width: 264px; min-width: 220px; box-sizing: border-box; padding: 22px 16px; background: #F2ECE3; border-right: 1px solid #E8E1D6; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 6px">
+<img src="/_blob/4415572c00791c8a24783814639c4b30" alt="Bindle logo, a cloth bag tied to a stick" style="width: 48px; height: 48px; image-rendering: pixelated">
+<div><div style="font-family: Newsreader, Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1">Bindle</div><div style="font-size: 11.5px; color: #6E655C; margin-top: 3px; white-space: nowrap">Carry less in your head</div></div>
+</div>
+<div role="group" aria-label="Mode" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; background: #E8E1D6; border-radius: 10px; padding: 4px">
+<a href="Main.dc.html" style="border-radius: 7px; padding: 8px 0; color: #6E655C; font-weight: 500; font-size: 14px; text-align: center; text-decoration: none">Life</a>
+<a href="Desk.dc.html" aria-current="true" style="border-radius: 7px; padding: 8px 0; background: #FFFDF9; color: #2B2622; font-weight: 600; font-size: 14px; text-align: center; text-decoration: none; box-shadow: 0 1px 0 #D9CFC0">Work</a>
+</div>
+<nav aria-label="Work" style="display: flex; flex-direction: column; gap: 2px">
+<a href="Desk.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>Desk</a><a href="Inbox.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-10 6L2 7"></path></svg>Inbox<span style="margin-left: auto; font-size: 12px; font-weight: 600; color: #4A433C">3</span></a><a href="Code.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-5 4 5 4"></path><path d="m16 8 5 4-5 4"></path><path d="m14 4-4 16"></path></svg>Code<span style="margin-left: auto; font-size: 12px; font-weight: 600; color: #4A433C">5</span></a><a href="Board.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; color: #4A433C; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 7v7M12 7v4M16 7v9"></path></svg>Board</a><a href="Creator.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 9px; background: #FFFDF9; color: #2B2622; text-decoration: none; font-weight: 600; border: 1px solid #E8E1D6"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A4502C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3Z"></path><circle cx="12" cy="13" r="3"></circle></svg>Creator<span style="margin-left: auto; font-size: 12px; font-weight: 600; color: #4A433C">1</span></a>
+</nav>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6E655C; padding: 0 12px">Sources</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 4px 12px; font-size: 14px"><span style="width: 7px; height: 7px; border-radius: 50%; background: #6B8F71"></span>Gmail<span style="margin-left: auto; font-size: 12px; color: #6E655C">2 min ago</span></div><div style="display: flex; align-items: center; gap: 10px; padding: 4px 12px; font-size: 14px"><span style="width: 7px; height: 7px; border-radius: 50%; background: #6B8F71"></span>GitHub<span style="margin-left: auto; font-size: 12px; color: #6E655C">2 min ago</span></div><div style="display: flex; align-items: center; gap: 10px; padding: 4px 12px; font-size: 14px"><span style="width: 7px; height: 7px; border-radius: 50%; background: #6B8F71"></span>Instagram<span style="margin-left: auto; font-size: 12px; color: #6E655C">14 min ago</span></div><div style="display: flex; align-items: center; gap: 10px; padding: 4px 12px; font-size: 14px"><span style="width: 7px; height: 7px; border-radius: 50%; background: #D9A441"></span>YouTube<span style="margin-left: auto; font-size: 12px; color: #8A5F12">reconnect</span></div>
+</div>
+<div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+<button type="button" style="display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 10px; padding: 12px 14px; background: #C2653D; color: #FFFDF9; font-weight: 600; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFDF9" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Jot down</button>
+<a href="#" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; color: #6E655C; text-decoration: none; font-size: 14px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6E655C" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.9 4.9 7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"></path></svg>Settings</a>
+</div>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 32px clamp(16px, 3.5vw, 48px) 56px">
+<div style="max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px">
+<sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<header style="display: flex; flex-wrap: wrap; gap: 24px; align-items: stretch">
+<div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px">
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; color: #6E655C"><span>Work · Creator · 3 accounts</span><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: #8A5F12; background: #F8EED8; border-radius: 6px; padding: 2px 7px">SAMPLE DATA</span></div>
+<h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 500; font-size: 42px; line-height: 1.05; letter-spacing: -0.01em">Creator</h1>
+<p style="margin: 0; font-size: 17px; color: #4A433C; max-width: 34em"><b style="color: #2B2622">312 new followers this week, your best yet.</b> Most came from @catchtheerror. Open an account to see what is working.</p>
+</div>
+<figure style="flex: 0 1 394px; margin: 0; background: #F2ECE3; border: 1px solid #E8E1D6; border-radius: 14px; padding: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden"><img src="/_blob/aec9ddbd859713960930483a7059d655" alt="Pixel art: a small creator studio with a ring light, a camera on a tripod and a wall of little screens." style="width: 384px; max-width: 100%; height: auto; aspect-ratio: 96 / 40; image-rendering: pixelated; border-radius: 10px; display: block"></figure>
+</header>
+
+<section aria-label="All accounts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px">
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 13px; color: #6E655C">Total audience</div>
+<div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap"><span style="font-size: 30px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums">4,032</span></div>
+
+<div style="font-size: 12px; color: #6E655C">across 3 accounts</div>
+</div>
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 13px; color: #6E655C">New this week</div>
+<div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap"><span style="font-size: 30px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums">+312</span><span style="font-size: 12px; font-weight: 600; color: #4F6E55; background: #E6EFE6; border-radius: 999px; padding: 2px 9px; white-space: nowrap">best week yet</span></div>
+
+<div style="font-size: 12px; color: #6E655C">188 from @catchtheerror</div>
+</div>
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 13px; color: #6E655C">Reach, 7 days</div>
+<div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap"><span style="font-size: 30px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums">113.9K</span><span style="font-size: 12px; font-weight: 600; color: #4F6E55; background: #E6EFE6; border-radius: 999px; padding: 2px 9px; white-space: nowrap">↑ 22%</span></div>
+
+<div style="font-size: 12px; color: #6E655C">people who saw a post</div>
+</div>
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 13px; color: #6E655C">Posted this week</div>
+<div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap"><span style="font-size: 30px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums">5</span><span style="font-size: 12px; font-weight: 600; color: #4A433C; background: #F2ECE3; border-radius: 999px; padding: 2px 9px; white-space: nowrap">plan was 6</span></div>
+
+<div style="font-size: 12px; color: #6E655C">4 carousels, 1 video</div>
+</div>
+</section>
+
+<section aria-labelledby="acc" style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px"><h2 id="acc" style="margin: 0; font-size: 15px; font-weight: 600">Your accounts</h2><span style="font-size: 13px; color: #6E655C">Choose one to see its details</span></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px">
+<sc-for list="{{ channels }}" as="c" hint-placeholder-count="3">
+<button type="button" onClick="{{ c.pick }}" aria-label="Open {{ c.name }}" style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 18px; text-align: left; color: #2B2622; display: flex; flex-direction: column; gap: 10px; font: inherit; cursor: pointer">
+<span style="display: flex; align-items: center; gap: 12px"><img src="{{ c.av }}" alt="" style="width: 44px; height: 44px; image-rendering: pixelated; border-radius: 10px"><span style="min-width: 0"><span style="display: block; font-weight: 600">{{ c.handle }}</span><span style="display: block; font-size: 12.5px; color: #6E655C">{{ c.platform }}</span></span></span>
+<span style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 30px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums">{{ c.big }}</span><span style="font-size: 13px; color: #6E655C">{{ c.unit }}</span></span>
+<svg aria-hidden="true" viewBox="0 0 220 44" style="width: 100%; height: 44px; display: block"><polyline points="{{ c.spark }}" fill="none" stroke="{{ c.accent }}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline></svg>
+<span style="display: flex; justify-content: space-between; gap: 8px; font-size: 13px"><span style="font-weight: 600; color: #4F6E55">{{ c.delta }}</span><span style="color: #A4502C; font-weight: 600">Open →</span></span>
+</button>
+</sc-for>
+<div style="border: 1px dashed #D9CFC0; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; justify-content: center; align-items: flex-start; color: #6E655C">
+<img src="/_blob/529bee41d9aab506cc40e7b78d83a0e5" alt="" style="width: 44px; height: 44px; image-rendering: pixelated">
+<span style="font-weight: 600; color: #2B2622">Add X</span><span style="font-size: 13px">Needs the paid API. We will add it later.</span>
+</div>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch">
+<section aria-labelledby="reach" style="flex: 999 1 520px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px">
+<div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline"><h2 id="reach" style="margin: 0; font-size: 15px; font-weight: 600">Reach by account</h2><div style="display: flex; gap: 14px; font-size: 12.5px; color: #4A433C; flex-wrap: wrap"><span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #6B8F71"></span>@byeliteminds</span><span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #C2653D"></span>@catchtheerror</span><span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; background: #D9A441"></span>YouTube</span></div></div>
+<p style="margin: 6px 0 12px; font-size: 14px; color: #4A433C">Reach tripled in 8 weeks. Half of it now comes from an account that started in August.</p>
+<svg role="img" aria-label="Weekly reach across accounts over 8 weeks, from 37 thousand to 114 thousand" viewBox="0 0 620 230" style="width: 100%; height: auto; display: block"><line x1="40" x2="620" y1="204.0" y2="204.0" stroke="#F2ECE3"></line><text x="32" y="208.0" text-anchor="end" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">0K</text><line x1="40" x2="620" y1="156.5" y2="156.5" stroke="#F2ECE3"></line><text x="32" y="160.5" text-anchor="end" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">30K</text><line x1="40" x2="620" y1="109.0" y2="109.0" stroke="#F2ECE3"></line><text x="32" y="113.0" text-anchor="end" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">60K</text><line x1="40" x2="620" y1="61.5" y2="61.5" stroke="#F2ECE3"></line><text x="32" y="65.5" text-anchor="end" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">90K</text><line x1="40" x2="620" y1="14.0" y2="14.0" stroke="#F2ECE3"></line><text x="32" y="18.0" text-anchor="end" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">120K</text><rect x="58.1" y="154.9" width="36.2" height="49.1" rx="2" fill="#6B8F71" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="58.1" y="148.6" width="36.2" height="6.3" rx="2" fill="#C2653D" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="58.1" y="145.3" width="36.2" height="3.3" rx="2" fill="#D9A441" stroke="#FFFDF9" stroke-width="1.5"></rect><text x="76.2" y="139.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4A433C" font-family="Inter, sans-serif">37K</text><text x="76.2" y="222" text-anchor="middle" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">W35</text><rect x="130.6" y="150.2" width="36.2" height="53.8" rx="2" fill="#6B8F71" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="130.6" y="140.7" width="36.2" height="9.5" rx="2" fill="#C2653D" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="130.6" y="136.9" width="36.2" height="3.8" rx="2" fill="#D9A441" stroke="#FFFDF9" stroke-width="1.5"></rect><text x="148.8" y="130.9" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4A433C" font-family="Inter, sans-serif">42K</text><text x="148.8" y="222" text-anchor="middle" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">W36</text><rect x="203.1" y="158.1" width="36.2" height="45.9" rx="2" fill="#6B8F71" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="203.1" y="143.8" width="36.2" height="14.2" rx="2" fill="#C2653D" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="203.1" y="140.7" width="36.2" height="3.2" rx="2" fill="#D9A441" stroke="#FFFDF9" stroke-width="1.5"></rect><text x="221.2" y="134.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4A433C" font-family="Inter, sans-serif">40K</text><text x="221.2" y="222" text-anchor="middle" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">W37</text><rect x="275.6" y="143.8" width="36.2" height="60.2" rx="2" fill="#6B8F71" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="275.6" y="121.7" width="36.2" height="22.2" rx="2" fill="#C2653D" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="275.6" y="116.8" width="36.2" height="4.9" rx="2" fill="#D9A441" stroke="#FFFDF9" stroke-width="1.5"></rect><text x="293.8" y="110.8" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4A433C" font-family="Inter, sans-serif">55K</text><text x="293.8" y="222" text-anchor="middle" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">W38</text><rect x="348.1" y="139.1" width="36.2" height="64.9" rx="2" fill="#6B8F71" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="348.1" y="104.2" width="36.2" height="34.8" rx="2" fill="#C2653D" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="348.1" y="99.8" width="36.2" height="4.4" rx="2" fill="#D9A441" stroke="#FFFDF9" stroke-width="1.5"></rect><text x="366.2" y="93.8" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4A433C" font-family="Inter, sans-serif">66K</text><text x="366.2" y="222" text-anchor="middle" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">W39</text><rect x="420.6" y="147.0" width="36.2" height="57.0" rx="2" fill="#6B8F71" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="420.6" y="99.5" width="36.2" height="47.5" rx="2" fill="#C2653D" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="420.6" y="94.3" width="36.2" height="5.2" rx="2" fill="#D9A441" stroke="#FFFDF9" stroke-width="1.5"></rect><text x="438.8" y="88.3" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4A433C" font-family="Inter, sans-serif">69K</text><text x="438.8" y="222" text-anchor="middle" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">W40</text><rect x="493.1" y="135.9" width="36.2" height="68.1" rx="2" fill="#6B8F71" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="493.1" y="66.2" width="36.2" height="69.7" rx="2" fill="#C2653D" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="493.1" y="60.5" width="36.2" height="5.7" rx="2" fill="#D9A441" stroke="#FFFDF9" stroke-width="1.5"></rect><text x="511.2" y="54.5" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4A433C" font-family="Inter, sans-serif">91K</text><text x="511.2" y="222" text-anchor="middle" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">W41</text><rect x="565.6" y="127.7" width="36.2" height="76.3" rx="2" fill="#6B8F71" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="565.6" y="30.0" width="36.2" height="97.7" rx="2" fill="#C2653D" stroke="#FFFDF9" stroke-width="1.5"></rect><rect x="565.6" y="23.7" width="36.2" height="6.3" rx="2" fill="#D9A441" stroke="#FFFDF9" stroke-width="1.5"></rect><text x="583.8" y="17.7" text-anchor="middle" font-size="11.5" font-weight="600" fill="#4A433C" font-family="Inter, sans-serif">114K</text><text x="583.8" y="222" text-anchor="middle" font-size="11" fill="#6E655C" font-family="Inter, sans-serif">W42</text></svg>
+</section>
+<section aria-labelledby="plan" style="flex: 1 1 300px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px">
+<h2 id="plan" style="margin: 0; font-size: 15px; font-weight: 600">Coming up</h2>
+<p style="margin: 4px 0 8px; font-size: 13px; color: #6E655C">Next 7 days, all accounts</p>
+<div style="display: flex; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid #F2ECE3">
+<span style="width: 70px; flex: none; font-size: 13px; font-weight: 600">Thu 8 PM</span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">India's chip bet, in 8 slides</span><span style="font-size: 12.5px; color: #4F6E55">@byeliteminds</span><span style="font-size: 12.5px; color: #6E655C"> · Carousel</span></span><span style="font-size: 12px; font-weight: 600; color: #4A433C; background: #F2ECE3; border-radius: 999px; padding: 2px 9px; white-space: nowrap">Drafted</span></div><div style="display: flex; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid #F2ECE3">
+<span style="width: 70px; flex: none; font-size: 13px; font-weight: 600">Sat 7 PM</span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Case 019: "Incognito hides you from your ISP"</span><span style="font-size: 12.5px; color: #A4502C">@catchtheerror</span><span style="font-size: 12.5px; color: #6E655C"> · Carousel</span></span><span style="font-size: 12px; font-weight: 600; color: #4A433C; background: #F2ECE3; border-radius: 999px; padding: 2px 9px; white-space: nowrap">Needs art</span></div><div style="display: flex; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid #F2ECE3">
+<span style="width: 70px; flex: none; font-size: 13px; font-weight: 600">Sun 6 PM</span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Building Bindle, week 1: the Rust core</span><span style="font-size: 12.5px; color: #8A5F12">YouTube</span><span style="font-size: 12.5px; color: #6E655C"> · Video</span></span><span style="font-size: 12px; font-weight: 600; color: #4A433C; background: #F2ECE3; border-radius: 999px; padding: 2px 9px; white-space: nowrap">Recording</span></div><div style="display: flex; gap: 12px; align-items: center; padding: 11px 0; border-top: 1px solid #F2ECE3">
+<span style="width: 70px; flex: none; font-size: 13px; font-weight: 600">Mon 8 PM</span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">The Strait of Hormuz in one map</span><span style="font-size: 12.5px; color: #4F6E55">@byeliteminds</span><span style="font-size: 12.5px; color: #6E655C"> · Carousel</span></span><span style="font-size: 12px; font-weight: 600; color: #4A433C; background: #F2ECE3; border-radius: 999px; padding: 2px 9px; white-space: nowrap">Idea</span></div>
+</section>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<nav aria-label="Accounts" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+<button type="button" onClick="{{ back }}" style="display: flex; align-items: center; gap: 6px; border: 0; background: transparent; color: #4A433C; font-size: 14px; font-weight: 500; padding: 8px 4px"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A433C" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"></path></svg>All accounts</button>
+<div role="group" aria-label="Switch account" style="display: flex; gap: 2px; background: #E8E1D6; border-radius: 10px; padding: 3px; flex-wrap: wrap">
+<sc-for list="{{ channels }}" as="c" hint-placeholder-count="3">
+<button type="button" onClick="{{ c.pick }}" aria-pressed="{{ c.pressed }}" style="display: flex; align-items: center; gap: 8px; border: 0; border-radius: 8px; padding: 6px 12px 6px 6px; font-size: 13.5px; {{ c.tabStyle }}"><img src="{{ c.av }}" alt="" style="width: 22px; height: 22px; image-rendering: pixelated; border-radius: 5px">{{ c.handle }}</button>
+</sc-for>
+</div>
+</nav>
+
+<header style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 20px 22px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center">
+<img src="{{ ch.av }}" alt="{{ ch.name }} account picture" style="width: 72px; height: 72px; image-rendering: pixelated; border-radius: 14px">
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 13px; color: #6E655C">{{ ch.platform }} · {{ ch.handle }}</div>
+<h1 style="margin: 0; font-family: Newsreader, Georgia, serif; font-weight: 500; font-size: 38px; line-height: 1.05">{{ ch.name }}</h1>
+<div style="font-size: 14.5px; color: #4A433C">{{ ch.bio }}</div>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px">
+<span style="font-size: 38px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums">{{ ch.big }}</span>
+<span style="font-size: 13px; color: #6E655C">{{ ch.unit }} · <b style="color: #4F6E55">{{ ch.delta }}</b></span>
+</div>
+</header>
+
+<sc-if value="{{ ch.hasWarn }}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: #F8EED8; color: #5E410C; border-radius: 12px; padding: 12px 16px"><span style="flex: 1 1 300px">{{ ch.warn }}</span><button type="button" style="border: 0; border-radius: 9px; background: #2B2622; color: #FAF7F2; padding: 8px 12px; font-weight: 600; font-size: 13px">Sign in again</button></div>
+</sc-if>
+
+<section aria-label="Key numbers" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px">
+<sc-for list="{{ ch.kpiRows }}" as="k" hint-placeholder-count="6">
+<div style="background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 13px; color: #6E655C">{{ k.label }}</span>
+<span style="font-size: 26px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums">{{ k.value }}</span>
+<span style="align-self: flex-start; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 9px; {{ k.deltaStyle }}">{{ k.delta }}</span>
+</div>
+</sc-for>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch">
+<section aria-labelledby="grow" style="flex: 999 1 520px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px">
+<div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline"><h2 id="grow" style="margin: 0; font-size: 15px; font-weight: 600">Growth, 12 weeks</h2><span style="font-size: 13px; font-weight: 600; {{ ch.accentText }}">{{ ch.growth }}</span></div>
+<p style="margin: 6px 0 14px; font-size: 14px; color: #4A433C">{{ ch.story }}</p>
+<div style="display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 10px">
+<div aria-hidden="true" style="display: flex; flex-direction: column; justify-content: space-between; text-align: right; font-size: 11px; color: #6E655C; height: 200px"><span>{{ ch.hi }}</span><span>{{ ch.mid }}</span><span>{{ ch.lo }}</span></div>
+<svg role="img" aria-label="{{ ch.unit }} over 12 weeks, {{ ch.growth }}" viewBox="0 0 640 200" preserveAspectRatio="none" style="width: 100%; height: 200px; display: block; overflow: visible">
+<line x1="0" x2="640" y1="0" y2="0" stroke="#F2ECE3" vector-effect="non-scaling-stroke"></line><line x1="0" x2="640" y1="100" y2="100" stroke="#F2ECE3" vector-effect="non-scaling-stroke"></line><line x1="0" x2="640" y1="200" y2="200" stroke="#E8E1D6" vector-effect="non-scaling-stroke"></line>
+<polygon points="{{ ch.area }}" fill="{{ ch.wash }}"></polygon>
+<polyline points="{{ ch.line }}" fill="none" stroke="{{ ch.accent }}" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"></polyline>
+</svg>
+</div>
+<div aria-hidden="true" style="display: flex; justify-content: space-between; margin-left: 54px; margin-top: 8px; font-size: 11px; color: #6E655C"><span>W31</span><span>W33</span><span>W35</span><span>W37</span><span>W39</span><span>W42</span></div>
+</section>
+
+<section aria-labelledby="aud" style="flex: 1 1 300px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 18px">
+<div>
+<h2 id="aud" style="margin: 0; font-size: 15px; font-weight: 600; margin-bottom: 10px">Who sees your posts</h2>
+<div aria-hidden="true" style="display: flex; height: 14px; gap: 3px"><span style="{{ ch.followStyle }}"></span><span style="{{ ch.nonStyle }}"></span></div>
+<div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px"><span><b>{{ ch.followPct }}</b> already follow</span><span><b style="{{ ch.accentText }}">{{ ch.nonPct }}</b> new people</span></div>
+</div>
+<div>
+<h3 style="margin: 0 0 10px; font-size: 14px; font-weight: 600">What you post</h3>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{ ch.mixRows }}" as="m" hint-placeholder-count="2">
+<div style="display: grid; grid-template-columns: 96px minmax(0, 1fr) 40px; gap: 10px; align-items: center; font-size: 13px"><span>{{ m.label }}</span><span style="background: #F2ECE3; border-radius: 999px; display: block"><span style="display: block; {{ m.style }}"></span></span><span style="text-align: right; font-weight: 600; font-variant-numeric: tabular-nums">{{ m.pct }}</span></div>
+</sc-for>
+</div>
+</div>
+<div>
+<h3 style="margin: 0 0 4px; font-size: 14px; font-weight: 600">Up next</h3>
+<sc-for list="{{ ch.next }}" as="n" hint-placeholder-count="2">
+<div style="display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid #F2ECE3; font-size: 13.5px"><span style="width: 66px; flex: none; font-weight: 600">{{ n.when }}</span><span style="flex: 1; min-width: 0">{{ n.title }}</span><span style="font-size: 12px; background: #F2ECE3; border-radius: 999px; padding: 2px 8px; white-space: nowrap">{{ n.status }}</span></div>
+</sc-for>
+</div>
+</section>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: stretch">
+<section aria-labelledby="top" style="flex: 999 1 520px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px">
+<h2 id="top" style="margin: 0; font-size: 15px; font-weight: 600; margin-bottom: 8px">Top posts, last 30 days</h2>
+<div style="overflow-x: auto">
+<div role="table" aria-label="Top posts" style="min-width: 460px; font-size: 13.5px">
+<div role="row" style="display: grid; grid-template-columns: 28px minmax(0, 1fr) 70px 60px 60px; gap: 10px; font-size: 12px; color: #6E655C; padding: 6px 0"><span role="columnheader">#</span><span role="columnheader">Post</span><span role="columnheader" style="text-align: right">Reach</span><span role="columnheader" style="text-align: right">Saves</span><span role="columnheader" style="text-align: right">Shares</span></div>
+<sc-for list="{{ ch.top }}" as="p" hint-placeholder-count="4">
+<div role="row" style="display: grid; grid-template-columns: 28px minmax(0, 1fr) 70px 60px 60px; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid #F2ECE3"><span role="cell" style="color: #6E655C">{{ p.rank }}</span><span role="cell" style="min-width: 0"><span style="display: block; font-weight: 500">{{ p.title }}</span><span style="font-size: 12px; color: #6E655C">{{ p.kind }}</span></span><span role="cell" style="text-align: right; font-weight: 600; font-variant-numeric: tabular-nums">{{ p.reach }}</span><span role="cell" style="text-align: right; font-variant-numeric: tabular-nums">{{ p.saves }}</span><span role="cell" style="text-align: right; font-variant-numeric: tabular-nums">{{ p.shares }}</span></div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="when" style="flex: 1 1 300px; min-width: 0; background: #FFFDF9; border: 1px solid #E8E1D6; border-radius: 14px; padding: 16px 18px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px"><h2 id="when" style="margin: 0; font-size: 15px; font-weight: 600">When people are around</h2><span style="font-size: 13px">Best: <b style="{{ ch.accentText }}">{{ ch.best }}</b></span></div>
+<div role="img" aria-label="Audience activity by day and time. Best time {{ ch.best }}." style="display: flex; flex-direction: column; gap: 3px">
+<sc-for list="{{ ch.heatRows }}" as="r" hint-placeholder-count="7">
+<div style="display: grid; grid-template-columns: 34px repeat(6, minmax(0, 1fr)); gap: 3px; align-items: center"><span style="font-size: 11.5px; color: #6E655C">{{ r.day }}</span><sc-for list="{{ r.cells }}" as="x" hint-placeholder-count="6"><span style="{{ x.style }}"></span></sc-for></div>
+</sc-for>
+<div aria-hidden="true" style="display: grid; grid-template-columns: 34px repeat(6, minmax(0, 1fr)); gap: 3px; font-size: 10.5px; color: #6E655C; margin-top: 4px; text-align: center"><span></span><span>8 am</span><span>11 am</span><span>2 pm</span><span>5 pm</span><span>8 pm</span><span>11 pm</span></div>
+</div>
+</section>
+</div>
+</div>
+</sc-if>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+const CHANNELS = {
+"elite": {
+"id": "elite",
+"no": "01",
+"name": "ByEliteMinds",
+"handle": "@byeliteminds",
+"platform": "Instagram",
+"unit": "followers",
+"bio": "Geopolitics, AI and money, explained in carousels.",
+"av": "/_blob/2f00671944200cf7d4c197439fb14a39",
+"accent": "#4F6E55",
+"wash": "#E6EFE6",
+"screen": "#D8E6DA",
+"big": "2,104",
+"delta": "+96 this week",
+"pulse": "Steady climber",
+"series": [
+1420,
+1480,
+1530,
+1600,
+1660,
+1710,
+1790,
+1850,
+1910,
+1980,
+2008,
+2104
+],
+"kpis": [
+{
+"label": "Reach, 7 days",
+"value": "48.2K",
+"delta": "↑ 12%",
+"good": true
+},
+{
+"label": "Non-follower reach",
+"value": "68%",
+"delta": "↑ 4 pts",
+"good": true
+},
+{
+"label": "Engagement rate",
+"value": "6.4%",
+"delta": "↑ 0.6 pts",
+"good": true
+},
+{
+"label": "Saves",
+"value": "1,312",
+"delta": "↑ 18%",
+"good": true
+},
+{
+"label": "Shares",
+"value": "864",
+"delta": "↑ 9%",
+"good": true
+},
+{
+"label": "Profile visits",
+"value": "1,120",
+"delta": "↓ 3%",
+"good": false
+}
+],
+"split": 68,
+"mix": [
+{
+"label": "Carousels",
+"pct": 78
+},
+{
+"label": "Reels",
+"pct": 15
+},
+{
+"label": "Single image",
+"pct": 7
+}
+],
+"heat": [
+"000110",
+"001231",
+"000120",
+"001342",
+"000231",
+"011221",
+"012210"
+],
+"best": "Thu 8 PM",
+"top": [
+{
+"rank": 1,
+"title": "Greenland is not for sale (yet)",
+"kind": "Carousel · 10 slides",
+"reach": "18.4K",
+"saves": "412",
+"shares": "296"
+},
+{
+"rank": 2,
+"title": "Rare earths: China's quiet lever",
+"kind": "Carousel · 9 slides",
+"reach": "12.1K",
+"saves": "338",
+"shares": "201"
+},
+{
+"rank": 3,
+"title": "Ferguson's empire math",
+"kind": "Carousel · 8 slides",
+"reach": "7.8K",
+"saves": "190",
+"shares": "88"
+},
+{
+"rank": 4,
+"title": "Why AI chips need Taiwan",
+"kind": "Reel · 0:42",
+"reach": "6.2K",
+"saves": "96",
+"shares": "140"
+}
+],
+"next": [
+{
+"when": "Thu 8 PM",
+"title": "India's chip bet, in 8 slides",
+"status": "Drafted"
+},
+{
+"when": "Mon 8 PM",
+"title": "The Strait of Hormuz in one map",
+"status": "Idea"
+}
+],
+"story": "Saves are your strongest signal here. People keep these to read again, so longer carousels win.",
+"warn": ""
+},
+"cte": {
+"id": "cte",
+"no": "02",
+"name": "CatchTheError",
+"handle": "@catchtheerror",
+"platform": "Instagram",
+"unit": "followers",
+"bio": "Tech myths, caught and corrected. One case at a time.",
+"av": "/_blob/3860799aa8b3d22d357c90d925411512",
+"accent": "#A4502C",
+"wash": "#F6E6DC",
+"screen": "#F3DCCB",
+"big": "1,286",
+"delta": "+188 this week",
+"pulse": "Breaking out",
+"series": [
+210,
+260,
+330,
+380,
+450,
+520,
+610,
+700,
+820,
+950,
+1098,
+1286
+],
+"kpis": [
+{
+"label": "Reach, 7 days",
+"value": "61.7K",
+"delta": "↑ 41%",
+"good": true
+},
+{
+"label": "Non-follower reach",
+"value": "82%",
+"delta": "↑ 6 pts",
+"good": true
+},
+{
+"label": "Engagement rate",
+"value": "8.9%",
+"delta": "↑ 1.2 pts",
+"good": true
+},
+{
+"label": "Saves",
+"value": "2,040",
+"delta": "↑ 52%",
+"good": true
+},
+{
+"label": "Shares",
+"value": "1,530",
+"delta": "↑ 64%",
+"good": true
+},
+{
+"label": "Follows from posts",
+"value": "188",
+"delta": "↑ 27%",
+"good": true
+}
+],
+"split": 82,
+"mix": [
+{
+"label": "Carousels",
+"pct": 85
+},
+{
+"label": "Reels",
+"pct": 15
+}
+],
+"heat": [
+"000121",
+"001231",
+"000110",
+"001232",
+"001243",
+"012342",
+"012321"
+],
+"best": "Sat 7 PM",
+"top": [
+{
+"rank": 1,
+"title": "Case 018: The Office clones nobody told you about",
+"kind": "Carousel · 9 slides",
+"reach": "31.2K",
+"saves": "904",
+"shares": "712"
+},
+{
+"rank": 2,
+"title": "Case 017: Adobe did not open-source anything",
+"kind": "Carousel · 8 slides",
+"reach": "22.5K",
+"saves": "688",
+"shares": "541"
+},
+{
+"rank": 3,
+"title": "Case 014: Your RAM is not \"wasted\"",
+"kind": "Carousel · 7 slides",
+"reach": "8.0K",
+"saves": "231",
+"shares": "160"
+},
+{
+"rank": 4,
+"title": "Case 015: Airplane mode and your battery",
+"kind": "Reel · 0:31",
+"reach": "5.1K",
+"saves": "88",
+"shares": "97"
+}
+],
+"next": [
+{
+"when": "Sat 7 PM",
+"title": "Case 019: \"Incognito hides you from your ISP\"",
+"status": "Needs art"
+},
+{
+"when": "Wed 7 PM",
+"title": "Case 020: pick from the comments",
+"status": "Idea"
+}
+],
+"story": "Shares are doing the work. 8 in 10 people who see a case do not follow you yet, so every post is a first impression.",
+"warn": ""
+},
+"yt": {
+"id": "yt",
+"no": "03",
+"name": "Aspersh",
+"handle": "Aspersh",
+"platform": "YouTube",
+"unit": "subscribers",
+"bio": "Long builds and walkthroughs. Code you can follow along with.",
+"av": "/_blob/3e2eb35586370fe4697ea078e06a448b",
+"accent": "#8A5F12",
+"wash": "#F8EED8",
+"screen": "#F3E3BE",
+"big": "642",
+"delta": "+28 this week",
+"pulse": "Slow and loyal",
+"series": [
+480,
+494,
+503,
+515,
+529,
+540,
+556,
+570,
+588,
+601,
+614,
+642
+],
+"kpis": [
+{
+"label": "Views, 7 days",
+"value": "3,980",
+"delta": "↑ 9%",
+"good": true
+},
+{
+"label": "Watch hours",
+"value": "212",
+"delta": "↑ 6%",
+"good": true
+},
+{
+"label": "Avg view duration",
+"value": "4:12",
+"delta": "↑ 0:20",
+"good": true
+},
+{
+"label": "Click-through rate",
+"value": "5.8%",
+"delta": "↓ 0.4 pts",
+"good": false
+},
+{
+"label": "Returning viewers",
+"value": "31%",
+"delta": "↑ 3 pts",
+"good": true
+},
+{
+"label": "Subs from videos",
+"value": "28",
+"delta": "↑ 12%",
+"good": true
+}
+],
+"split": 54,
+"mix": [
+{
+"label": "Long videos",
+"pct": 70
+},
+{
+"label": "Shorts",
+"pct": 30
+}
+],
+"heat": [
+"000011",
+"000121",
+"000110",
+"000121",
+"000122",
+"001232",
+"012331"
+],
+"best": "Sun 6 PM",
+"top": [
+{
+"rank": 1,
+"title": "I let an AI drive my Android phone",
+"kind": "Video · 18:04",
+"reach": "2.1K",
+"saves": "61",
+"shares": "33"
+},
+{
+"rank": 2,
+"title": "Claude and Codex, talking through MCP",
+"kind": "Video · 22:40",
+"reach": "1.4K",
+"saves": "48",
+"shares": "20"
+},
+{
+"rank": 3,
+"title": "Next.js and Supabase in one evening",
+"kind": "Video · 31:12",
+"reach": "0.9K",
+"saves": "27",
+"shares": "9"
+},
+{
+"rank": 4,
+"title": "Pixel art in Python, in 60 seconds",
+"kind": "Short · 0:58",
+"reach": "0.8K",
+"saves": "12",
+"shares": "15"
+}
+],
+"next": [
+{
+"when": "Sun 6 PM",
+"title": "Building Bindle, week 1: the Rust core",
+"status": "Recording"
+}
+],
+"story": "Fewer people, but they stay. Viewers watch 4 minutes on average, so chapters and a strong first minute matter more than the thumbnail.",
+"warn": "Analytics stopped syncing yesterday. Sign in to YouTube again to keep this up to date."
+}
+};
+const ORDER = ['elite', 'cte', 'yt'];
+const HEAT = ['#F5F0E8', '#EADFCB', '#E0C59A', '#D19A63', '#B8693E'];
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+function spark(series, w, h) {
+  const mn = Math.min.apply(null, series), mx = Math.max.apply(null, series);
+  return series.map(function (v, i) {
+    return ((i / (series.length - 1)) * w).toFixed(1) + ',' + (h - 3 - ((v - mn) / (mx - mn || 1)) * (h - 6)).toFixed(1);
+  }).join(' ');
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { ch: null };
+  }
+
+  renderVals() {
+    const self = this;
+    const current = this.state.ch;
+    const channels = ORDER.map(function (id) {
+      const c = CHANNELS[id];
+      return Object.assign({}, c, {
+        spark: spark(c.series, 220, 44),
+        pick: function () { self.setState({ ch: id }); },
+        tabStyle: current === id
+          ? 'background: #FFFDF9; color: #2B2622; font-weight: 600; box-shadow: 0 1px 0 #D9CFC0'
+          : 'background: transparent; color: #4A433C; font-weight: 500',
+        pressed: current === id ? 'true' : 'false'
+      });
+    });
+    let ch = null;
+    if (current) {
+      const c = CHANNELS[current];
+      const W = 640, H = 200;
+      const mn = Math.min.apply(null, c.series), mx = Math.max.apply(null, c.series);
+      const lo = Math.floor(mn * 0.9 / 100) * 100, hi = Math.ceil(mx * 1.05 / 100) * 100;
+      const pts = c.series.map(function (v, i) { return [(i / (c.series.length - 1)) * W, H - ((v - lo) / (hi - lo)) * H]; });
+      const line = pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+      const last = pts[pts.length - 1];
+      const first = c.series[0], end = c.series[c.series.length - 1];
+      ch = Object.assign({}, c, {
+        line: line,
+        area: '0,' + H + ' ' + line + ' ' + W + ',' + H,
+        lastX: last[0].toFixed(1), lastY: last[1].toFixed(1),
+        hi: hi.toLocaleString('en-IN'), lo: lo.toLocaleString('en-IN'), mid: Math.round((hi + lo) / 2).toLocaleString('en-IN'),
+        growth: '+' + Math.round((end / first - 1) * 100) + '% in 12 weeks',
+        nonStyle: 'width: ' + c.split + '%; background: ' + c.accent + '; border-radius: 6px',
+        followStyle: 'width: ' + (100 - c.split) + '%; background: #E8E1D6; border-radius: 6px',
+        followPct: (100 - c.split) + '%', nonPct: c.split + '%',
+        mixRows: c.mix.map(function (m) {
+          return { label: m.label, pct: m.pct + '%', style: 'width: ' + m.pct + '%; height: 8px; border-radius: 999px; background: ' + c.accent };
+        }),
+        kpiRows: c.kpis.map(function (k) {
+          return Object.assign({}, k, { deltaStyle: k.good ? 'color: #4F6E55; background: #E6EFE6' : 'color: #8A5F12; background: #F8EED8' });
+        }),
+        heatRows: c.heat.map(function (row, d) {
+          return { day: DAYS[d], cells: row.split('').map(function (n) { return { style: 'height: 24px; border-radius: 4px; background: ' + HEAT[+n] }; }) };
+        }),
+        accentText: 'color: ' + c.accent,
+        hasWarn: !!c.warn
+      });
+    }
+    return { isOverview: !current, isDetail: !!current, channels: channels, ch: ch, back: function () { self.setState({ ch: null }); } };
+  }
+}
+</script>
+</body>
+</html>
