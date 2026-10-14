@@ -7,6 +7,7 @@
 //! `user_version`. A failed migration rolls back and leaves the file untouched
 //! (handbook P10, Data checks).
 
+pub mod lifecycle;
 pub mod people;
 pub mod promises;
 
@@ -21,6 +22,10 @@ const MIGRATIONS: &[(&str, &str)] = &[
         "0002_spaces_and_sync",
         include_str!("../migrations/0002_spaces_and_sync.sql"),
     ),
+    (
+        "0003_later_and_undo",
+        include_str!("../migrations/0003_later_and_undo.sql"),
+    ),
 ];
 
 /// Everything that can go wrong in the store.
@@ -28,6 +33,16 @@ const MIGRATIONS: &[(&str, &str)] = &[
 pub enum StoreError {
     #[error("a promise needs a few words")]
     EmptyTitle,
+    #[error("that promise is not here any more")]
+    NotFound,
+    #[error("{0}")]
+    NotAllowed(#[from] bindle_core::TransitionError),
+    #[error("{0}")]
+    NotSorted(#[from] bindle_core::SortError),
+    #[error("it changed again since, so Undo would lose that change")]
+    ChangedSince,
+    #[error("nothing to undo")]
+    NothingToUndo,
     #[error("database error: {0}")]
     Sqlite(#[from] rusqlite::Error),
     #[error("migration {name} failed: {source}")]
@@ -92,6 +107,37 @@ mod tests {
     fn running_migrations_twice_changes_nothing() {
         let mut conn = open_in_memory().expect("open");
         migrate(&mut conn).expect("second run is a no-op");
+    }
+
+    #[test]
+    fn history_written_before_migration_3_survives_it() {
+        let mut conn = Connection::open_in_memory().expect("open");
+        conn.pragma_update(None, "foreign_keys", "ON")
+            .expect("pragma");
+        for (name, sql) in &MIGRATIONS[..2] {
+            conn.execute_batch(sql)
+                .unwrap_or_else(|e| panic!("{name}: {e}"));
+        }
+        conn.pragma_update(None, "user_version", 2)
+            .expect("version");
+        conn.execute_batch(
+            "INSERT INTO promise (id, title, created_at, updated_at) VALUES ('p1', 'Call mom', 'x', 'x');
+             INSERT INTO promise_event (id, promise_id, at, kind, data)
+               VALUES ('e1', 'p1', '2026-10-14', 'created', '{\"unsure_words\":\"kal\"}');",
+        )
+        .expect("old rows");
+        migrate(&mut conn).expect("migrate");
+        let data: String = conn
+            .query_row("SELECT data FROM promise_event WHERE id = 'e1'", [], |r| {
+                r.get(0)
+            })
+            .expect("kept");
+        assert_eq!(data, r#"{"unsure_words":"kal"}"#);
+        conn.execute(
+            "INSERT INTO promise_event (id, promise_id, at, kind) VALUES ('e2', 'p1', 'x', 'undone')",
+            [],
+        )
+        .expect("undone is now allowed");
     }
 
     #[test]

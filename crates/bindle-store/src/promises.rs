@@ -133,6 +133,36 @@ pub fn list_by_state(conn: &Connection, state: State) -> Result<Vec<Promise>, St
     Ok(rows.collect::<Result<_, _>>()?)
 }
 
+/// A promise waiting in Sort, with what was typed and any words to check.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct SortItem {
+    pub promise: Promise,
+    /// Exactly what was typed in Jot down.
+    pub typed: Option<String>,
+    /// Words that could mean two things, such as "kal", to ask about.
+    pub unsure_words: Option<String>,
+}
+
+/// Everything waiting in Sort, oldest first.
+pub fn sort_queue(conn: &Connection) -> Result<Vec<SortItem>, StoreError> {
+    let sql = format!(
+        "SELECT {COLUMNS}, source.snippet,
+                (SELECT json_extract(e.data, '$.unsure_words') FROM promise_event e
+                 WHERE e.promise_id = p.id AND e.kind = 'created')
+         {FROM} LEFT JOIN source ON source.id = p.source_id
+         WHERE p.state = 'unsorted' ORDER BY p.created_at, p.id"
+    );
+    let mut stmt = conn.prepare(&sql)?;
+    let rows = stmt.query_map([], |row| {
+        Ok(SortItem {
+            promise: read_row(row)?,
+            typed: row.get(16)?,
+            unsure_words: row.get(17)?,
+        })
+    })?;
+    Ok(rows.collect::<Result<_, _>>()?)
+}
+
 /// How many promises are in `state`. Used for badges such as "4 new" on Sort.
 pub fn count_by_state(conn: &Connection, state: State) -> Result<u32, StoreError> {
     Ok(conn.query_row(
@@ -143,7 +173,7 @@ pub fn count_by_state(conn: &Connection, state: State) -> Result<u32, StoreError
 }
 
 /// A day as stored: `2026-10-14`, or `2026-10-14T20:30` with a time.
-fn stored_when(when: When) -> String {
+pub(crate) fn stored_when(when: When) -> String {
     match when.time {
         Some(time) => format!("{}T{}", when.day.format("%Y-%m-%d"), time.format("%H:%M")),
         None => when.day.format("%Y-%m-%d").to_string(),

@@ -166,6 +166,32 @@ pub fn check_transition(from: State, to: State) -> Result<(), TransitionError> {
     }
 }
 
+/// Why a promise cannot be kept as sorted yet. The messages are shown as is.
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum SortError {
+    #[error("Say who will do it: you, them, or just for you.")]
+    NoDirection,
+    #[error("A firm promise needs a day. Pick one, or make it Sometime.")]
+    NoDay,
+}
+
+/// Checks a promise being kept from Sort (handbook principle 1, close the
+/// loop): it must say who owes it, and a firm promise must have a day.
+/// Soft promises ("sometime") may stay without one.
+pub fn check_sorted(
+    direction: Option<Direction>,
+    strength: Strength,
+    when: Option<When>,
+) -> Result<(), SortError> {
+    if direction.is_none() {
+        return Err(SortError::NoDirection);
+    }
+    if strength == Strength::Firm && when.is_none() {
+        return Err(SortError::NoDay);
+    }
+    Ok(())
+}
+
 /// Returns `true` when a promise belongs under "Running late" on Home.
 ///
 /// Only open, firm promises with a date before today count. Soft promises are
@@ -275,6 +301,28 @@ mod tests {
                 to: State::Later
             })
         );
+    }
+
+    #[test]
+    fn a_kept_promise_says_who_owes_it_and_when() {
+        let friday = Some(When {
+            day: day(2026, 10, 16),
+            time: None,
+        });
+        assert_eq!(
+            check_sorted(None, Strength::Firm, friday),
+            Err(SortError::NoDirection)
+        );
+        assert_eq!(
+            check_sorted(Some(Direction::Mine), Strength::Firm, None),
+            Err(SortError::NoDay)
+        );
+        assert!(check_sorted(Some(Direction::Mine), Strength::Firm, friday).is_ok());
+    }
+
+    #[test]
+    fn a_soft_promise_can_be_kept_without_a_day() {
+        assert!(check_sorted(Some(Direction::Theirs), Strength::Soft, None).is_ok());
     }
 
     #[test]
