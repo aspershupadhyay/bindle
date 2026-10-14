@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bindle</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Bindle keeps the promises you make and the ones made to you, so your head does not have to. Free for Windows, macOS and Linux.">
+<link rel="icon" type="image/png" href="art/bindle-24.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one column like a page from a travel journal; pixel art at
+   whole-number scales, hard one-pixel shadows instead of soft ones. */
+:root {
+  --paper: #FAF7F2;
+  --card: #FFFDF9;
+  --sand: #E8E1D6;
+  --sand-soft: #F2ECE3;
+  --ink: #2B2622;
+  --ink-mid: #4A433C;
+  --ink-soft: #6E655C;
+  --clay: #C2653D;
+  --clay-text: #A4502C;
+  --clay-button: #A4502C;
+  --on-clay: #FFFDF9;
+  --clay-wash: #F6E6DC;
+  --sage-text: #4F6E55;
+  --sage-wash: #E6EFE6;
+  --honey-wash: #F8EED8;
+  --honey-text: #8A5F12;
+  --shadow: #2B2622;
+  --display: "Newsreader", Georgia, "Times New Roman", serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1E1B18; --card: #262220; --sand: #3A342E; --sand-soft: #2C2824;
+    --ink: #EDE6DC; --ink-mid: #D4CBBF; --ink-soft: #B3A99D;
+    --clay: #D9825C; --clay-text: #E39A78; --clay-button: #D9825C; --on-clay: #1E1B18; --clay-wash: #3D2A20;
+    --sage-text: #8DB394; --sage-wash: #25302A; --honey-wash: #3A3020; --honey-text: #E3B864;
+    --shadow: #0E0C0B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1E1B18; --card: #262220; --sand: #3A342E; --sand-soft: #2C2824;
+  --ink: #EDE6DC; --ink-mid: #D4CBBF; --ink-soft: #B3A99D;
+  --clay: #D9825C; --clay-text: #E39A78; --clay-button: #D9825C; --on-clay: #1E1B18; --clay-wash: #3D2A20;
+  --sage-text: #8DB394; --sage-wash: #25302A; --honey-wash: #3A3020; --honey-text: #E3B864;
+  --shadow: #0E0C0B;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 16px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+img { max-width: 100%; }
+.sprite { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+a { color: var(--clay-text); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--clay); outline-offset: 3px; }
+.wrap { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 88px; padding-block: 28px 56px; }
+
+/* Theme switch: the logo swaps to its "on dark" version. */
+.logo-dark { display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo-light { display: none; } :root:not([data-theme="light"]) .logo-dark { display: block; } }
+:root[data-theme="dark"] .logo-light { display: none; }
+:root[data-theme="dark"] .logo-dark { display: block; }
+
+/* Top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand-name { font: 600 28px/1 var(--display); }
+.top nav { display: flex; gap: 20px; flex-wrap: wrap; font-size: 15px; }
+.top nav a { color: var(--ink-mid); text-decoration: none; }
+.top nav a:hover { color: var(--clay-text); text-decoration: underline; }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.eyebrow { font: 500 13px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--clay-text); }
+h1 { font: 500 clamp(44px, 7vw, 72px)/1.02 var(--display); letter-spacing: -0.01em; margin: 14px 0 18px; text-wrap: balance; }
+h1 em { font-style: italic; color: var(--clay-text); }
+.lead { font-size: 19px; color: var(--ink-mid); margin: 0 0 28px; max-width: 34ch; }
+.scene { border: 3px solid var(--shadow); box-shadow: 8px 8px 0 var(--shadow); background: var(--sand-soft); }
+.scene img { width: 100%; height: auto; }
+
+/* Buttons with a hard pixel shadow that presses in. */
+.cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.button {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 20px; font: 600 16px/1 var(--body); text-decoration: none;
+  background: var(--clay-button); color: var(--on-clay);
+  border: 3px solid var(--shadow); box-shadow: 4px 4px 0 var(--shadow);
+  transition: transform 80ms steps(2), box-shadow 80ms steps(2);
+}
+.button:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--shadow); }
+.button:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--shadow); }
+.button.quiet { background: var(--card); color: var(--ink); }
+.small { font-size: 14px; color: var(--ink-soft); }
+
+/* Screenshot in a pixel window */
+.window { border: 3px solid var(--shadow); box-shadow: 10px 10px 0 var(--shadow); background: var(--card); }
+.window-bar { display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 3px solid var(--shadow); background: var(--sand-soft); font: 500 13px var(--mono); color: var(--ink-soft); }
+.window-bar i { width: 12px; height: 12px; background: var(--sand); border: 2px solid var(--shadow); display: block; }
+.window-bar i:first-child { background: var(--clay); }
+.window img { display: block; width: 100%; height: auto; }
+
+/* Section heads */
+h2 { font: 500 clamp(32px, 4.5vw, 44px)/1.1 var(--display); margin: 8px 0 12px; text-wrap: balance; }
+.section-intro { color: var(--ink-mid); margin: 0; max-width: 60ch; }
+
+/* Downloads */
+.platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 30px; }
+.platform { background: var(--card); border: 3px solid var(--shadow); box-shadow: 6px 6px 0 var(--shadow); padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.platform.here { background: var(--clay-wash); }
+.platform h3 { margin: 0; font: 600 22px/1.2 var(--display); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.here-tag { font: 500 11px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 7px; border: 2px solid var(--shadow); background: var(--honey-wash); color: var(--honey-text); }
+.platform .glyph { width: 48px; height: 48px; }
+.files { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.files a {
+  display: flex; justify-content: space-between; gap: 10px; align-items: baseline;
+  padding: 10px 12px; border: 2px solid var(--shadow); background: var(--paper);
+  color: var(--ink); text-decoration: none; font-weight: 500;
+}
+.files a:hover { background: var(--sand-soft); }
+.files .kind { font: 500 12px var(--mono); color: var(--ink-soft); white-space: nowrap; }
+.first-open { font-size: 14px; color: var(--ink-mid); margin: 0; }
+.first-open code, .note code { font: 500 13px var(--mono); background: var(--sand-soft); padding: 2px 5px; overflow-wrap: anywhere; }
+.release-line { margin-top: 18px; font-size: 14px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+/* Features */
+.features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 34px 28px; margin-top: 34px; }
+.feature { display: flex; flex-direction: column; gap: 10px; }
+.feature h3 { margin: 0; font: 600 20px/1.2 var(--display); }
+.feature p { margin: 0; color: var(--ink-mid); font-size: 15px; }
+.feature .sprite { width: 64px; height: 64px; }
+kbd { font: 500 12px var(--mono); padding: 2px 6px; border: 2px solid var(--shadow); background: var(--card); }
+
+/* People pictures row */
+.cast { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.feature .cast img { width: 32px; height: 32px; }
+
+/* Promise strip: what Bindle never does */
+.nevers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 3px solid var(--shadow); box-shadow: 8px 8px 0 var(--shadow); background: var(--card); margin-top: 30px; }
+.nevers div { padding: 20px 22px; border-bottom: 2px dashed var(--sand); }
+.nevers div:nth-child(odd) { border-right: 2px dashed var(--sand); }
+.nevers div:nth-last-child(-n+2) { border-bottom: 0; }
+.nevers strong { display: block; font: 600 18px/1.3 var(--display); margin-bottom: 4px; }
+.nevers span { color: var(--ink-mid); font-size: 15px; }
+
+footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 14px; color: var(--ink-soft); border-top: 2px dashed var(--sand); padding-top: 22px; }
+
+@media (max-width: 820px) {
+  .hero { grid-template-columns: 1fr; }
+  .platforms, .features { grid-template-columns: 1fr; }
+  .nevers { grid-template-columns: 1fr; }
+  .nevers div:nth-child(odd) { border-right: 0; }
+  .nevers div:nth-last-child(2) { border-bottom: 2px dashed var(--sand); }
+  .wrap { gap: 64px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .button { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <a class="brand" href="#" aria-label="Bindle home">
+      <img class="sprite logo-light" src="art/bindle-24.png" alt="" width="48" height="48">
+      <img class="sprite logo-dark" src="art/bindle-24-dark.png" alt="" width="48" height="48">
+      <span class="brand-name">Bindle</span>
+    </a>
+    <nav aria-label="Page">
+      <a href="#download">Download</a>
+      <a href="#what">What it does</a>
+      <a href="https://github.com/aspershupadhyay/bindle">Source on GitHub</a>
+    </nav>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div>
+      <div class="eyebrow">Free · Open source · On your computer</div>
+      <h1 id="hero-title">Carry less <em>in your head.</em></h1>
+      <p class="lead">Bindle keeps the promises you make and the ones made to you. Jot one down in three seconds, sort it when you have a moment, and close each day knowing nothing slipped.</p>
+      <div class="cta">
+        <a class="button" id="hero-download" href="#download">Download Bindle</a>
+        <span class="small" id="hero-note">For Windows, macOS and Linux</span>
+      </div>
+    </div>
+    <div class="scene">
+      <img class="sprite" src="art/hills.png" alt="Pixel art: a traveller with a bindle on a stick walking over green hills at sunrise" width="96" height="40" style="width:100%;height:auto">
+    </div>
+  </section>
+
+  <figure class="window" style="margin:0">
+    <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i><span>Bindle · Home</span></div>
+    <img src="art/home.png" alt="Bindle's Home screen: a greeting, a Jot down field, today's top 3, people you are waiting on, and how full each day of the week is" width="1280" height="860" loading="lazy">
+  </figure>
+
+  <section id="download" aria-labelledby="download-title">
+    <div class="eyebrow">Download</div>
+    <h2 id="download-title">Get Bindle for your computer</h2>
+    <p class="section-intro">Each build comes straight from the source code on GitHub. Your promises stay on your computer; nothing is sent anywhere.</p>
+
+    <div class="platforms">
+      <article class="platform" data-os="windows">
+        <h3>Windows <span class="here-tag" hidden>Your system</span></h3>
+        <ul class="files">
+          <li><a data-asset="setup.exe" href="https://github.com/aspershupadhyay/bindle/releases/latest">Installer <span class="kind">.exe</span></a></li>
+          <li><a data-asset=".msi" href="https://github.com/aspershupadhyay/bindle/releases/latest">Installer for IT teams <span class="kind">.msi</span></a></li>
+        </ul>
+        <p class="first-open">First time: Windows may say it protected your PC. Choose <strong>More info</strong>, then <strong>Run anyway</strong>.</p>
+      </article>
+
+      <article class="platform" data-os="mac">
+        <h3>macOS <span class="here-tag" hidden>Your system</span></h3>
+        <ul class="files">
+          <li><a data-asset="aarch64.dmg" href="https://github.com/aspershupadhyay/bindle/releases/latest">Apple silicon (M1 and later) <span class="kind">.dmg</span></a></li>
+          <li><a data-asset="x64.dmg" href="https://github.com/aspershupadhyay/bindle/releases/latest">Intel Mac <span class="kind">.dmg</span></a></li>
+        </ul>
+        <p class="first-open">First time: right-click Bindle in Applications and choose <strong>Open</strong>. If macOS says it is damaged, run <code>xattr -cr /Applications/Bindle.app</code> in Terminal.</p>
+      </article>
+
+      <article class="platform" data-os="linux">
+        <h3>Linux <span class="here-tag" hidden>Your system</span></h3>
+        <ul class="files">
+          <li><a data-asset=".AppImage" href="https://github.com/aspershupadhyay/bindle/releases/latest">AppImage, any distribution <span class="kind">.AppImage</span></a></li>
+          <li><a data-asset=".deb" href="https://github.com/aspershupadhyay/bindle/releases/latest">Debian, Ubuntu <span class="kind">.deb</span></a></li>
+          <li><a data-asset=".rpm" href="https://github.com/aspershupadhyay/bindle/releases/latest">Fedora, openSUSE <span class="kind">.rpm</span></a></li>
+        </ul>
+        <p class="first-open">Install with <code>sudo apt install ./Bindle_*.deb</code>, or make the AppImage executable and run it.</p>
+      </article>
+    </div>
+    <p class="release-line" id="release-line">Every build is listed on <a href="https://github.com/aspershupadhyay/bindle/releases">the releases page</a>.</p>
+  </section>
+
+  <section id="what" aria-labelledby="what-title">
+    <div class="eyebrow">What it does</div>
+    <h2 id="what-title">One bag for everything that needs you</h2>
+    <p class="section-intro">A promise is anything you said you would do, anything someone owes you, and anything you promised yourself. Bindle gives each one a first step and a day, then gets out of the way.</p>
+
+    <div class="features">
+      <div class="feature">
+        <img class="sprite logo-light" src="art/bindle-24.png" alt="" width="72" height="72" style="width:72px;height:72px">
+        <img class="sprite logo-dark" src="art/bindle-24-dark.png" alt="" width="72" height="72" style="width:72px;height:72px">
+        <h3>Jot down from anywhere</h3>
+        <p>Press <kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>J</kbd> over any app and type it the way you would say it: “send reel edit to Rohan kal shaam 7 baje”. Bindle reads the day, time, money and person, in English and Hinglish.</p>
+      </div>
+      <div class="feature">
+        <img class="sprite" src="art/sort.png" alt="" width="64" height="64">
+        <h3>Sort in seconds</h3>
+        <p>Everything you jot waits in Sort until you decide: keep it, save it for later, or let it go. Every change can be undone.</p>
+      </div>
+      <div class="feature">
+        <img class="sprite" src="art/promises.png" alt="" width="64" height="64">
+        <h3>Promises, all in one place</h3>
+        <p>Open, later, done and let go, with search across every promise, person and first step. Ten thousand promises search in a few milliseconds.</p>
+      </div>
+      <div class="feature">
+        <img class="sprite" src="art/people.png" alt="" width="64" height="64">
+        <h3>People, both sides</h3>
+        <p>What you owe each person and what they owe you, with a friendly recap you can copy and send yourself. Give each person a picture and their pronouns.</p>
+        <div class="cast" aria-hidden="true">
+          <img class="sprite" src="art/av-short.png" alt=""><img class="sprite" src="art/av-long.png" alt=""><img class="sprite" src="art/av-curly.png" alt=""><img class="sprite" src="art/av-bun.png" alt=""><img class="sprite" src="art/av-beard.png" alt=""><img class="sprite" src="art/av-turban.png" alt=""><img class="sprite" src="art/av-scarf.png" alt=""><img class="sprite" src="art/av-cap.png" alt=""><img class="sprite" src="art/av-grey.png" alt="">
+        </div>
+      </div>
+      <div class="feature">
+        <img class="sprite" src="art/wrap-up.png" alt="" width="64" height="64">
+        <h3>Wrap up the day</h3>
+        <p>About a minute each evening: what you kept, a quick choice for what is still open, and tomorrow’s top 3. Then rest.</p>
+      </div>
+      <div class="feature">
+        <img class="sprite" src="art/ai.png" alt="" width="64" height="64">
+        <h3>Works with Claude</h3>
+        <p>When you allow it, Claude and other AI apps can read your day and suggest promises over MCP. Suggestions wait in Sort for you; an AI never changes anything.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="never-title">
+    <div class="eyebrow">Promises Bindle makes to you</div>
+    <h2 id="never-title">Kind by design</h2>
+    <div class="nevers">
+      <div><strong>No red, no streaks, no scores</strong><span>A late promise is “running late”, in honey, never in red.</span></div>
+      <div><strong>Quiet by default</strong><span>At most three reminders a day, and none from 10 PM to 7 AM.</span></div>
+      <div><strong>Yours, on your device</strong><span>Daily safety copies, and export to JSON or CSV at any time.</span></div>
+      <div><strong>Never sends for you</strong><span>Bindle copies a nudge or recap; you choose where to send it.</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Bindle · made by Sparsh Upadhyay · open source under Apache 2.0</span>
+    <a href="https://github.com/aspershupadhyay/bindle">github.com/aspershupadhyay/bindle</a>
+  </footer>
+</div>
+
+<script>
+// Marks the visitor's system, then fills each link with the matching file
+// from the latest release on GitHub. If GitHub cannot be reached, the links
+// still open the latest release page.
+(function () {
+  var ua = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || "";
+  var os = /win/i.test(ua) ? "windows" : /mac|iphone|ipad/i.test(ua) ? "mac" : /linux|x11|cros/i.test(ua) ? "linux" : null;
+  var names = { windows: "Windows", mac: "macOS", linux: "Linux" };
+  if (os) {
+    var card = document.querySelector('.platform[data-os="' + os + '"]');
+    if (card) { card.classList.add("here"); card.querySelector(".here-tag").hidden = false; }
+    document.getElementById("hero-download").textContent = "Download for " + names[os];
+  }
+
+  function size(bytes) { return (bytes / 1048576).toFixed(0) + " MB"; }
+
+  fetch("https://api.github.com/repos/aspershupadhyay/bindle/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (release) {
+      var assets = release.assets || [];
+      document.querySelectorAll("[data-asset]").forEach(function (link) {
+        var want = link.getAttribute("data-asset");
+        var asset = assets.find(function (a) { return a.name.endsWith(want) && !a.name.endsWith(".sig"); });
+        if (!asset) return;
+        link.href = asset.browser_download_url;
+        link.querySelector(".kind").textContent = link.querySelector(".kind").textContent + " · " + size(asset.size);
+      });
+      var day = new Date(release.published_at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+      document.getElementById("release-line").innerHTML =
+        "Version " + release.tag_name.replace(/^v/, "") + ", released " + day + ". Every build is listed on <a href=\"" + release.html_url + "\">the release page</a>.";
+      if (os) document.getElementById("hero-note").textContent = "Version " + release.tag_name.replace(/^v/, "") + " for " + names[os];
+    })
+    .catch(function () {});
+})();
+</script>
+</body>
+</html>

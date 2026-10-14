@@ -61,6 +61,10 @@ Hand-crafted screens with a warm paper palette and a hand-made pixel art layer. 
 
 The brand sheet is in [docs/design/v2/brand.png](docs/design/v2/brand.png). The design source files, sprites and render script are in [design/](design/README.md).
 
+## Download
+
+Installers for Windows, macOS and Linux are on the [releases page](https://github.com/aspershupadhyay/bindle/releases/latest), and on the download page at https://aspershupadhyay.github.io/bindle/ (built from `site/`). The builds are not signed yet, so Windows and macOS ask once before opening; the download page says how.
+
 ## Tech stack
 
 | Layer | Choice |

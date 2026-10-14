@@ -1,0 +1,6 @@
+# Design mockups and their render tools are documentation, not the app's
+# code, so GitHub's language bar shows what Bindle is built in (Rust,
+# TypeScript, CSS).
+design/** linguist-documentation
+docs/** linguist-documentation
+site/** linguist-documentation
