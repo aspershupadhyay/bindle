@@ -4,10 +4,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { UndoProvider } from "./components/Undo";
+import { UpdateBar } from "./components/UpdateBar";
 import { commands, inDesktopApp, onPromisesChanged, type Mode } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Home } from "./screens/Home";
 import { useSettings } from "./lib/settings";
+import { UpdatesProvider } from "./lib/updates";
 import { FirstRun } from "./screens/FirstRun";
 import { People } from "./screens/People";
 import { Promises } from "./screens/Promises";
@@ -80,40 +82,43 @@ export function App() {
   }
 
   return (
-    <UndoProvider>
-      <div className="shell">
-        <a className="skip-link" href="#main">Skip to the page</a>
-        <Sidebar
-          mode={mode}
-          current={current}
-          unsorted={unsorted}
-          onMode={switchMode}
-          onScreen={setCurrent}
-          onJotDown={jotDown}
-        />
-        <main className="main" id="main" tabIndex={-1}>
-          {current === "home" ? (
-            <Home
-              ref={jotRef}
-              unsorted={unsorted}
-              onOpenSort={() => setCurrent("sort")}
-              onWrapUp={() => setCurrent("wrapUp")}
-            />
-          ) : current === "sort" ? (
-            <Sort />
-          ) : current === "promises" ? (
-            <Promises focusSearch={focusSearch} onOpenSort={() => setCurrent("sort")} />
-          ) : current === "people" ? (
-            <People />
-          ) : current === "wrapUp" ? (
-            <WrapUp onDone={() => setCurrent("home")} />
-          ) : current === "settings" ? (
-            <Settings />
-          ) : (
-            <Soon screen={findScreen(current)} />
-          )}
-        </main>
-      </div>
-    </UndoProvider>
+    <UpdatesProvider>
+      <UndoProvider>
+        <div className="shell">
+          <a className="skip-link" href="#main">Skip to the page</a>
+          <Sidebar
+            mode={mode}
+            current={current}
+            unsorted={unsorted}
+            onMode={switchMode}
+            onScreen={setCurrent}
+            onJotDown={jotDown}
+          />
+          <main className="main" id="main" tabIndex={-1}>
+            <UpdateBar />
+            {current === "home" ? (
+              <Home
+                ref={jotRef}
+                unsorted={unsorted}
+                onOpenSort={() => setCurrent("sort")}
+                onWrapUp={() => setCurrent("wrapUp")}
+              />
+            ) : current === "sort" ? (
+              <Sort />
+            ) : current === "promises" ? (
+              <Promises focusSearch={focusSearch} onOpenSort={() => setCurrent("sort")} />
+            ) : current === "people" ? (
+              <People />
+            ) : current === "wrapUp" ? (
+              <WrapUp onDone={() => setCurrent("home")} />
+            ) : current === "settings" ? (
+              <Settings />
+            ) : (
+              <Soon screen={findScreen(current)} />
+            )}
+          </main>
+        </div>
+      </UndoProvider>
+    </UpdatesProvider>
   );
 }

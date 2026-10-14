@@ -37,20 +37,23 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 ### Release and website
 - [x] Download page in Bindle's pixel style (`site/`), published by the Website workflow to https://aspershupadhyay.github.io/bindle/ (Pages switched on)
 - [x] Release workflow: start it from the Actions tab with a version; builds Windows (.exe, .msi), macOS (Apple silicon and Intel .dmg) and Linux (.AppImage, .deb, .rpm), unsigned for now
-- [ ] First release v0.0.1: started; check the Release run in the Actions tab, and fix and re-run it if a build failed
+- [x] First release v0.0.1 published on 14 October 2026 (the Release run passed on all four builds)
+- [x] Updates inside the app: Bindle looks for a new version on GitHub after opening and every six hours, offers "Install and restart", and checks the signature first. Releases take their version from the tag, so nothing is bumped by hand
 - [x] GitHub's language bar counts design mockups as documentation
 
 ## Being worked on now
 
 - [ ] Week 8 gate, "all acceptance checks pass": the automated checks pass. The hands-on checks in [ACCEPTANCE.md](ACCEPTANCE.md) still need a person on a real Windows and macOS machine
 - [ ] Signed builds need the Apple and Windows certificates added as repository secrets. Only the owner can do this
+- [ ] Turn on updates: the owner makes the updater key and adds three secrets (see "Updates inside the app" in [RELEASING.md](RELEASING.md)), then releases v0.0.2. People on v0.0.1 install v0.0.2 by hand once; every later version arrives inside the app
 
 ## Left to deal with
 
 ### Before Tier 1 is called done
 - [ ] **Founder gate:** use Bindle on at least 25 of 30 days (handbook P10)
 - [ ] Hands-on test on Windows and macOS: Jot down shortcut, notifications (macOS may ask for permission first), dark theme, and the AI connection from Claude Desktop
-- [ ] Add the signing secrets and cut the first tagged release
+- [ ] Add the signing secrets and cut a signed release
+- [ ] Hands-on test of an update: install v0.0.2, release v0.0.3, and check each system offers and installs it
 - [ ] A screen reader pass (NVDA on Windows, VoiceOver on macOS, Orca on Linux)
 - [ ] Some Wayland desktops refuse global shortcuts. Bindle then works with the in-app shortcut only; a desktop-portal shortcut would fix this
 
