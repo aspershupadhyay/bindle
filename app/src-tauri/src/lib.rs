@@ -50,6 +50,12 @@ pub fn run() {
             commands::home::add_to_top3,
             commands::home::remove_from_top3,
             commands::home::nudge,
+            commands::browse::search_promises,
+            commands::browse::state_counts,
+            commands::browse::promises_in,
+            commands::browse::people_list,
+            commands::browse::person_detail,
+            commands::browse::rename_person,
         ])
         .run(tauri::generate_context!())
         .expect("Bindle could not start");

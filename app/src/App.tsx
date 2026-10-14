@@ -7,6 +7,8 @@ import { UndoProvider } from "./components/Undo";
 import { commands, inDesktopApp, onPromisesChanged, type Mode } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Home } from "./screens/Home";
+import { People } from "./screens/People";
+import { Promises } from "./screens/Promises";
 import { Settings } from "./screens/Settings";
 import { Sort } from "./screens/Sort";
 import { Soon } from "./screens/Soon";
@@ -15,6 +17,7 @@ export function App() {
   const [mode, setMode] = useState<Mode>("life");
   const [current, setCurrent] = useState<ScreenId>("home");
   const [unsorted, setUnsorted] = useState(0);
+  const [focusSearch, setFocusSearch] = useState(0);
   const jotRef = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(() => {
@@ -46,6 +49,14 @@ export function App() {
         event.preventDefault();
         jotDown();
       }
+      // Ctrl+K (Cmd+K), or "/" outside a text field, opens search.
+      const typing = event.target instanceof HTMLElement && event.target.closest("input, textarea, [contenteditable]");
+      if (((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") || (event.key === "/" && !typing)) {
+        event.preventDefault();
+        setMode("life");
+        setCurrent("promises");
+        setFocusSearch((n) => n + 1);
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -72,6 +83,10 @@ export function App() {
             <Home ref={jotRef} unsorted={unsorted} onOpenSort={() => setCurrent("sort")} />
           ) : current === "sort" ? (
             <Sort />
+          ) : current === "promises" ? (
+            <Promises focusSearch={focusSearch} onOpenSort={() => setCurrent("sort")} />
+          ) : current === "people" ? (
+            <People />
           ) : current === "settings" ? (
             <Settings />
           ) : (

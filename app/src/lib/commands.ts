@@ -110,6 +110,29 @@ export interface DayLoad {
   full: boolean;
 }
 
+export interface StateCounts {
+  unsorted: number;
+  open: number;
+  later: number;
+  done: number;
+  let_go: number;
+}
+
+export interface PersonSummary {
+  id: string;
+  name: string;
+  you_owe: number;
+  they_owe: number;
+}
+
+export interface PersonDetail {
+  id: string;
+  name: string;
+  you_owe: Promise[];
+  they_owe: Promise[];
+  kept_lately: Promise[];
+}
+
 export interface AppInfo {
   version: string;
   schema_version: number;
@@ -149,6 +172,12 @@ export const commands = {
   addToTop3: (id: string) => call<void>("add_to_top3", { id }),
   removeFromTop3: (id: string) => call<void>("remove_from_top3", { id }),
   nudge: (id: string) => call<void>("nudge", { id }),
+  searchPromises: (query: string) => call<Promise[]>("search_promises", { query }),
+  stateCounts: () => call<StateCounts>("state_counts"),
+  promisesIn: (state: State) => call<Promise[]>("promises_in", { state }),
+  peopleList: () => call<PersonSummary[]>("people_list"),
+  personDetail: (id: string) => call<PersonDetail>("person_detail", { id }),
+  renamePerson: (id: string, name: string) => call<void>("rename_person", { id, name }),
   hideJot: () => call<void>("hide_jot"),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),

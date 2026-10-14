@@ -62,6 +62,21 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
       return [] as T;
     case "home_view":
       return homeView() as T;
+    case "search_promises": {
+      const words = String(args.query).toLowerCase().split(/\s+/).filter(Boolean);
+      return (words.length === 0 ? [] : promises.filter((p) => words.every((w) => p.title.toLowerCase().includes(w)))) as T;
+    }
+    case "state_counts": {
+      const count = (state: State) => promises.filter((p) => p.state === state).length;
+      return { unsorted: count("unsorted"), open: count("open"), later: count("later"), done: count("done"), let_go: count("let_go") } as T;
+    }
+    case "promises_in":
+      return promises.filter((p) => p.state === (args.state as State)) as T;
+    case "people_list":
+      return [] as T;
+    case "person_detail":
+    case "rename_person":
+      throw { message: "People works in the desktop app only" };
     case "add_to_top3":
     case "remove_from_top3":
     case "nudge":
