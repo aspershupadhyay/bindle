@@ -9,6 +9,7 @@ import { commands, inDesktopApp, onMailChanged, onPromisesChanged, onWorkChanged
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Board } from "./screens/Board";
 import { Code } from "./screens/Code";
+import { Desk } from "./screens/Desk";
 import { Home } from "./screens/Home";
 import { Inbox } from "./screens/Inbox";
 import { useSettings } from "./lib/settings";
@@ -142,6 +143,8 @@ export function App() {
               <People />
             ) : current === "wrapUp" ? (
               <WrapUp onDone={() => setCurrent("home")} />
+            ) : current === "desk" ? (
+              <Desk onScreen={setCurrent} onOpenSort={openSort} />
             ) : current === "code" ? (
               <Code onOpenSort={openSort} />
             ) : current === "inbox" ? (

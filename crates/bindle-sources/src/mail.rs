@@ -9,6 +9,7 @@
 //! you wrote ("I'll send it by Friday"), read the way Jot down reads a line.
 //! Automated email (newsletters, receipts, no-reply senders) never counts.
 
+use bindle_store::insights::{WaitKind, WaitSample};
 use bindle_store::mail::{FoundMail, MailKind, NoticedPromise};
 use chrono::{DateTime, Duration, FixedOffset, TimeZone, Utc};
 use mail_parser::{HeaderValue, MessageParser};
@@ -276,6 +277,40 @@ pub fn triage(
     }
     found.sort_by(|a, b| a.at.cmp(&b.at).then_with(|| a.id.cmp(&b.id)));
     found
+}
+
+/// How long people waited for your replies: in each thread, from the first
+/// email someone wrote you after your last word, to your next email.
+/// Automated email and email not sent to you are not questions.
+pub fn reply_waits(inbox: &[Mail], sent: &[Mail], me: &str) -> Vec<WaitSample> {
+    let me = me.to_lowercase();
+    let mut threads: HashMap<&str, Vec<&Mail>> = HashMap::new();
+    for mail in inbox.iter().chain(sent) {
+        threads.entry(mail.thread.as_str()).or_default().push(mail);
+    }
+    let mut samples = Vec::new();
+    for mut mails in threads.into_values() {
+        mails.sort_by_key(|m| m.at);
+        mails.dedup_by(|a, b| a.message_id == b.message_id);
+        let mut asked: Option<&Mail> = None;
+        for mail in mails {
+            if mail.from_address == me {
+                if let Some(question) = asked.take() {
+                    samples.push(WaitSample {
+                        id: format!("email:{}", question.message_id),
+                        kind: WaitKind::EmailReply,
+                        person: question.from_name.clone(),
+                        asked_at: question.at,
+                        answered_at: mail.at,
+                    });
+                }
+            } else if asked.is_none() && !mail.automated && mail.to.contains(&me) {
+                asked = Some(mail);
+            }
+        }
+    }
+    samples.sort_by_key(|s| s.answered_at);
+    samples
 }
 
 /// The first promise in something you wrote at `at`: a sentence that says

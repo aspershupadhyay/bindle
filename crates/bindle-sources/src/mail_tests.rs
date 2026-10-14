@@ -243,3 +243,34 @@ fn promises_need_a_day_and_your_own_words() {
     let p = notice_promise("Let me check and revert by tomorrow", at, ist()).unwrap();
     assert_eq!(p.title, "Check and revert");
 }
+
+#[test]
+fn reply_waits_measure_from_their_first_unanswered_email() {
+    let follow_up = mail(raw(
+        "Priya Sharma <priya@brand.example>",
+        "Sparsh <sparsh@gmail.com>",
+        "Re: Sponsor brief",
+        "Mon, 12 Oct 2026 12:12:00 +0530",
+        "brief-2@brand.example",
+        "In-Reply-To: <brief-1@brand.example>\r\nReferences: <brief-1@brand.example>\r\n",
+        "Any news?",
+    ));
+    let answer = mail(raw(
+        "Sparsh <sparsh@gmail.com>",
+        "Priya Sharma <priya@brand.example>",
+        "Re: Sponsor brief",
+        "Mon, 12 Oct 2026 14:12:00 +0530",
+        "answer-1@gmail.com",
+        "In-Reply-To: <brief-2@brand.example>\r\nReferences: <brief-1@brand.example> <brief-2@brand.example>\r\n",
+        "Yes, sending today.",
+    ));
+    let waits = reply_waits(&[priya_brief(), follow_up], &[answer], ME);
+    assert_eq!(waits.len(), 1, "two emails, one answer: one wait");
+    let wait = &waits[0];
+    assert_eq!(wait.id, "email:brief-1@brand.example");
+    assert_eq!(wait.person, "Priya Sharma");
+    assert_eq!((wait.answered_at - wait.asked_at).num_hours(), 4);
+
+    // An email nobody answered yet is not a wait (it is in Inbox instead).
+    assert!(reply_waits(&[priya_brief()], &[], ME).is_empty());
+}

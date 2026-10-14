@@ -2,7 +2,7 @@
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
 // Accessibility audit (docs/ACCEPTANCE.md). With `npm run dev` running, walks
-// through first run, every Life screen, and Work's Code, Inbox and Board in
+// through first run, every Life screen, and Work's Desk, Code, Inbox and Board in
 // the browser preview, and lists unnamed buttons and links, images without
 // alt text, unlabelled fields, duplicate ids, missing landmarks, and a skip
 // link that is not first.
@@ -74,6 +74,9 @@ await audit("Inbox, connected");
 await page.getByRole("button", { name: /^Board/ }).click();
 await page.waitForTimeout(400);
 await audit("Board");
+await page.getByRole("button", { name: /^Desk/ }).click();
+await page.waitForTimeout(400);
+await audit("Desk");
 await page.getByRole("button", { name: /^Life$/ }).click();
 console.log(problems.join("\n") || "no problems");
 await browser.close();

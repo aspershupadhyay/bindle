@@ -2,8 +2,8 @@
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
 import { describe, expect, it } from "vitest";
-import type { BoardView, CodeView, InboxView, WorkItem } from "./commands";
-import { age, boardSummary, cardFrom, cardSource, codeSummary, countWord, inboxSummary, lookedAgo, promiseNote, shortName } from "./work";
+import type { BoardView, CodeView, DeskView, InboxView, WorkItem } from "./commands";
+import { age, boardSummary, cardFrom, cardSource, codeSummary, compareWait, countWord, deskSummary, hoursLabel, inboxSummary, lookedAgo, promiseNote, shortName, streak, waitStory } from "./work";
 
 const now = new Date("2026-10-14T12:00:00Z");
 
@@ -141,5 +141,47 @@ describe("board words", () => {
     expect(cardSource("GitHub a/b#1")).toBe("code");
     expect(cardSource("Gmail")).toBe("inbox");
     expect(cardSource(null)).toBe("other");
+  });
+});
+
+describe("desk words", () => {
+  const trend = (recent: number | null, before: number | null, weekly: (number | null)[] = []) => ({ recent, before, weekly });
+
+  it("says hours the way people do", () => {
+    expect(hoursLabel(0.4)).toBe("24 min");
+    expect(hoursLabel(3.24)).toBe("3.2 h");
+    expect(hoursLabel(18.4)).toBe("18 h");
+    expect(hoursLabel(60)).toBe("3 days");
+  });
+
+  it("compares with your own last four weeks", () => {
+    expect(compareWait(trend(3.2, 4.1))).toBe("faster than 4.1 h");
+    expect(compareWait(trend(18, 11))).toBe("slower than 11 h");
+    expect(compareWait(trend(4, 4.1))).toBe("about the same as 4.1 h");
+    expect(compareWait(trend(3, null))).toBeNull();
+  });
+
+  it("counts weeks running, in either direction", () => {
+    expect(streak([null, 9, 8, 6, 5])).toBe(3);
+    expect(streak([5, 9, 12])).toBe(-2);
+    expect(streak([5, 4, 6])).toBe(-1);
+    expect(streak([null, 4])).toBe(0);
+  });
+
+  it("tells the wait story plainly", () => {
+    expect(waitStory(trend(3, 4, [6, 5, 4, 3]), trend(18, 11, [9, 11, 18]))).toBe(
+      "Email replies got faster three weeks running. Reviews got slower two weeks running.",
+    );
+    expect(waitStory(trend(null, null, []), trend(null, null, []))).toBe(
+      "Bindle needs a few weeks of replies and reviews before it can tell a story.",
+    );
+  });
+
+  it("sums up the desk", () => {
+    const now = new Date("2026-10-14T12:00:00Z");
+    const item = { id: "r1", source: "github" as const, kind: "review" as const, title: "t", person: "kunal-m", reference: "latch #42", at: "2026-10-12T10:00:00Z", url: "", promise: null };
+    const view = { needs_you: [item, { ...item, id: "m", kind: "reply" as const }] } as unknown as DeskView;
+    expect(deskSummary(view, now)).toBe("Two things need you. The oldest is a pull request review from Monday.");
+    expect(deskSummary({ needs_you: [] } as unknown as DeskView, now)).toBe("Nothing needs you right now.");
   });
 });

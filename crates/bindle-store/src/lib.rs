@@ -12,6 +12,7 @@ pub mod backup;
 pub mod board;
 pub mod export;
 pub mod home;
+pub mod insights;
 pub mod lifecycle;
 pub mod mail;
 pub mod people;
@@ -53,6 +54,7 @@ const MIGRATIONS: &[(&str, &str)] = &[
         "0008_mail_and_board",
         include_str!("../migrations/0008_mail_and_board.sql"),
     ),
+    ("0009_waits", include_str!("../migrations/0009_waits.sql")),
 ];
 
 /// Everything that can go wrong in the store.

@@ -100,3 +100,33 @@ async fn no_server_means_offline() {
     let client = Client::with_base("t", "http://127.0.0.1:9").unwrap();
     assert_eq!(client.work().await, Err(GithubError::Offline));
 }
+
+#[tokio::test]
+async fn review_waits_ask_only_about_new_pull_requests() {
+    let (base, server) = serve(|request| {
+        if request.contains("reviewed-by") {
+            (200, REVIEWS.into())
+        } else if request.contains("/repos/kunal-m/latch/pulls/42/reviews") {
+            (
+                200,
+                r#"[{"user":{"login":"me"},"submitted_at":"2026-10-12T16:00:00Z"}]"#.into(),
+            )
+        } else {
+            (404, "{}".into())
+        }
+    })
+    .await;
+    let client = Client::with_base("t", &base).unwrap();
+    // gymbros #88 was measured on an earlier look.
+    let known = std::collections::HashSet::from(["review:github:PR_kwDOGym88".to_string()]);
+    let now = chrono::DateTime::parse_from_rfc3339("2026-10-14T12:00:00Z")
+        .unwrap()
+        .with_timezone(&chrono::Utc);
+    let waits = client.review_waits("me", &known, now).await.unwrap();
+    assert_eq!(waits.len(), 1);
+    assert_eq!(waits[0].id, "review:github:PR_kwDOLatch42");
+    assert_eq!(waits[0].person, "kunal-m");
+    assert_eq!((waits[0].answered_at - waits[0].asked_at).num_hours(), 6);
+    let seen = server.await.unwrap();
+    assert_eq!(seen.len(), 2, "one search and one list of reviews");
+}

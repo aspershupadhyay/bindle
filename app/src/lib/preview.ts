@@ -6,6 +6,7 @@
 // rules are not checked: the real ones live in Rust. It exists so screens can
 // be tried and screenshotted without building the desktop app.
 
+import { sampleDesk } from "./preview-desk";
 import { hideMail, sampleBoard, sampleInbox, sampleMail } from "./preview-mail";
 import { sampleCodeView, sampleWork } from "./preview-work";
 import type { Change, GithubAccount, HomeView, MailAccount, Settings, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
@@ -188,6 +189,8 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
     case "open_in_gmail":
       window.open(String(args.url), "_blank", "noopener");
       return undefined as T;
+    case "desk_view":
+      return sampleDesk(sampleCodeView(github), sampleInbox(gmail)) as T;
     case "board_view":
       return sampleBoard(promises, making) as T;
     case "set_making":

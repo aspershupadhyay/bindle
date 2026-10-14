@@ -135,6 +135,7 @@ pub fn run() {
             commands::mail::mail_restore,
             commands::mail::open_in_gmail,
             commands::board::board_view,
+            commands::desk::desk_view,
             commands::board::set_making,
         ])
         .run(tauri::generate_context!())

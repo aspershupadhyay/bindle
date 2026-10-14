@@ -8,8 +8,11 @@
 //! The token is kept in the system keychain by the app, never in the
 //! database. Three searches cover everything; each reads at most 100 items.
 
+use bindle_store::insights::{WaitKind, WaitSample};
 use bindle_store::work::{FoundItem, WorkKind};
+use chrono::{DateTime, Duration, Utc};
 use serde::Deserialize;
+use std::collections::HashSet;
 use thiserror::Error;
 
 /// Where GitHub's API lives. Tests point the client somewhere else.
@@ -21,7 +24,7 @@ pub const NEW_TOKEN_URL: &str =
     "https://github.com/settings/tokens/new?description=Bindle&scopes=repo";
 
 /// Everything that can go wrong talking to GitHub, in plain words.
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(Debug, Clone, Error, PartialEq, Eq)]
 pub enum GithubError {
     #[error("GitHub did not accept the token. Make a new one and connect again.")]
     BadToken,
@@ -220,6 +223,81 @@ impl Client {
     }
 }
 
+/// At most this many new pull requests are asked about per look: each one
+/// costs a request, and the history fills in over a few looks.
+const NEW_REVIEWS_PER_LOOK: usize = 20;
+
+#[derive(Deserialize)]
+struct Review {
+    user: Option<User>,
+    submitted_at: Option<String>,
+}
+
+/// When `login` first reviewed, from GitHub's list of a pull request's reviews.
+pub fn parse_first_review(body: &str, login: &str) -> Result<Option<DateTime<Utc>>, GithubError> {
+    let reviews: Vec<Review> =
+        serde_json::from_str(body).map_err(|e| GithubError::Unexpected(e.to_string()))?;
+    Ok(reviews
+        .into_iter()
+        .filter(|r| {
+            r.user
+                .as_ref()
+                .is_some_and(|u| u.login.eq_ignore_ascii_case(login))
+        })
+        .filter_map(|r| DateTime::parse_from_rfc3339(r.submitted_at.as_deref()?).ok())
+        .map(|at| at.with_timezone(&Utc))
+        .min())
+}
+
+impl Client {
+    /// How long people waited for your reviews over the last eight weeks:
+    /// from opening a pull request to your first review of it. Pull requests
+    /// already measured (`known`) are skipped.
+    pub async fn review_waits(
+        &self,
+        login: &str,
+        known: &HashSet<String>,
+        now: DateTime<Utc>,
+    ) -> Result<Vec<WaitSample>, GithubError> {
+        let since = (now - Duration::weeks(8)).format("%Y-%m-%d").to_string();
+        let query = format!("is:pr reviewed-by:@me -author:@me updated:>={since}");
+        let body = self
+            .get(
+                "/search/issues",
+                &[
+                    ("q", query.as_str()),
+                    ("sort", "updated"),
+                    ("per_page", "50"),
+                ],
+            )
+            .await?;
+        let mut samples = Vec::new();
+        let new = parse_search(WorkKind::Review, &body)?
+            .into_iter()
+            .map(|item| (format!("review:{}", item.id), item))
+            .filter(|(id, _)| !known.contains(id))
+            .take(NEW_REVIEWS_PER_LOOK);
+        for (id, item) in new {
+            let path = format!("/repos/{}/pulls/{}/reviews", item.repo, item.number);
+            let reviews = self.get(&path, &[("per_page", "100")]).await?;
+            let Some(reviewed) = parse_first_review(&reviews, login)? else {
+                continue;
+            };
+            let Ok(opened) = DateTime::parse_from_rfc3339(&item.created_at) else {
+                continue;
+            };
+            samples.push(WaitSample {
+                id,
+                kind: WaitKind::Review,
+                person: item.author,
+                asked_at: opened.with_timezone(&Utc),
+                answered_at: reviewed,
+            });
+        }
+        Ok(samples)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -252,6 +330,21 @@ mod tests {
             Err(GithubError::Unexpected(_))
         ));
         assert_eq!(parse_login(r#"{"login":"octo"}"#).unwrap(), "octo");
+    }
+
+    #[test]
+    fn the_first_review_is_yours_only() {
+        let body = r#"[
+            {"user": {"login": "someone"}, "submitted_at": "2026-10-12T09:00:00Z"},
+            {"user": {"login": "AsperShUpadhyay"}, "submitted_at": "2026-10-13T10:00:00Z"},
+            {"user": {"login": "aspershupadhyay"}, "submitted_at": "2026-10-12T20:00:00Z"},
+            {"user": {"login": "aspershupadhyay"}, "submitted_at": null}
+        ]"#;
+        let first = parse_first_review(body, "aspershupadhyay")
+            .unwrap()
+            .unwrap();
+        assert_eq!(first.to_rfc3339(), "2026-10-12T20:00:00+00:00");
+        assert_eq!(parse_first_review("[]", "me").unwrap(), None);
     }
 
     #[test]

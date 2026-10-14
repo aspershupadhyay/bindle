@@ -212,6 +212,41 @@ export interface BoardCard {
   from: string | null;
 }
 
+/** How long people wait on you, in hours. */
+export interface WaitTrend {
+  /** Median over the last 7 days. */
+  recent: number | null;
+  /** Median over the four weeks before. */
+  before: number | null;
+  /** Median of each of the last 8 weeks, oldest first. */
+  weekly: (number | null)[];
+}
+
+/** Something that needs you now, on the Desk. */
+export interface DeskItem {
+  id: string;
+  source: "github" | "gmail";
+  kind: "review" | "issue" | "reply";
+  title: string;
+  person: string;
+  reference: string;
+  at: string;
+  url: string;
+  promise: { id: string; state: State } | null;
+}
+
+export interface DeskView {
+  needs_you: DeskItem[];
+  email_reply: WaitTrend;
+  review_wait: WaitTrend;
+  shipped: { this_week: number; weekly: number[]; from_code: number; from_inbox: number; other: number };
+  week: { day: string; open: number; done: number }[];
+  github: GithubAccount;
+  gmail: MailAccount;
+  reviews_older_than_a_day: number;
+  replies_owed: number;
+}
+
 export interface BoardView {
   ideas: BoardCard[];
   next: BoardCard[];
@@ -372,6 +407,7 @@ export const commands = {
   mailRestore: (itemId: string) => call<void>("mail_restore", { itemId }),
   openInGmail: (url: string) => call<void>("open_in_gmail", { url }),
   boardView: () => call<BoardView>("board_view"),
+  deskView: () => call<DeskView>("desk_view"),
   setMaking: (id: string, making: boolean) => call<void>("set_making", { id, making }),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),

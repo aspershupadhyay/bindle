@@ -66,3 +66,48 @@
 .board-card-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .board-card-actions:empty { display: none; }
 .board-plan { display: flex; flex-direction: column; gap: 8px; }
+
+/* Desk (v2 design, Desk). */
+
+.desk-tiles { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.desk-links { display: flex; gap: 14px; }
+.desk-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.desk-card h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.desk-card > p { margin: 0; }
+
+.desk-sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.desk-source { display: flex; flex-direction: column; gap: 2px; }
+.desk-source-name { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.desk-state { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--ink-mid); }
+.desk-dot { width: 8px; height: 8px; border-radius: 2px; background: var(--sand); }
+.desk-state.fine .desk-dot { background: var(--sage); }
+.desk-state.behind .desk-dot, .desk-state.attention .desk-dot { background: var(--honey); }
+.desk-state.attention { color: var(--honey-text); }
+
+.desk-legend { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; font-size: 13px; color: var(--ink-mid); }
+.desk-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.desk-swatch { width: 12px; height: 12px; border-radius: 3px; }
+.desk-swatch.done, .desk-fill.done { background: var(--chart-done); }
+.desk-swatch.planned, .desk-fill.planned { background: var(--chart-planned); }
+.desk-week { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.desk-week li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 6px; outline-offset: 2px; }
+.desk-week li.today .small { color: var(--ink); font-weight: 600; }
+.desk-bar { position: relative; width: 100%; max-width: 22px; height: 84px; display: flex; flex-direction: column-reverse; gap: 2px; border-bottom: 1px solid var(--sand); }
+/* Done sits on the baseline, planned on top, 2px apart; rounded data ends. */
+.desk-fill { display: block; width: 100%; border-radius: 4px 4px 0 0; }
+.desk-week li:hover::after, .desk-week li:focus-visible::after {
+  content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  white-space: nowrap; background: var(--ink); color: var(--paper); font-size: 12px; padding: 4px 8px; border-radius: 6px; z-index: 2;
+}
+
+.desk-sparks { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.desk-spark { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.desk-spark figcaption { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 500; }
+.desk-spark svg { width: 100%; height: auto; overflow: visible; }
+.desk-axis { stroke: var(--sand); stroke-width: 1; }
+.desk-line { fill: none; stroke: var(--chart-done); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.desk-point { fill: var(--chart-done); stroke: var(--card); stroke-width: 2; }
+.desk-table summary { cursor: pointer; font-size: 13px; color: var(--clay-text); }
+.desk-table table { margin-top: 8px; border-collapse: collapse; font-size: 13px; width: 100%; }
+.desk-table th, .desk-table td { text-align: left; padding: 4px 8px 4px 0; border-bottom: 1px solid var(--sand); font-weight: 400; }
+.desk-table thead th { color: var(--ink-soft); font-weight: 600; }

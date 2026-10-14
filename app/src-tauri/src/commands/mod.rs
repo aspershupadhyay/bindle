@@ -9,12 +9,13 @@
 //! and search in [`browse`]; Settings, first run and Wrap up in [`day`]; the AI
 //! connection, export, safety copies and people's pictures in [`data`]; GitHub
 //! and the Code screen in [`work`]; Gmail and Inbox in [`mail`]; the Board in
-//! [`board`].
+//! [`board`]; the Work Desk in [`desk`].
 
 pub mod board;
 pub mod browse;
 pub mod data;
 pub mod day;
+pub mod desk;
 pub mod home;
 pub mod lifecycle;
 pub mod mail;

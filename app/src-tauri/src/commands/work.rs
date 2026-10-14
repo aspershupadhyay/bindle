@@ -11,8 +11,10 @@ use super::{announce, lock, CommandError, Reply};
 use crate::Db;
 use bindle_core::Promise;
 use bindle_sources::github::{self, Client, GithubError};
+use bindle_store::insights::{self, WaitKind};
 use bindle_store::work::{self, CodeView, GithubAccount};
 use chrono::{SecondsFormat, Utc};
+use std::collections::HashSet;
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager, State as Managed};
 
@@ -135,9 +137,29 @@ pub(crate) async fn refresh(app: &AppHandle) -> Reply<GithubAccount> {
     let Some(token) = crate::secrets::get(TOKEN) else {
         return Ok(work::github_account(&*lock(&db)?)?);
     };
-    let found = match Client::new(&token) {
+    let (login, known): (Option<String>, HashSet<String>) = {
+        let conn = lock(&db)?;
+        let known = insights::known_waits(&conn, WaitKind::Review)?;
+        (
+            work::github_account(&conn)?.login,
+            known.into_iter().collect(),
+        )
+    };
+    let client = Client::new(&token);
+    let found = match &client {
         Ok(client) => client.work().await,
-        Err(e) => Err(e),
+        Err(e) => Err(e.clone()),
+    };
+    // Review waits are a bonus: if they cannot be read, the look still counts.
+    let waits = match (&client, &login, &found) {
+        (Ok(client), Some(login), Ok(_)) => client
+            .review_waits(login, &known, Utc::now())
+            .await
+            .unwrap_or_else(|error| {
+                eprintln!("Bindle: no review waits this time: {error}");
+                Vec::new()
+            }),
+        _ => Vec::new(),
     };
     let account = {
         let mut conn = lock(&db)?;
@@ -146,6 +168,7 @@ pub(crate) async fn refresh(app: &AppHandle) -> Reply<GithubAccount> {
         match found {
             Ok(items) => {
                 work::sync(&mut conn, "github", &items, now)?;
+                insights::record_waits(&mut conn, &waits)?;
                 account.synced_at = Some(now.to_rfc3339_opts(SecondsFormat::Millis, true));
                 account.error = None;
             }

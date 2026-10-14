@@ -10,7 +10,7 @@ use super::{announce, lock, CommandError, Reply};
 use crate::Db;
 use bindle_core::Promise;
 use bindle_sources::gmail::{self, Gmail, MailError};
-use bindle_sources::mail::{gmail_link, triage};
+use bindle_sources::mail::{gmail_link, reply_waits, triage};
 use bindle_store::mail::{self, InboxView, MailAccount};
 use chrono::{Local, Offset, SecondsFormat, Utc};
 use std::time::Duration;
@@ -173,6 +173,8 @@ pub(crate) async fn refresh(app: &AppHandle) -> Reply<MailAccount> {
             Ok(recent) => {
                 let found = triage(&recent.inbox, &recent.sent, &address, now, zone, gmail_link);
                 mail::sync(&mut conn, "gmail", &found, now)?;
+                let waits = reply_waits(&recent.inbox, &recent.sent, &address);
+                bindle_store::insights::record_waits(&mut conn, &waits)?;
                 account.synced_at = Some(now.to_rfc3339_opts(SecondsFormat::Millis, true));
                 account.error = None;
             }

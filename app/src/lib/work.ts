@@ -4,7 +4,7 @@
 // Words for the Code screen (handbook P3 and P14): how long something has
 // waited, and the one or two sentences at the top.
 
-import type { BoardView, CodeView, InboxView, WorkItem } from "./commands";
+import type { BoardView, CodeView, DeskView, InboxView, WaitTrend, WorkItem } from "./commands";
 
 const numberWords = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 
@@ -127,4 +127,56 @@ export function cardSource(from: string | null): "code" | "inbox" | "other" {
   if (from?.startsWith("GitHub ")) return "code";
   if (from === "Gmail") return "inbox";
   return "other";
+}
+
+/** Hours, the way people say them: "40 min", "3.2 h", "2 days". */
+export function hoursLabel(hours: number): string {
+  if (hours < 1) return `${Math.max(1, Math.round(hours * 60))} min`;
+  if (hours < 10) return `${Math.round(hours * 10) / 10} h`;
+  if (hours < 48) return `${Math.round(hours)} h`;
+  return `${Math.round(hours / 24)} days`;
+}
+
+/** "faster than 4.1 h" or "slower than 11 h", against your own last four weeks. */
+export function compareWait(trend: WaitTrend): string | null {
+  if (trend.recent === null || trend.before === null) return null;
+  if (Math.abs(trend.recent - trend.before) < 0.05 * trend.before) return `about the same as ${hoursLabel(trend.before)}`;
+  return `${trend.recent < trend.before ? "faster" : "slower"} than ${hoursLabel(trend.before)}`;
+}
+
+/** How many weeks in a row a wait got shorter (positive) or longer (negative), up to this week. */
+export function streak(weekly: (number | null)[]): number {
+  const known = weekly.filter((w): w is number => w !== null);
+  let run = 0;
+  for (let i = known.length - 1; i > 0; i--) {
+    const step = Math.sign(known[i - 1] - known[i]);
+    if (step === 0 || (run !== 0 && Math.sign(run) !== step)) break;
+    run += step;
+  }
+  return run;
+}
+
+/** The sentence under "Who waits longer". Plain, and about you against yourself. */
+export function waitStory(email: WaitTrend, reviews: WaitTrend): string {
+  const say = (name: string, trend: WaitTrend) => {
+    const run = streak(trend.weekly);
+    if (Math.abs(run) >= 2) return `${name} got ${run > 0 ? "faster" : "slower"} ${countWord(Math.abs(run)).toLowerCase()} weeks running.`;
+    if (Math.abs(run) === 1) return `${name} got ${run > 0 ? "faster" : "slower"} this week.`;
+    return null;
+  };
+  const parts = [say("Email replies", email), say("Reviews", reviews)].filter(Boolean);
+  if (parts.length === 0) return "Bindle needs a few weeks of replies and reviews before it can tell a story.";
+  return parts.join(" ");
+}
+
+/** The sentences under the Desk title. */
+export function deskSummary(view: DeskView, now: Date): string {
+  const n = view.needs_you.length;
+  if (n === 0) return "Nothing needs you right now.";
+  const first = n === 1 ? "One thing needs you." : `${countWord(n)} things need you.`;
+  const oldest = view.needs_you[0];
+  const what = oldest.kind === "review" ? "a pull request review" : oldest.kind === "issue" ? "an issue" : `an email from ${oldest.person}`;
+  const day = new Date(oldest.at).toLocaleDateString("en-GB", { weekday: "long" });
+  const ageDays = (now.getTime() - Date.parse(oldest.at)) / 86_400_000;
+  return `${first} The oldest is ${what} from ${ageDays < 1 ? "today" : ageDays < 7 ? day : age(oldest.at, now) + " ago"}.`;
 }
