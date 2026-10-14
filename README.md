@@ -11,7 +11,7 @@ A calm, local-first app that carries your promises, from your life and your work
   <img src="docs/design/hero-hills.png" alt="Pixel art: a traveller with a bindle walking over green hills at sunset" width="768">
 </p>
 
-> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. Promises lists everything by state with search across all of it (Ctrl+K), and People shows what you and each person owe each other, with a recap you can send. Wrap up closes the day in about a minute, reminders are quiet by default (at most three a day), and a new person reaches Home in under a minute. An AI app such as Claude can connect over MCP, when you allow it, to read Home and suggest promises that wait in Sort for you. Everything exports to JSON or CSV, and safety copies are made every day. Week 8 added accessibility checks, Linux fixes, a release workflow and updates from inside the app. Weeks 9 and 10 bring Work mode to life: connect GitHub and the Code screen shows the reviews people are waiting on, your pull requests and your issues, and any of them becomes a promise in one click. Weeks 11 and 12 add Gmail and the Board: Inbox shows who is waiting on your reply, your questions still waiting, and promises you wrote in an email, and the Board lays out work promises from Ideas to Shipped. Weeks 13 and 14 add the Work Desk: everything that needs you at work, oldest first, how long people wait on your replies and reviews compared with your own last four weeks, what shipped, and how each source is doing. See [docs/STATUS.md](docs/STATUS.md) for what is done and what is left.
+> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. Promises lists everything by state with search across all of it (Ctrl+K), and People shows what you and each person owe each other, with a recap you can send. Wrap up closes the day in about a minute, reminders are quiet by default (at most three a day), and a new person reaches Home in under a minute. An AI app such as Claude can connect over MCP, when you allow it, to read Home and suggest promises that wait in Sort for you. Everything exports to JSON or CSV, and safety copies are made every day. Week 8 added accessibility checks, Linux fixes, a release workflow and updates from inside the app. Weeks 9 and 10 bring Work mode to life: connect GitHub and the Code screen shows the reviews people are waiting on, your pull requests and your issues, and any of them becomes a promise in one click. Weeks 11 and 12 add Gmail and the Board: Inbox shows who is waiting on your reply, your questions still waiting, and promises you wrote in an email, and the Board lays out work promises from Ideas to Shipped. Weeks 13 and 14 add the Work Desk: everything that needs you at work, oldest first, how long people wait on your replies and reviews compared with your own last four weeks, what shipped, and how each source is doing. Weeks 15 to 17 add Bindle Cloud and Ours: a shared space you carry with someone you live or work with, joined with an invite link that works once, kept in step across devices and locked end to end, so the server keeps only sealed boxes it cannot open. A recovery kit brings it back on a new device. See [docs/STATUS.md](docs/STATUS.md) for what is done and what is left.
 
 <p align="center">
   <img src="docs/screens/week-4-home.png" alt="Life Home in the Bindle desktop app: top 3 with one done, Waiting on others with a nudge, Coming up, and the week strip with a full Friday in honey" width="768">
@@ -103,6 +103,9 @@ bindle/
     bindle-store/    SQLite schema, migrations, Sort, history, Undo, Home, People, search, AI rules, export and safety copies
     bindle-sync/     hybrid logical clocks and merges for Bindle Cloud
     bindle-mcp/      the AI connection: an MCP server that reads and suggests, never changes
+    bindle-sources/  GitHub and Gmail, read only
+    bindle-cloud/    Bindle Cloud on the device: keys, sealing, invite links, recovery kits, the relay client
+    bindle-relay/    Bindle Cloud's server: keeps sealed batches it cannot read, in order
   design/            design sources, sprites and render tools
   docs/              handbook mirror and designs
 ```
@@ -142,6 +145,18 @@ Bindle can talk to Claude Desktop, Claude Code or any app that speaks the Model 
 ```
 
 The AI can read Home, promises and people, and, if you allow it, suggest promises. Suggestions wait in Sort for you, at most 10 at a time. It can never change, finish or remove a promise, and Bindle never sends messages for anyone. People you mark "Keep from AI" are never shown to it, and Settings lists everything an AI read or suggested. For development, `cargo run -p bindle-mcp -- --db <path>` runs the same server on its own.
+
+## Run a Bindle Cloud relay
+
+Ours needs a relay that both devices can reach. It knows no names or passwords and keeps only sealed data: spaces are random ids, and everything in them is locked on the device with XChaCha20-Poly1305 before it is sent.
+
+```sh
+cargo run --release -p bindle-relay -- --db relay.db         # listens on $PORT, 8080 by default
+docker build -f crates/bindle-relay/Dockerfile -t bindle-relay .
+docker run -p 8080:8080 -v bindle-relay:/data bindle-relay
+```
+
+Put HTTPS in front of it, then type its address in Settings > Bindle Cloud.
 
 ## Handbook
 

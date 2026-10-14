@@ -6,16 +6,17 @@ The checks Bindle must pass before Tier 1 is called done (handbook P10). **Autom
 
 | Check | How | Status |
 |---|---|---|
-| Rules, parsing, store, AI connection, GitHub and Gmail sources, Desk checks: 191 Rust tests | `cargo test --workspace` | Passing on Linux, macOS and Windows in CI |
+| Rules, parsing, store, AI connection, GitHub and Gmail sources, Desk checks, Bindle Cloud: 212 Rust tests | `cargo test --workspace` | Passing on Linux, macOS and Windows in CI |
 | Views: typecheck, 94 tests, build | `cd app && npm run typecheck && npm test && npx vite build` | Passing |
 | Format and lint, no warnings | `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings` | Passing |
 | Every source file has the licence header | CI job "Licence headers" | Passing |
 | Colour contrast, WCAG AA (4.5:1 text, 3:1 focus ring), light and dark | `app/src/lib/contrast.test.ts` (48 checks) | Passing |
-| Every button and link has a name, every image has alt text, every field has a label, one `h1` and a `main` landmark per screen, and the skip link comes first | `node app/scripts/a11y-audit.mjs` against `npm run dev` (needs Playwright) | Passing on first run, Home, Sort, Promises, People, Wrap up, Settings, Code and Inbox (before and after connecting), Board and Desk |
+| Every button and link has a name, every image has alt text, every field has a label, one `h1` and a `main` landmark per screen, and the skip link comes first | `node app/scripts/a11y-audit.mjs` against `npm run dev` (needs Playwright) | Passing on first run, Home, Sort, Promises, People, Wrap up, Settings, Code and Inbox (before and after connecting), Board, Desk, the recovery kit and Ours |
 | Weeks 13–14 gate: Desk checks (waits, medians, shipped, the week, what needs you) | `cargo test -p bindle-store insights` | Passing (7 checks) |
+| Weeks 15–17: two devices share a space through a real relay, sealed end to end; offline edits merge by clock; invites work once | `cargo test -p bindle-cloud` and `cargo test -p bindle-store cloud` | Passing |
 | Search under 100 ms on 10,000 promises | `bindle-store` search test | Passing (about 5 ms in release) |
 | Capture: "Saved" only after the write commits | `bindle-store` and `JotField` tests | Passing |
-| Migrations 0001 to 0009 upgrade a real older database | Done by hand on week 6 data; migration tests in `bindle-store` | Passing |
+| Migrations 0001 to 0010 upgrade a real older database | Done by hand on week 6 data; migration tests in `bindle-store` | Passing |
 | Linux `.deb` package builds | `cd app && npx tauri build --bundles deb` | Passing (week 8) |
 
 ## By hand
@@ -37,3 +38,5 @@ The checks Bindle must pass before Tier 1 is called done (handbook P10). **Autom
 | Signed installer opens without a warning | Not signed (Linux packages are not) | To do: needs the certificate | To do: needs the certificate |
 
 **Founder gate:** Bindle used on at least 25 of 30 days. Not started.
+
+**Weeks 15–17 gate:** two people share Ours for two weeks. Waits on a hosted relay (see the README, "Run a Bindle Cloud relay").

@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 13 and 14 (14 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 15 to 17 (14 October 2026).
 
 ## Built
 
@@ -9,7 +9,7 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] `bindle-core`: promise states and allowed changes, "close the loop" (a kept promise says who owes it, a firm one has a day), running late, waiting on others, the week and day capacity (5), and the reminder rules (at most 3 a day, none 10 PM to 7 AM, never late)
 - [x] `bindle-parse`: English and Hinglish days, times, money, people, who owes it and soft promises, with a test table. Words that could mean two things are flagged for Sort. Festivals, months and places are never read as people
 - [x] `bindle-store`: SQLite (WAL, FTS5) with migrations 0001 to 0006, history and Undo for every change, Home, People, search, settings, Wrap up, the reminder log, AI rules, export and safety copies
-- [x] `bindle-sync`: hybrid logical clocks and field merges (ready for Bindle Cloud; not wired to anything yet)
+- [x] `bindle-sync`: hybrid logical clocks and field merges, used by Bindle Cloud
 - [x] `bindle-mcp`: the AI connection over MCP. It reads Home, lists and searches promises, reads people, and suggests promises. It never changes anything
 
 ### Desktop app
@@ -48,6 +48,15 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] Wait history: each look records how long people waited. Email replies run from the first email someone wrote you after your last word to your next email; reviews run from opening a pull request to your first review of it (at most 20 new pull requests per look). Samples are never changed, so history grows by itself (migration 0009)
 - [x] Desk (v2 design): what needs you from GitHub and Gmail, oldest first, with Make it a promise and Open; tiles for needs you now, email reply time and review wait (medians, compared with your own last four weeks), and shipped this week; how each source is doing; this week's work as bars (done and planned); "Who waits longer" with eight weeks of medians and a table view
 - [x] Desk checks: 7 tests in `bindle-store` (medians, counting each answer once, comparing with the four weeks before, shipped by week and source, the week's work, and merging what needs you). Chart colours checked with the dataviz validator in both themes
+
+### Bindle Cloud and Ours (weeks 15 to 17)
+- [x] `bindle-cloud`: one random key per space. From it come the space's id on the relay, its write token and its encryption key (HKDF-SHA256); every batch is sealed with XChaCha20-Poly1305 before it leaves the device. The key lives in the system keychain
+- [x] `bindle-relay`: a small server (axum, SQLite) that keeps sealed batches in order and hands them back. It knows no names, emails or passwords; the first device to write a space sets its token, and only a hash of it is kept. Invites wait 7 days and are handed out once. A Dockerfile is included
+- [x] Sync: each shared field is compared with the last value both sides agreed on; changes go out in batches, and changes coming in win only when their clock is later (last writer wins per field, with hybrid logical clocks). Works offline, and catches up every 30 seconds or on "Sync now" (migration 0010)
+- [x] Invites: a link that carries its secret after the `#`, so no server sees it. The person joining pastes it in Settings, Bindle Cloud
+- [x] Recovery kit: the recovery key written as 14 groups of 4 letters, with a check so a typo is caught. It unlocks a sealed list of your spaces on the relay, so a new device can bring them back
+- [x] Ours screen (v2 design): who carries the space, shared promises with who added them, Jot down to the space, share one of your promises, kept lately and kept together this month (no scores), the invite card, and Leave. Spaces are listed in the sidebar
+- [x] Checks: 8 sync tests in `bindle-store`, crypto and code tests, relay tests, and an end-to-end test where two databases share a space through a real relay (`crates/bindle-cloud/tests/ours.rs`). The accessibility audit covers the recovery kit and Ours
 
 ### Project
 - [x] Handbook mirror, roadmap, changelog, contributing guide, DCO and licence headers
@@ -88,6 +97,9 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [ ] Inbox reads the newest 200 emails of the last two weeks in each folder, and only the start of each email
 - [ ] Review waits count from when a pull request was opened, not from when your review was requested; GitHub's search does not say when that was without one more request per pull request
 - [ ] The Desk's numbers need a few weeks of history before the comparisons say much
+- [ ] Bindle Cloud needs a relay that is running somewhere; none is hosted yet. Until one is, the gate (two people share Ours for two weeks) cannot start
+- [ ] Sharing a promise shares its title, state, dates, amount, first step, note, and who added and kept it. Its person and history stay on each device
+- [ ] Leaving a space keeps it on the relay for the others. There is no way yet to remove someone or to delete a space for everyone
 - [ ] Gmail only for now; Outlook and other IMAP mailboxes come in weeks 18–20
 - [ ] Putting back an old safety copy also brings back that day's settings (by design, but it can surprise)
 - [ ] When an AI's suggestion mentions an amount, Bindle stores it as the promise's amount
@@ -96,5 +108,5 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [ ] `bindle-parse/tests/table.rs` is just over 400 lines; split it when it next grows
 
 ### After Tier 1 (the roadmap's next stages)
-- [ ] Weeks 15–17: Bindle Cloud: accounts, Mine and Ours, invites, recovery kit (sync and end-to-end encryption)
+- [x] Weeks 15–17: Bindle Cloud: accounts, Mine and Ours, invites, recovery kit (sync and end-to-end encryption). Built; the gate waits on a hosted relay
 - [ ] Weeks 18–20: Creator (YouTube, Instagram), Outlook and IMAP, phone build

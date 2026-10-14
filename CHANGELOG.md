@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Bindle Cloud and Ours: make a shared space, invite someone with a link that works once, and carry promises together. Both of you can jot down to it, share one of your own promises, and mark things done; it shows who added each one and who kept it, with no scores. Works offline and catches up every 30 seconds.
+- End to end: everything shared is locked on your device with a key the server never sees, so the relay keeps only sealed boxes. Keys live in the system keychain.
+- Recovery kit: 14 groups of 4 letters, shown once when you start Bindle Cloud. Type it on a new device to bring your spaces back.
+- `bindle-cloud` and `bindle-relay` crates (the relay runs anywhere, and has a Dockerfile), and migration 0010.
+
 - Work Desk: what needs you at work from GitHub and Gmail, oldest first; how long people wait on your email replies and reviews (medians, compared with your own last four weeks); what shipped this week; how each source is doing; and this week's work. Work mode opens on the Desk.
 - Insights: each look at Gmail and GitHub records how long people waited for your answers, so eight weeks of history builds up by itself. "Who waits longer" shows it as two small charts with a table view.
 - Migration 0009 (`wait_sample`).
