@@ -12,12 +12,14 @@
 
   /* Text */
   --ink: #2B2622;
+  --ink-mid: #4A433C;    /* body text on cards and in the nav */
   --ink-soft: #6E655C;
 
   /* Accent: one per screen */
   --clay: #C2653D;       /* shapes, primary buttons, focus ring */
   --clay-text: #A4502C;  /* accent text and links */
   --clay-wash: #F6E6DC;
+  --clay-button: #A4502C; /* primary buttons: white text needs 4.5:1 */
 
   /* Meaning */
   --sage: #6B8F71;       /* done, kept */
@@ -28,7 +30,7 @@
   --honey-wash: #F8EED8;
   --error: #B3261E;      /* real system errors only */
 
-  /* Pixel art helpers: sprites only */
+  /* Pixel art helpers: sprites, and the bars of the week strip */
   --pixel-clay-light: #E89A72;
   --pixel-honey-light: #F0CF85;
   --pixel-stick: #7A5326;
@@ -52,6 +54,7 @@
     --sand: #3A342E;
     --sand-soft: #2C2824;
     --ink: #EDE6DC;
+    --ink-mid: #D4CBBF;
     --ink-soft: #B3A99D;
     --clay: #D9825C;
     --clay-text: #D9825C;
@@ -59,8 +62,34 @@
     --sage-text: #8DB394;
     --honey: #E3B864;
     --honey-text: #E3B864;
+    --clay-wash: #3D2A20;
+    --clay-button: #D9825C;
+    --sage-wash: #25302A;
+    --honey-wash: #3A3020;
     --error: #F2B8B5;
   }
+}
+
+/* Dark chosen in Settings, whatever the system says. Same values as above. */
+:root[data-theme="dark"] {
+  --paper: #1E1B18;
+  --card: #262220;
+  --sand: #3A342E;
+  --sand-soft: #2C2824;
+  --ink: #EDE6DC;
+  --ink-mid: #D4CBBF;
+  --ink-soft: #B3A99D;
+  --clay: #D9825C;
+  --clay-text: #D9825C;
+  --sage: #8DB394;
+  --sage-text: #8DB394;
+  --honey: #E3B864;
+  --honey-text: #E3B864;
+  --clay-wash: #3D2A20;
+  --clay-button: #D9825C;
+  --sage-wash: #25302A;
+  --honey-wash: #3A3020;
+  --error: #F2B8B5;
 }
 
 /* Pixel sprites are drawn at 1x and only ever scaled by whole numbers. */

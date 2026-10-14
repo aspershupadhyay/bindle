@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
+
+[package]
+name = "bindle-mcp"
+description = "Bindle's AI connection: a Model Context Protocol server over stdio."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+bindle-core = { path = "../bindle-core" }
+bindle-parse = { path = "../bindle-parse" }
+bindle-store = { path = "../bindle-store" }
+chrono.workspace = true
+iana-time-zone = "0.1"
+rusqlite.workspace = true
+serde_json.workspace = true

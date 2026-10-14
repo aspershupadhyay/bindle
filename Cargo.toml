@@ -8,6 +8,8 @@ members = [
     "crates/bindle-parse",
     "crates/bindle-store",
     "crates/bindle-sync",
+    "crates/bindle-mcp",
+    "app/src-tauri",
 ]
 
 [workspace.package]
@@ -19,8 +21,9 @@ repository = "https://github.com/aspershupadhyay/bindle"
 rust-version = "1.80"
 
 [workspace.dependencies]
-chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "clock", "serde"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 thiserror = "1"
 uuid = { version = "1", features = ["v7"] }

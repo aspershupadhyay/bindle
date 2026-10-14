@@ -1,6 +1,6 @@
 [package]
 name = "bindle-parse"
-description = "Understands what you type in Jot down: dates in English and Hinglish."
+description = "Understands what you type in Jot down: days, times, money, people and who owes what, in English and Hinglish."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -8,4 +8,6 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
+bindle-core = { path = "../bindle-core" }
 chrono.workspace = true
+serde.workspace = true

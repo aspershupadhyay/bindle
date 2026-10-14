@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Bindle",
+  "version": "0.0.1",
+  "identifier": "app.bindle.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Bindle",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 720,
+        "minHeight": 560,
+        "url": "index.html"
+      },
+      {
+        "label": "jot",
+        "url": "jot.html",
+        "title": "Jot down",
+        "width": 600,
+        "height": 148,
+        "resizable": false,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: asset:; style-src 'self' 'unsafe-inline'; font-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Productivity",
+    "shortDescription": "Everything that needs you, in one bag.",
+    "copyright": "Copyright 2026 Sparsh Upadhyay and the Bindle contributors",
+    "license": "Apache-2.0",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "publisher": "Sparsh Upadhyay and the Bindle contributors",
+    "homepage": "https://github.com/aspershupadhyay/bindle",
+    "longDescription": "Bindle keeps the promises you make and the ones made to you, so your head does not have to. Everything stays on your device.",
+    "linux": {
+      "deb": {
+        "section": "utils"
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "11.0",
+      "hardenedRuntime": true
+    },
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com"
+    }
+  }
+}

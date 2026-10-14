@@ -12,7 +12,7 @@ Thank you for helping. A few rules keep the project healthy and the credit clear
 - Anyone should understand any file in five minutes. Clear names first, comments for the why.
 - Every public item has a doc comment. Functions stay short (about 40 lines), files under about 400.
 - Tests are named as sentences, for example `a_soft_promise_is_never_running_late`.
-- Every source file starts with:
+- Every source file (Rust, SQL, CSS, TypeScript) starts with:
 
   ```
   // SPDX-License-Identifier: Apache-2.0
@@ -24,6 +24,7 @@ Thank you for helping. A few rules keep the project healthy and the credit clear
 ## Checks
 
 ```sh
+(cd app && npm run typecheck && npm test && npx vite build)
 cargo fmt --all
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace

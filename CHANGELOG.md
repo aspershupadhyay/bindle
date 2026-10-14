@@ -7,3 +7,48 @@
 - Design tokens and the first pixel art sprites.
 - Screen designs for Life Home, Work Desk, Inbox, Board, Creator, Ours and the brand sheet.
 - CI for formatting, linting and tests.
+- Desktop shell (Tauri 2, React, Vite): the v2 sidebar with the Life and Work switch, Home with a working Jot down field and what waits in Sort, Settings with the build and data version, and a page with its own pixel scene for each screen still to come.
+- `bindle-core`: the `Promise` type and the exact words the database stores for each state, direction, strength and mode.
+- `bindle-store`: Jot down saves an unsorted promise and its `created` event in one transaction; list and count promises by state.
+- Typed commands between the views and Rust, with an in-memory preview for running the views in a browser.
+- App icons drawn from the logo sprite at whole-number scales.
+- CI builds the views and the desktop app on all three systems, and checks TypeScript files for the licence header.
+- Jot down window: Alt+Shift+J opens it over any app; Enter saves and shows "Saved", Escape or clicking away closes it. Every window refreshes when a promise is saved.
+- `bindle-parse` reads days (today, kal, parso, weekdays in English and Hindi, "next week", "in 3 days", "2 din mein", written dates day first), deadlines ("by Friday", "Friday tak"), times ("8:30 pm", "at 4", "shaam 7 baje", "in the evening"), money ("₹2,340", "Rs 500", "1.5 lakh", "$12"), people ("to Rohan", "@aman", "Rohan ko", names already in Bindle), who owes it ("Rohan will", "bhejega", "I'll", "just for me") and soft promises ("sometime", "kabhi"). Words that could mean two things are flagged so Sort can ask.
+- Jot down keeps exactly what was typed as the promise's source, saves the day or deadline, time, amount and person, and adds new people.
+- Chips on Home show the day, time, amount, person, who owes it and soft promises.
+- Sort: one promise at a time, filled in from what Jot down understood, with words to check called out. Choose who will do it, when (quick days, a date, a time, a deadline, or Sometime), who it is with and a first step, then keep it, put it off for later, or let it go.
+- `bindle-core`: a kept promise must say who owes it, and a firm one must have a day ("close the loop").
+- `bindle-store`: Sort, Done, reopen, Let go and Move it, each recorded in history with the promise before and after. Undo puts back exactly what was there, refuses when the promise changed since, and never deletes anything. Migration 0003 lets history record "later" and "undone".
+- Undo bar after every change, and Ctrl+Z (Cmd+Z) for the latest change.
+- Home lists what is coming up, soonest first, with a box to mark each done and its history.
+- Life Home, as in the v2 design: a summary ("2 things today, 1 person waiting on you"), today's top 3 (done ones stay ticked with the time), suggestions for the top 3 from today and running late, Running late in honey with Move it and Let go, Waiting on others oldest first with Nudge, Coming up, and This week: how full each day is, a gentle note about a full day ahead, and what was kept, moved and let go.
+- Nudge copies a friendly message for you to send yourself, and remembers when you nudged. Bindle never sends it.
+- `bindle-core`: a promise's day, the Monday-to-Sunday week, and a day capacity of 5.
+- `bindle-store`: one read for all of Home, the top 3 (three at most, gaps close up), and nudges.
+- Promises: every promise by state (Open, Later, Done, Let go) with counts, and the action that fits each: mark done, plan it, or open again.
+- Search across every promise, its first step, note and person, from the start of each word, in any case, Hindi included. Ctrl+K (Cmd+K) or "/" opens it from anywhere. Ten thousand promises search in under 10 ms; a test holds it under 100 ms.
+- People: everyone your promises are with, what you owe each other, what was kept in the last 30 days, and renaming. Send recap writes a short, friendly summary with dates in full and copies it for you to send. Bindle never sends it.
+- Migration 0004: database triggers keep the search index in step with every change, including Undo and renamed people, and fill it for existing promises.
+- Lists that fail to load now say so, instead of looking empty.
+- First run: welcome, your name, your evenings and which reminders you want, and a first jot. Every step can be skipped.
+- Wrap up: what you kept today, a quick decision on each open promise (done, tomorrow, let go, all undoable), tomorrow's top 3, and how full your head feels, which stays private and is never shown as a score. Home shows a Wrap up card.
+- Reminders (handbook P9): at the time you give a promise (even before it is sorted), at wrap-up time if you ask, and a morning note if you ask. At most three a day, none from 10 PM to 7 AM, only within 15 minutes of their time, never twice, and never about being late. Migration 0005 remembers what was sent.
+- Settings: your name, wrap-up time and reminder, reminders, a test reminder, light, dark or system theme, shortcuts, and the build. Changes save at once and reach every window.
+- Home greets you by name.
+- Dark mode now has dark backgrounds for chips and notes.
+- Styles are split into one file per area.
+- AI connection (handbook P8): `bindle --mcp` is an MCP server over stdio, with five tools: read Home, list promises, search, read people, and suggest a promise. Off until you choose read only or read and suggest in Settings, checked on every call. Suggestions are read like a jot and wait in Sort marked "Suggested by Claude" with the AI's reason, at most 10 at a time. An AI never changes, finishes or removes a promise. People marked "Keep from AI" are hidden from it with their promises, and Settings lists what an AI read or suggested in the last 90 days.
+- The app notices changes made outside it, such as a suggestion arriving, and refreshes within two seconds.
+- Export everything as JSON, or promises as CSV for a spreadsheet (cells that look like formulas are made safe).
+- Safety copies: one a day, the last 14 kept, and "Make a copy now". Putting one back copies today's data first, so it can be undone.
+- People's pictures: nine pixel pictures named for what they show (short hair, long hair, curly hair, a bun, a beard, a turban, a headscarf, a cap, grey hair), or the first letter. Anyone can pick any picture, for themselves or anyone else, and pronouns can be added in their own words. Pictures show on People, Home and the sidebar.
+- Pixel icons for Sort, Promises, People and Wrap up, also used for their empty states.
+- The logo uses the brand sheet's "on dark" version in the dark theme, so it no longer disappears into the sidebar.
+- "Buy diyas for Diwali" no longer makes Diwali a person: festivals, months, weekdays and places are never read as names.
+- CI also runs on pushes to working branches, and can be started by hand.
+- Migration 0006: pictures and pronouns for people, and the AI log.
+- Accessibility: a "Skip to the page" link, a main landmark on every screen including first run, and tests that hold every text colour to WCAG AA in both themes. Primary buttons use a darker clay so their text passes 4.5:1. `app/scripts/a11y-audit.mjs` checks every screen for unnamed buttons, missing alt text and unlabelled fields.
+- Linux: the WebKitGTK DMA-BUF renderer is turned off by default, which fixes a blank window on some graphics drivers. Package details for .deb, .rpm and AppImage.
+- Release workflow: a version tag builds installers for Windows, macOS (Apple silicon and Intel) and Linux on a draft release. They are signed when the Apple and Windows certificates are added as secrets (docs/RELEASING.md).
+- docs/STATUS.md (what is built, in progress and left) and docs/ACCEPTANCE.md (every acceptance check and its state).
