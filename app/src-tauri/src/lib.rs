@@ -76,6 +76,7 @@ pub fn run() {
             commands::work::start(app.handle().clone());
             commands::mail::start(app.handle().clone());
             commands::cloud::start(app.handle().clone());
+            commands::creator::start(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -117,6 +118,16 @@ pub fn run() {
             commands::data::restore_safety_copy,
             commands::data::set_person_look,
             commands::data::set_person_hidden,
+            commands::creator::creator_view,
+            commands::creator::comments_waiting,
+            commands::creator::youtube_key_page,
+            commands::creator::youtube_connect,
+            commands::creator::youtube_disconnect,
+            commands::creator::youtube_refresh,
+            commands::creator::comment_make_promise,
+            commands::creator::comment_hide,
+            commands::creator::comment_unhide,
+            commands::creator::open_on_youtube,
             commands::work::code_view,
             commands::work::reviews_owed,
             commands::work::github_token_page,

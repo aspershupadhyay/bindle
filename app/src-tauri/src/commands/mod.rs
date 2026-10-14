@@ -14,6 +14,7 @@
 pub mod board;
 pub mod browse;
 pub mod cloud;
+pub mod creator;
 pub mod data;
 pub mod day;
 pub mod desk;
