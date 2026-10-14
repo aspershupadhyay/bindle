@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
+
+[package]
+name = "bindle-cloud"
+description = "Bindle Cloud on the device: keys, end-to-end encryption, invites, recovery kits and the relay client."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+base64 = "0.22"
+bindle-sync = { path = "../bindle-sync" }
+chacha20poly1305 = "0.10"
+getrandom = "0.3"
+hkdf = "0.12"
+reqwest = { version = "0.13", default-features = false, features = ["json", "query", "rustls-no-provider", "system-proxy"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+serde.workspace = true
+serde_json.workspace = true
+sha2 = "0.10"
+thiserror.workspace = true
+
+[dev-dependencies]
+bindle-core = { path = "../bindle-core" }
+bindle-store = { path = "../bindle-store" }
+chrono.workspace = true
+bindle-relay = { path = "../bindle-relay" }
+reqwest = { version = "0.13", default-features = false, features = ["json"] }
+rusqlite.workspace = true
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net"] }

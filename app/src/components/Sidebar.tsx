@@ -7,7 +7,7 @@
 import { Avatar } from "./Avatar";
 import { Logo } from "./Logo";
 import { useSettings } from "../lib/settings";
-import type { Mode } from "../lib/commands";
+import type { Mode, Space } from "../lib/commands";
 import { screens, settingsScreen, type ScreenId } from "../screens";
 import { Icon } from "./Icon";
 
@@ -15,12 +15,22 @@ interface SidebarProps {
   mode: Mode;
   current: ScreenId;
   unsorted: number;
+  /** Reviews people are waiting on, from GitHub. */
+  reviewsOwed: number;
+  /** Emails waiting on your reply, from Gmail. */
+  repliesOwed: number;
+  /** YouTube comments waiting on a reply. */
+  commentsWaiting: number;
+  /** Shared spaces on this device, and the one open now. */
+  spaces: Space[];
+  currentSpace: string | null;
+  onSpace: (id: string) => void;
   onMode: (mode: Mode) => void;
   onScreen: (id: ScreenId) => void;
   onJotDown: () => void;
 }
 
-export function Sidebar({ mode, current, unsorted, onMode, onScreen, onJotDown }: SidebarProps) {
+export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, commentsWaiting, spaces, currentSpace, onSpace, onMode, onScreen, onJotDown }: SidebarProps) {
   const { settings } = useSettings();
   return (
     <aside className="sidebar" aria-label="Bindle navigation">
@@ -52,6 +62,21 @@ export function Sidebar({ mode, current, unsorted, onMode, onScreen, onJotDown }
             <Icon name={screen.icon} />
             {screen.label}
             {screen.id === "sort" && unsorted > 0 && <span className="badge">{unsorted} new</span>}
+            {screen.id === "inbox" && repliesOwed > 0 && (
+              <span className="badge" aria-label={`${repliesOwed} ${repliesOwed === 1 ? "email" : "emails"} waiting on your reply`}>
+                {repliesOwed}
+              </span>
+            )}
+            {screen.id === "creator" && commentsWaiting > 0 && (
+              <span className="badge" aria-label={`${commentsWaiting} ${commentsWaiting === 1 ? "comment" : "comments"} waiting on your reply`}>
+                {commentsWaiting}
+              </span>
+            )}
+            {screen.id === "code" && reviewsOwed > 0 && (
+              <span className="badge" aria-label={`${reviewsOwed} ${reviewsOwed === 1 ? "review" : "reviews"} waiting on you`}>
+                {reviewsOwed}
+              </span>
+            )}
           </button>
         ))}
       </nav>
@@ -62,6 +87,19 @@ export function Sidebar({ mode, current, unsorted, onMode, onScreen, onJotDown }
           <Avatar name={settings.name ?? "Me"} avatar={settings.avatar} size={32} />
           Mine<span className="space-note">private</span>
         </div>
+        {spaces.map((space) => (
+          <button
+            key={space.id}
+            type="button"
+            className="nav-item space"
+            aria-current={current === "ours" && currentSpace === space.id ? "page" : undefined}
+            onClick={() => onSpace(space.id)}
+          >
+            <Icon name="people" size={18} />
+            {space.name}
+            <span className="space-note">{space.waiting > 0 ? "to sync" : "synced"}</span>
+          </button>
+        ))}
       </div>
 
       <div className="sidebar-foot">

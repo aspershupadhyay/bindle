@@ -102,3 +102,20 @@ button:disabled { opacity: 0.6; cursor: default; }
 }
 .undo-bar.error { background: var(--error); }
 .promise-main .promise-title { flex: none; }
+
+/* A new version is ready (UpdateBar) */
+
+.update-bar {
+  max-width: 1080px; margin: 0 auto 24px; padding: 12px 16px;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  background: var(--card); border: 1px solid var(--sand); border-left: 4px solid var(--clay-button);
+  border-radius: var(--radius-card); font-size: 14px;
+}
+.update-bar p { margin: 0; flex: 1 1 280px; }
+.update-bar.error { border-left-color: var(--error); }
+.update-actions { display: flex; gap: 8px; }
+
+/* On phones, Undo and notes sit above the floating Jot down button. */
+@media (max-width: 600px) {
+  .undo-bar-slot { bottom: calc(88px + env(safe-area-inset-bottom)); padding: 0 16px; }
+}

@@ -8,6 +8,7 @@
 use crate::ai::AiAccess;
 use crate::StoreError;
 use bindle_core::notify::NoticeSettings;
+use bindle_core::Mode;
 use chrono::NaiveTime;
 use rusqlite::{Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -37,6 +38,10 @@ pub struct Settings {
     pub ai_access: AiAccess,
     /// The person's own picture, one of [`crate::people::AVATARS`].
     pub avatar: Option<String>,
+    /// Life or Work, as last chosen. Jot down saves promises in this mode.
+    pub mode: Mode,
+    /// How many things the Board's Making lane holds before it says so.
+    pub making_limit: u32,
 }
 
 impl Default for Settings {
@@ -52,6 +57,8 @@ impl Default for Settings {
             theme: "system".into(),
             ai_access: AiAccess::Off,
             avatar: None,
+            mode: Mode::Life,
+            making_limit: 2,
         }
     }
 }
@@ -89,6 +96,7 @@ pub fn save(conn: &Connection, settings: &Settings) -> Result<Settings, StoreErr
         .map(str::trim)
         .filter(|n| !n.is_empty())
         .map(Into::into);
+    clean.making_limit = clean.making_limit.clamp(1, 9);
     if !matches!(clean.theme.as_str(), "system" | "light" | "dark") {
         clean.theme = "system".into();
     }

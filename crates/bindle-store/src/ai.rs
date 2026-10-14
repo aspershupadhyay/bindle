@@ -12,7 +12,7 @@
 
 use crate::promises::{self, Jot, Origin};
 use crate::{settings, StoreError};
-use bindle_core::Promise;
+use bindle_core::{Mode, Promise};
 use chrono::{DateTime, SecondsFormat, Utc};
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
@@ -93,7 +93,7 @@ pub fn suggest(
         return Err(StoreError::TooManySuggestions(waiting));
     }
     let reason = reason.map(str::trim).filter(|r| !r.is_empty());
-    promises::insert(conn, jot, Origin::Ai { client, reason }, now)
+    promises::insert(conn, jot, Origin::Ai { client, reason }, Mode::Life, now)
 }
 
 /// Marks a person as kept from AI, or not. Their promises go with them.

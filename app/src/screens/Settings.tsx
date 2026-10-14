@@ -6,10 +6,12 @@
 import { useEffect, useState } from "react";
 import { AvatarPicker } from "../components/Avatar";
 import { AiSection } from "../components/settings/AiSection";
+import { CloudSection } from "../components/settings/CloudSection";
 import { DataSection } from "../components/settings/DataSection";
 import { useNotify } from "../components/Undo";
 import { commands, errorMessage, type AppInfo, type Settings as SettingsData } from "../lib/commands";
 import { useSettings } from "../lib/settings";
+import { updateNote, useUpdates } from "../lib/updates";
 
 const themes: { value: SettingsData["theme"]; label: string }[] = [
   { value: "system", label: "Same as system" },
@@ -17,11 +19,13 @@ const themes: { value: SettingsData["theme"]; label: string }[] = [
   { value: "dark", label: "Dark" },
 ];
 
-export function Settings() {
+export function Settings({ onOpenSpace }: { onOpenSpace?: (id: string) => void }) {
   const { settings, update } = useSettings();
   const notify = useNotify();
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [name, setName] = useState(settings.name ?? "");
+  const updates = useUpdates();
+  const updating = updates.state.kind === "checking" || updates.state.kind === "installing" || updates.state.kind === "restarting";
 
   useEffect(() => {
     commands.appInfo().then(setInfo, (e) => notify(errorMessage(e)));
@@ -92,6 +96,25 @@ export function Settings() {
         </div>
       </section>
 
+      <section className="card settings-card" aria-labelledby="work">
+        <h2 id="work">Work</h2>
+        <label className="field">
+          <span className="field-label">The Board's Making lane holds</span>
+          <input
+            type="number"
+            min={1}
+            max={9}
+            value={settings.making_limit}
+            onChange={(e) => {
+              const limit = Number(e.target.value);
+              if (limit >= 1 && limit <= 9) void save({ making_limit: limit });
+            }}
+          />
+        </label>
+        <p className="muted small">When more than this are in progress, the Board says so. It never stops you. GitHub and Gmail are connected from Code and Inbox.</p>
+      </section>
+
+      <CloudSection onOpenSpace={onOpenSpace} />
       <AiSection />
       <DataSection />
 
@@ -117,7 +140,21 @@ export function Settings() {
             <dd>{info.schema_version}</dd>
           </dl>
         )}
-        <p className="muted small">Everything stays on this device. Nothing is sent anywhere unless you connect an AI app, and then only what you allow above.</p>
+        <div className="update-actions">
+          {updates.state.kind === "available" ? (
+            <button type="button" className="button-primary small-button" onClick={() => void updates.install()}>
+              Install {updates.state.version} and restart
+            </button>
+          ) : (
+            <button type="button" className="button-quiet small-button" disabled={updating} onClick={() => void updates.check()}>
+              Check for a new version
+            </button>
+          )}
+        </div>
+        <p className="muted small" role="status" aria-live="polite">
+          {updateNote(updates.state) || "Bindle looks for new versions by itself and asks before installing one."}
+        </p>
+        <p className="muted small">Everything stays on this device. Your promises are never sent anywhere unless you connect an AI app, and then only what you allow above. To find new versions, Bindle only asks GitHub which version is newest.</p>
       </section>
     </div>
   );

@@ -41,6 +41,11 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Shape and motion */
+  /* Charts: one hue at two strengths, planned (faded) and done. Checked with
+     the dataviz validator against --card in each theme. */
+  --chart-planned: #DE9B78;
+  --chart-done: #A4502C;
+
   --radius-card: 12px;
   --radius-control: 8px;
   --motion: 160ms ease-out;
@@ -49,6 +54,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    --chart-planned: #7A4A35;
+    --chart-done: #D9825C;
     --paper: #1E1B18;
     --card: #262220;
     --sand: #3A342E;
@@ -72,6 +79,8 @@
 
 /* Dark chosen in Settings, whatever the system says. Same values as above. */
 :root[data-theme="dark"] {
+  --chart-planned: #7A4A35;
+  --chart-done: #D9825C;
   --paper: #1E1B18;
   --card: #262220;
   --sand: #3A342E;

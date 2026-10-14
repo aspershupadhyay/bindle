@@ -39,6 +39,7 @@ export function chipsForPromise(promise: BindlePromise, today: Date): Chip[] {
   const chips: Chip[] = [];
   if (promise.due) chips.push({ key: "when", label: whenLabel(promise.due, today, true), tone: "plain" });
   else if (promise.do_on) chips.push({ key: "when", label: whenLabel(promise.do_on, today, false), tone: "plain" });
+  if (promise.mode === "work") chips.push({ key: "mode", label: "Work", tone: "plain" });
   return [...chips, ...restOf(promise)];
 }
 

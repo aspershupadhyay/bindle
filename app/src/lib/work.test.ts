@@ -1,0 +1,196 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
+
+import { describe, expect, it } from "vitest";
+import type { BoardView, CodeView, DeskView, InboxView, WorkItem } from "./commands";
+import { age, boardSummary, cardFrom, cardSource, codeSummary, compareWait, countWord, deskSummary, hoursLabel, inboxSummary, lookedAgo, mailName, promiseNote, shortName, streak, waitStory } from "./work";
+
+const now = new Date("2026-10-14T12:00:00Z");
+
+function item(id: string, author: string, created_at: string, extra: Partial<WorkItem> = {}): WorkItem {
+  return {
+    id,
+    kind: "review",
+    repo: "kunal-m/latch",
+    number: 42,
+    title: "Permission prompts",
+    author,
+    url: "https://github.com/kunal-m/latch/pull/42",
+    draft: false,
+    labels: [],
+    created_at,
+    updated_at: created_at,
+    gone: false,
+    promise: null,
+    ...extra,
+  };
+}
+
+function view(patch: Partial<CodeView>): CodeView {
+  return {
+    account: { login: "me", synced_at: null, error: null },
+    reviews: [],
+    mine: [],
+    issues: [],
+    finished: [],
+    reviews_older_than_a_day: 0,
+    ...patch,
+  };
+}
+
+describe("age", () => {
+  it("is short and plain", () => {
+    expect(age("2026-10-14T11:59:40Z", now)).toBe("just now");
+    expect(age("2026-10-14T11:20:00Z", now)).toBe("40 min");
+    expect(age("2026-10-14T06:00:00Z", now)).toBe("6 h");
+    expect(age("2026-10-13T11:00:00Z", now)).toBe("1 day");
+    expect(age("2026-10-12T10:00:00Z", now)).toBe("2 days");
+    expect(age("2026-09-14T12:00:00Z", now)).toBe("4 weeks");
+    expect(age("2026-10-15T12:00:00Z", now)).toBe("just now");
+  });
+});
+
+describe("lookedAgo", () => {
+  it("never says just now ago", () => {
+    expect(lookedAgo(null, now)).toBe("Not looked yet");
+    expect(lookedAgo("2026-10-14T11:59:50Z", now)).toBe("Looked just now");
+    expect(lookedAgo("2026-10-14T11:55:00Z", now)).toBe("Looked 5 min ago");
+  });
+});
+
+describe("codeSummary", () => {
+  it("names who waits and where to start", () => {
+    const summary = codeSummary(
+      view({
+        reviews: [item("a", "kunal-m", "2026-10-12T10:00:00Z"), item("b", "neha-k", "2026-10-14T06:00:00Z")],
+        reviews_older_than_a_day: 1,
+      }),
+      now,
+    );
+    expect(summary).toBe("Two people are waiting on your reviews. Start with latch #42, asked 2 days ago.");
+  });
+
+  it("speaks of one person by name", () => {
+    expect(codeSummary(view({ reviews: [item("a", "kunal-m", "2026-10-14T10:00:00Z")] }), now)).toBe(
+      "kunal-m is waiting on your review. Nothing else needs you on GitHub.",
+    );
+  });
+
+  it("falls back to issues and pull requests, kindly", () => {
+    expect(codeSummary(view({ issues: [item("i", "x", "2026-10-14T10:00:00Z", { kind: "issue" })] }), now)).toBe(
+      "Nobody is waiting on a review from you. One issue is assigned to you.",
+    );
+    expect(codeSummary(view({ mine: [item("m", "me", "2026-10-14T10:00:00Z"), item("n", "me", "2026-10-14T10:00:00Z")] }), now)).toBe(
+      "Nobody is waiting on a review from you. Two of your pull requests are waiting on others.",
+    );
+  });
+});
+
+describe("small words", () => {
+  it("counts in words up to ten", () => {
+    expect(countWord(3)).toBe("Three");
+    expect(countWord(12)).toBe("12");
+  });
+
+  it("shortens a repository", () => {
+    expect(shortName({ repo: "kunal-m/latch", number: 42 })).toBe("latch #42");
+  });
+
+  it("says where a linked promise stands", () => {
+    const base = item("a", "k", "2026-10-14T10:00:00Z");
+    expect(promiseNote(base)).toBeNull();
+    expect(promiseNote({ ...base, promise: { id: "p", state: "unsorted" } })).toBe("Waiting in Sort");
+    expect(promiseNote({ ...base, promise: { id: "p", state: "open" } })).toBe("A promise");
+    expect(promiseNote({ ...base, promise: { id: "p", state: "let_go" } })).toBeNull();
+  });
+});
+
+describe("mailName", () => {
+  it("names the service, Gmail when an older account says nothing, and the server for others", () => {
+    expect(mailName({})).toBe("Gmail");
+    expect(mailName({ provider: "icloud" })).toBe("iCloud Mail");
+    expect(mailName({ provider: "other", host: "imap.zoho.eu" })).toBe("imap.zoho.eu");
+    expect(mailName({ provider: "other" })).toBe("your mailbox");
+  });
+});
+
+describe("inboxSummary", () => {
+  const mail = (id: string, person: string) => ({
+    id, kind: "reply" as const, subject: "s", person, address: "a@b.c", at: "2026-10-14T10:00:00Z", snippet: "", url: "", noticed: null, gone: false, promise: null,
+  });
+  const inbox = (patch: Partial<InboxView>): InboxView => ({
+    account: { address: "me@gmail.com", synced_at: null, error: null }, reply: [], waiting: [], noticed: [], finished: [], hidden: 0, ...patch,
+  });
+
+  it("names one person, counts more, and adds what else it found", () => {
+    expect(inboxSummary(inbox({}))).toBe("No email is waiting on your reply.");
+    expect(inboxSummary(inbox({ reply: [mail("a", "Priya Sharma")] }))).toBe("Priya Sharma is waiting on your reply.");
+    expect(
+      inboxSummary(inbox({ reply: [mail("a", "Priya"), mail("b", "Rohan")], noticed: [mail("c", "Priya")], waiting: [mail("d", "Neha")] })),
+    ).toBe("Two emails are waiting on your reply. Bindle noticed a promise you made in an email. One question of yours is still waiting.");
+  });
+});
+
+describe("board words", () => {
+  const card = (title: string) => ({ promise: { title } as never, from: null });
+  const board = (making: number, next = 0): BoardView => ({
+    ideas: [], next: Array.from({ length: next }, (_, i) => card(`n${i}`)), making: Array.from({ length: making }, (_, i) => card(`m${i}`)), waiting: [], shipped: [],
+  });
+
+  it("says where things are, without scoring", () => {
+    expect(boardSummary(board(0, 2), 2)).toBe("Nothing in progress. Start one from Next.");
+    expect(boardSummary(board(0), 2)).toBe("Nothing in progress, and nothing next.");
+    expect(boardSummary(board(3), 2)).toBe("Three things are in progress, and your limit is two.");
+  });
+
+  it("tells where a card came from", () => {
+    expect(cardFrom("GitHub kunal-m/latch#42")).toBe("from Code · latch #42");
+    expect(cardFrom("Gmail")).toBe("from Inbox");
+    expect(cardFrom(null)).toBeNull();
+    expect(cardSource("GitHub a/b#1")).toBe("code");
+    expect(cardSource("Gmail")).toBe("inbox");
+    expect(cardSource(null)).toBe("other");
+  });
+});
+
+describe("desk words", () => {
+  const trend = (recent: number | null, before: number | null, weekly: (number | null)[] = []) => ({ recent, before, weekly });
+
+  it("says hours the way people do", () => {
+    expect(hoursLabel(0.4)).toBe("24 min");
+    expect(hoursLabel(3.24)).toBe("3.2 h");
+    expect(hoursLabel(18.4)).toBe("18 h");
+    expect(hoursLabel(60)).toBe("3 days");
+  });
+
+  it("compares with your own last four weeks", () => {
+    expect(compareWait(trend(3.2, 4.1))).toBe("faster than 4.1 h");
+    expect(compareWait(trend(18, 11))).toBe("slower than 11 h");
+    expect(compareWait(trend(4, 4.1))).toBe("about the same as 4.1 h");
+    expect(compareWait(trend(3, null))).toBeNull();
+  });
+
+  it("counts weeks running, in either direction", () => {
+    expect(streak([null, 9, 8, 6, 5])).toBe(3);
+    expect(streak([5, 9, 12])).toBe(-2);
+    expect(streak([5, 4, 6])).toBe(-1);
+    expect(streak([null, 4])).toBe(0);
+  });
+
+  it("tells the wait story plainly", () => {
+    expect(waitStory(trend(3, 4, [6, 5, 4, 3]), trend(18, 11, [9, 11, 18]))).toBe(
+      "Email replies got faster three weeks running. Reviews got slower two weeks running.",
+    );
+    expect(waitStory(trend(null, null, []), trend(null, null, []))).toBe(
+      "Bindle needs a few weeks of replies and reviews before it can tell a story.",
+    );
+  });
+
+  it("sums up the desk", () => {
+    const now = new Date("2026-10-14T12:00:00Z");
+    const item = { id: "r1", source: "github" as const, kind: "review" as const, title: "t", person: "kunal-m", reference: "latch #42", at: "2026-10-12T10:00:00Z", url: "", promise: null };
+    const view = { needs_you: [item, { ...item, id: "m", kind: "reply" as const }] } as unknown as DeskView;
+    expect(deskSummary(view, now)).toBe("Two things need you. The oldest is a pull request review from Monday.");
+    expect(deskSummary({ needs_you: [] } as unknown as DeskView, now)).toBe("Nothing needs you right now.");
+  });
+});

@@ -4,10 +4,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { UndoProvider } from "./components/Undo";
-import { commands, inDesktopApp, onPromisesChanged, type Mode } from "./lib/commands";
+import { UpdateBar } from "./components/UpdateBar";
+import { commands, inDesktopApp, onCreatorChanged, onMailChanged, onPromisesChanged, onWorkChanged, onPhone, type Mode, type Space } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
+import { Board } from "./screens/Board";
+import { Code } from "./screens/Code";
+import { Desk } from "./screens/Desk";
 import { Home } from "./screens/Home";
+import { Inbox } from "./screens/Inbox";
+import { Creator } from "./screens/Creator";
+import { Ours } from "./screens/Ours";
 import { useSettings } from "./lib/settings";
+import { UpdatesProvider } from "./lib/updates";
 import { FirstRun } from "./screens/FirstRun";
 import { People } from "./screens/People";
 import { Promises } from "./screens/Promises";
@@ -17,10 +25,16 @@ import { WrapUp } from "./screens/WrapUp";
 import { Soon } from "./screens/Soon";
 
 export function App() {
-  const { settings } = useSettings();
-  const [mode, setMode] = useState<Mode>("life");
-  const [current, setCurrent] = useState<ScreenId>("home");
+  const { settings, update } = useSettings();
+  // Bindle opens in the mode last chosen, on that mode's first screen.
+  const [mode, setMode] = useState<Mode>(settings.mode);
+  const [current, setCurrent] = useState<ScreenId>(screens[settings.mode][0].id);
   const [unsorted, setUnsorted] = useState(0);
+  const [reviewsOwed, setReviewsOwed] = useState(0);
+  const [repliesOwed, setRepliesOwed] = useState(0);
+  const [commentsWaiting, setCommentsWaiting] = useState(0);
+  const [spaces, setSpaces] = useState<Space[]>([]);
+  const [spaceId, setSpaceId] = useState<string | null>(null);
   const [focusSearch, setFocusSearch] = useState(0);
   const jotRef = useRef<HTMLInputElement>(null);
 
@@ -34,12 +48,52 @@ export function App() {
     return onPromisesChanged(refresh);
   }, [refresh]);
 
+  useEffect(() => {
+    const count = () => commands.reviewsOwed().then(setReviewsOwed, () => setReviewsOwed(0));
+    count();
+    return onWorkChanged(count);
+  }, []);
+
+  useEffect(() => {
+    const count = () => commands.commentsWaiting().then(setCommentsWaiting, () => setCommentsWaiting(0));
+    count();
+    const stopCreator = onCreatorChanged(count);
+    const stopPromises = onPromisesChanged(count);
+    return () => {
+      stopCreator();
+      stopPromises();
+    };
+  }, []);
+
+  useEffect(() => {
+    const count = () => commands.repliesOwed().then(setRepliesOwed, () => setRepliesOwed(0));
+    count();
+    return onMailChanged(count);
+  }, []);
+
+  useEffect(() => {
+    const load = () => commands.cloudStatus().then((s) => setSpaces(s.spaces), () => setSpaces([]));
+    load();
+    return onPromisesChanged(load);
+  }, []);
+
+  const openSpace = useCallback((id: string) => {
+    setSpaceId(id);
+    setCurrent("ours");
+    commands.cloudStatus().then((s) => setSpaces(s.spaces), () => {});
+  }, []);
+
+  const openSort = useCallback(() => {
+    setMode("life");
+    setCurrent("sort");
+  }, []);
+
   const jotDown = useCallback(() => {
-    if (inDesktopApp()) {
+    if (inDesktopApp() && !onPhone()) {
       void commands.showJot();
       return;
     }
-    // In a browser preview there is no second window: use the field on Home.
+    // In a browser preview or on a phone there is no second window: use the field on Home.
     setMode("life");
     setCurrent("home");
     requestAnimationFrame(() => jotRef.current?.focus());
@@ -71,6 +125,12 @@ export function App() {
     setCurrent(screens[next][0].id);
   }
 
+  // The mode is saved whenever it changes, so Jot down (in its own window)
+  // files promises there, and Bindle opens in it next time.
+  useEffect(() => {
+    if (mode !== settings.mode) void update({ mode }).catch(() => {});
+  }, [mode, settings.mode, update]);
+
   if (!settings.onboarded) {
     return (
       <UndoProvider>
@@ -80,40 +140,68 @@ export function App() {
   }
 
   return (
-    <UndoProvider>
-      <div className="shell">
-        <a className="skip-link" href="#main">Skip to the page</a>
-        <Sidebar
-          mode={mode}
-          current={current}
-          unsorted={unsorted}
-          onMode={switchMode}
-          onScreen={setCurrent}
-          onJotDown={jotDown}
-        />
-        <main className="main" id="main" tabIndex={-1}>
-          {current === "home" ? (
-            <Home
-              ref={jotRef}
-              unsorted={unsorted}
-              onOpenSort={() => setCurrent("sort")}
-              onWrapUp={() => setCurrent("wrapUp")}
-            />
-          ) : current === "sort" ? (
-            <Sort />
-          ) : current === "promises" ? (
-            <Promises focusSearch={focusSearch} onOpenSort={() => setCurrent("sort")} />
-          ) : current === "people" ? (
-            <People />
-          ) : current === "wrapUp" ? (
-            <WrapUp onDone={() => setCurrent("home")} />
-          ) : current === "settings" ? (
-            <Settings />
-          ) : (
-            <Soon screen={findScreen(current)} />
-          )}
-        </main>
-      </div>
-    </UndoProvider>
+    <UpdatesProvider>
+      <UndoProvider>
+        <div className="shell">
+          <a className="skip-link" href="#main">Skip to the page</a>
+          <Sidebar
+            mode={mode}
+            current={current}
+            unsorted={unsorted}
+            reviewsOwed={reviewsOwed}
+            repliesOwed={repliesOwed}
+            commentsWaiting={commentsWaiting}
+            spaces={spaces}
+            currentSpace={spaceId}
+            onSpace={openSpace}
+            onMode={switchMode}
+            onScreen={setCurrent}
+            onJotDown={jotDown}
+          />
+          <main className="main" id="main" tabIndex={-1}>
+            <UpdateBar />
+            {current === "home" ? (
+              <Home
+                ref={jotRef}
+                unsorted={unsorted}
+                onOpenSort={() => setCurrent("sort")}
+                onWrapUp={() => setCurrent("wrapUp")}
+              />
+            ) : current === "sort" ? (
+              <Sort />
+            ) : current === "promises" ? (
+              <Promises focusSearch={focusSearch} onOpenSort={() => setCurrent("sort")} />
+            ) : current === "people" ? (
+              <People />
+            ) : current === "wrapUp" ? (
+              <WrapUp onDone={() => setCurrent("home")} />
+            ) : current === "desk" ? (
+              <Desk onScreen={setCurrent} onOpenSort={openSort} />
+            ) : current === "code" ? (
+              <Code onOpenSort={openSort} />
+            ) : current === "inbox" ? (
+              <Inbox onOpenSort={openSort} />
+            ) : current === "board" ? (
+              <Board />
+            ) : current === "creator" ? (
+              <Creator onOpenSort={openSort} />
+            ) : current === "settings" ? (
+              <Settings onOpenSpace={openSpace} />
+            ) : current === "ours" && spaceId ? (
+              <Ours
+                spaceId={spaceId}
+                onLeft={() => {
+                  setSpaceId(null);
+                  setCurrent(screens[mode][0].id);
+                  commands.cloudStatus().then((s) => setSpaces(s.spaces), () => {});
+                }}
+              />
+            ) : (
+              <Soon screen={findScreen(current)} />
+            )}
+          </main>
+        </div>
+      </UndoProvider>
+    </UpdatesProvider>
   );
 }

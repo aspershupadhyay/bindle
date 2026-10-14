@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+- Phones: Bindle fits a phone screen (the screens and spaces scroll sideways across the top, Jot down floats at the bottom), and the app can be built for Android from the Actions tab. Desktop-only parts stay on desktops.
+- Creator: connect your YouTube channel with an API key (kept in the system keychain) and see subscribers and views against a week ago, twelve weeks of growth, your top posts of the last 30 days, how much you post long videos and Shorts, and the comments still waiting on your reply. Any comment can become a promise in Sort. Bindle only reads public data and never replies or posts. Migration 0011.
+- Inbox reads any mailbox, not only Gmail: iCloud Mail, Fastmail, Yahoo Mail, Zoho Mail, Outlook (where app passwords still work) or any IMAP server you type. Still read only, and Bindle still never sends email.
+
+- Bindle Cloud and Ours: make a shared space, invite someone with a link that works once, and carry promises together. Both of you can jot down to it, share one of your own promises, and mark things done; it shows who added each one and who kept it, with no scores. Works offline and catches up every 30 seconds.
+- End to end: everything shared is locked on your device with a key the server never sees, so the relay keeps only sealed boxes. Keys live in the system keychain.
+- Recovery kit: 14 groups of 4 letters, shown once when you start Bindle Cloud. Type it on a new device to bring your spaces back.
+- `bindle-cloud` and `bindle-relay` crates (the relay runs anywhere, and has a Dockerfile), and migration 0010.
+
+- Work Desk: what needs you at work from GitHub and Gmail, oldest first; how long people wait on your email replies and reviews (medians, compared with your own last four weeks); what shipped this week; how each source is doing; and this week's work. Work mode opens on the Desk.
+- Insights: each look at Gmail and GitHub records how long people waited for your answers, so eight weeks of history builds up by itself. "Who waits longer" shows it as two small charts with a table view.
+- Migration 0009 (`wait_sample`).
+
+- Gmail (read only): connect with an app password, kept in the system keychain. Bindle opens the inbox and sent mail read-only, never marks anything as read, and never sends email.
+- Inbox: who is waiting on your reply, your questions still waiting after a day, and promises you wrote in an email ("I'll send the first concept by Friday" becomes "Send the first concept, by Fri"). Newsletters, receipts and alerts never count. Make it a promise, Add to promises, Not needed (with Undo) and Open in Gmail. The sidebar shows how many emails wait on your reply.
+- Board: work promises in Ideas, Next, Making, Waiting and Shipped this week, filtered by where they came from. Start, Not now, Done and Plan it on each card. Making has a limit (2 by default, in Settings), which Bindle mentions but never enforces.
+- Migration 0008 (`mail_item`, and the Board's Making lane).
+
+- Work mode remembers itself: Bindle opens in Life or Work, whichever you chose last, and Jot down saves into that mode. Its window says "Work" when it will, and work promises show a Work chip.
+- GitHub (read only): connect with a personal access token, kept in the system keychain. Bindle reads the pull requests waiting on your review, your own pull requests and the issues assigned to you, every 15 minutes or on "Look now". It never comments, merges or closes anything.
+- Code screen: who is waiting on you, tiles for reviews, pull requests and issues, and each item with "Make it a promise" and "Open" on GitHub. The sidebar shows how many reviews you owe.
+- Make it a promise: a work promise waits in Sort, such as "Review latch #42: Permission prompts" for kunal-m. When GitHub stops listing the item, Code asks whether the promise is done.
+- `bindle-sources` crate and migration 0007 (`work_item`).
+
+## 0.0.2 (14 October 2026)
+
+- Updates from inside Bindle: it looks for a new version shortly after opening and every six hours, shows a bar with "Install and restart" or "Later", and checks the download's signature before installing. Settings, About has "Check for a new version". Works for the Windows installer, macOS, and Linux AppImage, .deb and .rpm. Copies of v0.0.1 cannot update themselves, so v0.0.1 users install the next version once by hand.
+- Releases take their version from the tag (`app/scripts/release-config.mjs`), so nothing needs bumping by hand before a release.
+
+## 0.0.1 (14 October 2026)
+
 - Project renamed from Life OS to Bindle.
 - Rust workspace with four tested crates: `bindle-core` (promise rules), `bindle-parse` (English and Hinglish day words), `bindle-store` (SQLite schema and migrations, including Mine and Ours spaces), `bindle-sync` (hybrid logical clocks and field merges).
 - Design tokens and the first pixel art sprites.

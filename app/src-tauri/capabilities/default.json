@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "What the main window may do. Kept to the core set; add only what a screen needs.",
+  "description": "What the main window may do, on every system. Kept to the core set; add only what a screen needs.",
   "windows": [
     "main",
     "jot"

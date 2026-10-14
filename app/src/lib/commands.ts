@@ -160,6 +160,256 @@ export interface Settings {
   ai_access: AiAccess;
   /** The person's own picture. */
   avatar: Avatar | null;
+  /** Life or Work, as last chosen. Jot down saves promises in this mode. */
+  mode: Mode;
+  /** How many things the Board's Making lane holds before it says so. */
+  making_limit: number;
+}
+
+export type MailKind = "reply" | "waiting" | "promise";
+
+/** A promise Bindle noticed in an email you wrote. */
+export interface NoticedPromise {
+  title: string;
+  when: When | null;
+  is_deadline: boolean;
+}
+
+/** An email that needs you, as `bindle_store::mail::MailItem` sends it. */
+export interface MailItem {
+  id: string;
+  kind: MailKind;
+  subject: string;
+  person: string;
+  address: string;
+  at: string;
+  snippet: string;
+  url: string;
+  noticed: NoticedPromise | null;
+  gone: boolean;
+  promise: { id: string; state: State } | null;
+}
+
+/** The mailbox connection. The app password is never sent to the views. */
+export interface MailAccount {
+  address: string | null;
+  synced_at: string | null;
+  error: string | null;
+  /** "gmail", "icloud", … or "other"; missing means Gmail. */
+  provider?: string | null;
+  host?: string | null;
+  port?: number | null;
+}
+
+/** A YouTube channel's public numbers. */
+export interface Channel {
+  id: string;
+  title: string;
+  handle: string | null;
+  description: string;
+  /** null when the channel hides its subscriber count. */
+  followers: number | null;
+  views: number;
+  posts: number;
+}
+
+/** The YouTube connection. The API key is never sent to the views. */
+export interface CreatorAccount {
+  channel: string | null;
+  found: Channel | null;
+  synced_at: string | null;
+  error: string | null;
+}
+
+export interface CreatorPost {
+  id: string;
+  title: string;
+  url: string;
+  short: boolean;
+  duration_seconds: number;
+  published_at: string;
+  views: number;
+  likes: number;
+  comments: number;
+}
+
+export interface CreatorComment {
+  id: string;
+  post_title: string;
+  author: string;
+  text: string;
+  url: string;
+  likes: number;
+  published_at: string;
+  promise: { id: string; state: State } | null;
+}
+
+/** Everything the Creator screen shows. */
+export interface CreatorView {
+  account: CreatorAccount;
+  followers_this_week: number | null;
+  views_this_week: number | null;
+  growth: { week: string; followers: number }[];
+  top_posts: CreatorPost[];
+  views_last_30_days: number;
+  long_posts: number;
+  short_posts: number;
+  comments: CreatorComment[];
+}
+
+/** A mail service Bindle knows how to read. */
+export interface MailProvider {
+  id: string;
+  name: string;
+  host: string;
+  port: number;
+  password_page: string;
+  webmail: string;
+  note: string;
+}
+
+export interface InboxView {
+  account: MailAccount;
+  reply: MailItem[];
+  waiting: MailItem[];
+  noticed: MailItem[];
+  finished: MailItem[];
+  hidden: number;
+}
+
+/** A promise on the Board, with where it came from ("GitHub owner/repo#42", "Gmail"). */
+export interface BoardCard {
+  promise: Promise;
+  from: string | null;
+}
+
+/** How long people wait on you, in hours. */
+export interface WaitTrend {
+  /** Median over the last 7 days. */
+  recent: number | null;
+  /** Median over the four weeks before. */
+  before: number | null;
+  /** Median of each of the last 8 weeks, oldest first. */
+  weekly: (number | null)[];
+}
+
+/** Something that needs you now, on the Desk. */
+export interface DeskItem {
+  id: string;
+  source: "github" | "gmail";
+  kind: "review" | "issue" | "reply";
+  title: string;
+  person: string;
+  reference: string;
+  at: string;
+  url: string;
+  promise: { id: string; state: State } | null;
+}
+
+export interface DeskView {
+  needs_you: DeskItem[];
+  email_reply: WaitTrend;
+  review_wait: WaitTrend;
+  shipped: { this_week: number; weekly: number[]; from_code: number; from_inbox: number; other: number };
+  week: { day: string; open: number; done: number }[];
+  github: GithubAccount;
+  gmail: MailAccount;
+  reviews_older_than_a_day: number;
+  replies_owed: number;
+}
+
+/** Bindle Cloud on this device. Keys never reach the views. */
+export interface CloudAccount {
+  relay: string | null;
+  name: string | null;
+  account: string | null;
+  device: string | null;
+  kit_saved_at: string | null;
+}
+
+/** A shared space on this device. */
+export interface Space {
+  id: string;
+  name: string;
+  relay: string | null;
+  promises: number;
+  synced_at: string | null;
+  /** Changes waiting to go up. */
+  waiting: number;
+}
+
+export interface CloudStatus {
+  account: CloudAccount;
+  spaces: Space[];
+}
+
+export interface Member {
+  account: string;
+  name: string;
+  joined_at: string;
+}
+
+/** A promise in Ours. `added_by` and `done_by` are null when it was you. */
+export interface SharedPromise {
+  promise: Promise;
+  added_by: string | null;
+  done_by: string | null;
+}
+
+export interface OursView {
+  space: Space;
+  members: Member[];
+  me: string | null;
+  open: SharedPromise[];
+  kept_lately: SharedPromise[];
+  kept_this_month: number;
+}
+
+export interface BoardView {
+  ideas: BoardCard[];
+  next: BoardCard[];
+  making: BoardCard[];
+  waiting: BoardCard[];
+  shipped: BoardCard[];
+}
+
+export type WorkKind = "review" | "mine" | "issue";
+
+/** Something GitHub says needs you, as `bindle_store::work::WorkItem` sends it. */
+export interface WorkItem {
+  id: string;
+  kind: WorkKind;
+  /** "owner/name". */
+  repo: string;
+  number: number;
+  title: string;
+  author: string;
+  url: string;
+  draft: boolean;
+  labels: string[];
+  created_at: string;
+  updated_at: string;
+  /** GitHub no longer lists it: reviewed, merged, closed or reassigned. */
+  gone: boolean;
+  /** The promise made from it, if there is one. */
+  promise: { id: string; state: State } | null;
+}
+
+/** The GitHub connection. The token is never sent to the views. */
+export interface GithubAccount {
+  login: string | null;
+  synced_at: string | null;
+  error: string | null;
+}
+
+/** Everything the Code screen shows. */
+export interface CodeView {
+  account: GithubAccount;
+  reviews: WorkItem[];
+  mine: WorkItem[];
+  issues: WorkItem[];
+  finished: WorkItem[];
+  reviews_older_than_a_day: number;
 }
 
 export type AiAccess = "off" | "read" | "suggest";
@@ -256,12 +506,62 @@ export const commands = {
   setPersonLook: (id: string, avatar: Avatar | null, pronouns: string | null) =>
     call<void>("set_person_look", { id, avatar, pronouns }),
   setPersonHidden: (id: string, hidden: boolean) => call<void>("set_person_hidden", { id, hidden }),
+  codeView: () => call<CodeView>("code_view"),
+  reviewsOwed: () => call<number>("reviews_owed"),
+  githubTokenPage: () => call<string>("github_token_page"),
+  githubConnect: (token: string) => call<GithubAccount>("github_connect", { token }),
+  githubDisconnect: () => call<void>("github_disconnect"),
+  githubRefresh: () => call<GithubAccount>("github_refresh"),
+  makePromise: (itemId: string) => call<Promise>("make_promise", { itemId }),
+  openOnGithub: (url: string) => call<void>("open_on_github", { url }),
+  inboxView: () => call<InboxView>("inbox_view"),
+  repliesOwed: () => call<number>("replies_owed"),
+  creatorView: () => call<CreatorView>("creator_view"),
+  commentsWaiting: () => call<number>("comments_waiting"),
+  youtubeKeyPage: () => call<string>("youtube_key_page"),
+  youtubeConnect: (channel: string, key: string) => call<CreatorAccount>("youtube_connect", { channel, key }),
+  youtubeDisconnect: () => call<void>("youtube_disconnect"),
+  youtubeRefresh: () => call<CreatorAccount>("youtube_refresh"),
+  commentMakePromise: (commentId: string) => call<Promise>("comment_make_promise", { commentId }),
+  commentHide: (commentId: string) => call<void>("comment_hide", { commentId }),
+  commentUnhide: (commentId: string) => call<void>("comment_unhide", { commentId }),
+  openOnYoutube: (url: string) => call<void>("open_on_youtube", { url }),
+  mailProviders: () => call<MailProvider[]>("mail_providers"),
+  gmailConnect: (address: string, password: string, provider: string, host?: string, port?: number) =>
+    call<MailAccount>("gmail_connect", { address, password, provider, host: host ?? null, port: port ?? null }),
+  gmailDisconnect: () => call<void>("gmail_disconnect"),
+  gmailRefresh: () => call<MailAccount>("gmail_refresh"),
+  mailMakePromise: (itemId: string) => call<Promise>("mail_make_promise", { itemId }),
+  mailDismiss: (itemId: string) => call<void>("mail_dismiss", { itemId }),
+  mailRestore: (itemId: string) => call<void>("mail_restore", { itemId }),
+  openInGmail: (url: string) => call<void>("open_in_gmail", { url }),
+  boardView: () => call<BoardView>("board_view"),
+  deskView: () => call<DeskView>("desk_view"),
+  cloudStatus: () => call<CloudStatus>("cloud_status"),
+  cloudStart: (relay: string, name: string) => call<string>("cloud_start", { relay, name }),
+  cloudRecoveryKit: () => call<string>("cloud_recovery_kit"),
+  cloudKitSaved: () => call<void>("cloud_kit_saved"),
+  cloudRestore: (relay: string, kit: string) => call<CloudStatus>("cloud_restore", { relay, kit }),
+  cloudSync: () => call<CloudStatus>("cloud_sync"),
+  oursCreate: (name: string) => call<Space>("ours_create", { name }),
+  oursInvite: (spaceId: string) => call<string>("ours_invite", { spaceId }),
+  oursJoin: (link: string) => call<Space>("ours_join", { link }),
+  oursShare: (promiseId: string, spaceId: string | null) => call<void>("ours_share", { promiseId, spaceId }),
+  oursJot: (spaceId: string, text: string) => call<Promise>("ours_jot", { spaceId, text }),
+  oursView: (spaceId: string) => call<OursView>("ours_view", { spaceId }),
+  oursLeave: (spaceId: string) => call<void>("ours_leave", { spaceId }),
+  setMaking: (id: string, making: boolean) => call<void>("set_making", { id, making }),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),
 };
 
 /** True inside the desktop app, false in a plain browser preview. */
 export const inDesktopApp = isTauri;
+
+/** True in the phone app (Android or iOS): no second window, no global shortcut, updates come from the store. */
+export function onPhone(): boolean {
+  return typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
 
 /**
  * Runs `handler` whenever any promise is saved or changed, in any window.
@@ -270,6 +570,27 @@ export const inDesktopApp = isTauri;
 export function onPromisesChanged(handler: () => void): () => void {
   if (!isTauri()) return previewEvents.on("promises-changed", handler);
   const stop = listen("promises-changed", handler);
+  return () => void stop.then((unlisten) => unlisten());
+}
+
+/** Runs `handler` after each look at GitHub, or when it is connected or disconnected. */
+export function onWorkChanged(handler: () => void): () => void {
+  if (!isTauri()) return previewEvents.on("work-changed", handler);
+  const stop = listen("work-changed", handler);
+  return () => void stop.then((unlisten) => unlisten());
+}
+
+/** Runs `handler` after each look at YouTube, or when it is connected or disconnected. */
+export function onCreatorChanged(handler: () => void): () => void {
+  if (!isTauri()) return previewEvents.on("creator-changed", handler);
+  const stop = listen("creator-changed", handler);
+  return () => void stop.then((unlisten) => unlisten());
+}
+
+/** Runs `handler` after each look at Gmail, or when it is connected or disconnected. */
+export function onMailChanged(handler: () => void): () => void {
+  if (!isTauri()) return previewEvents.on("mail-changed", handler);
+  const stop = listen("mail-changed", handler);
   return () => void stop.then((unlisten) => unlisten());
 }
 

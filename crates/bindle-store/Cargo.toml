@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 bindle-core = { path = "../bindle-core" }
+bindle-sync = { path = "../bindle-sync" }
 chrono.workspace = true
 uuid.workspace = true
 rusqlite = { workspace = true, features = ["backup"] }

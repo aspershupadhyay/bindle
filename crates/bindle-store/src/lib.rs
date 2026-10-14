@@ -9,13 +9,19 @@
 
 pub mod ai;
 pub mod backup;
+pub mod board;
+pub mod cloud;
+pub mod creator;
 pub mod export;
 pub mod home;
+pub mod insights;
 pub mod lifecycle;
+pub mod mail;
 pub mod people;
 pub mod promises;
 pub mod search;
 pub mod settings;
+pub mod work;
 pub mod wrap_up;
 
 use rusqlite::Connection;
@@ -41,6 +47,23 @@ const MIGRATIONS: &[(&str, &str)] = &[
     (
         "0006_ai_and_avatars",
         include_str!("../migrations/0006_ai_and_avatars.sql"),
+    ),
+    (
+        "0007_work_items",
+        include_str!("../migrations/0007_work_items.sql"),
+    ),
+    (
+        "0008_mail_and_board",
+        include_str!("../migrations/0008_mail_and_board.sql"),
+    ),
+    ("0009_waits", include_str!("../migrations/0009_waits.sql")),
+    (
+        "0010_cloud_sync",
+        include_str!("../migrations/0010_cloud_sync.sql"),
+    ),
+    (
+        "0011_creator",
+        include_str!("../migrations/0011_creator.sql"),
     ),
 ];
 
@@ -75,6 +98,12 @@ pub enum StoreError {
     AiReadOnly,
     #[error("{0} suggestions are already waiting in Sort. Sort those first.")]
     TooManySuggestions(u32),
+    #[error("that shared space is not on this device")]
+    NoSuchSpace,
+    #[error("only an open promise can be in Making")]
+    NotForMaking,
+    #[error("that is already a promise")]
+    AlreadyPromised,
     #[error("that is not one of the pictures")]
     UnknownAvatar,
     #[error("file error: {0}")]

@@ -17,7 +17,7 @@ fn today() -> NaiveDate {
 
 /// Monday 00:00 of this week, local, as UTC. Falls back to now if the
 /// clock change rules make that moment ambiguous or missing.
-fn week_start() -> chrono::DateTime<Utc> {
+pub(crate) fn week_start() -> chrono::DateTime<Utc> {
     let monday = week_of(today())[0]
         .and_hms_opt(0, 0, 0)
         .expect("midnight exists");

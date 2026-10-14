@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
-//! The Bindle desktop app (handbook P4).
+//! The Bindle app for desktops and phones (handbook P4).
 //!
 //! This crate only wires things together: it opens the database in the app's
 //! data folder and exposes the typed commands in [`commands`] to the React views.
@@ -11,6 +11,7 @@ pub mod commands;
 #[cfg(desktop)]
 pub mod jot_window;
 pub mod reminders;
+pub mod secrets;
 pub mod watch;
 
 use std::path::PathBuf;
@@ -47,13 +48,22 @@ fn linux_fixes() {
     }
 }
 
-/// Starts the app.
+/// Starts the app. On phones this is where the app begins.
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_opener::init());
+    // New versions are found and installed from the app (see `UpdateBar`).
+    #[cfg(desktop)]
+    let builder = builder
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init());
+    builder
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&dir)?;
+            secrets::use_folder(&dir);
             let paths = Paths {
                 db: dir.join("bindle.db"),
                 safety: dir.join("safety copies"),
@@ -65,6 +75,10 @@ pub fn run() {
             jot_window::register(app.handle())?;
             reminders::start(app.handle().clone());
             watch::start(app.handle().clone());
+            commands::work::start(app.handle().clone());
+            commands::mail::start(app.handle().clone());
+            commands::cloud::start(app.handle().clone());
+            commands::creator::start(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -106,6 +120,50 @@ pub fn run() {
             commands::data::restore_safety_copy,
             commands::data::set_person_look,
             commands::data::set_person_hidden,
+            commands::creator::creator_view,
+            commands::creator::comments_waiting,
+            commands::creator::youtube_key_page,
+            commands::creator::youtube_connect,
+            commands::creator::youtube_disconnect,
+            commands::creator::youtube_refresh,
+            commands::creator::comment_make_promise,
+            commands::creator::comment_hide,
+            commands::creator::comment_unhide,
+            commands::creator::open_on_youtube,
+            commands::work::code_view,
+            commands::work::reviews_owed,
+            commands::work::github_token_page,
+            commands::work::github_connect,
+            commands::work::github_disconnect,
+            commands::work::github_refresh,
+            commands::work::make_promise,
+            commands::work::open_on_github,
+            commands::mail::inbox_view,
+            commands::mail::replies_owed,
+            commands::mail::mail_providers,
+            commands::mail::gmail_connect,
+            commands::mail::gmail_disconnect,
+            commands::mail::gmail_refresh,
+            commands::mail::mail_make_promise,
+            commands::mail::mail_dismiss,
+            commands::mail::mail_restore,
+            commands::mail::open_in_gmail,
+            commands::board::board_view,
+            commands::desk::desk_view,
+            commands::cloud::cloud_status,
+            commands::cloud::cloud_start,
+            commands::cloud::cloud_recovery_kit,
+            commands::cloud::cloud_kit_saved,
+            commands::cloud::cloud_restore,
+            commands::cloud::ours_create,
+            commands::cloud::ours_invite,
+            commands::cloud::ours_join,
+            commands::cloud::ours_share,
+            commands::cloud::ours_jot,
+            commands::cloud::ours_view,
+            commands::cloud::ours_leave,
+            commands::cloud::cloud_sync,
+            commands::board::set_making,
         ])
         .run(tauri::generate_context!())
         .expect("Bindle could not start");

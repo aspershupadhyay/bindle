@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "identifier": "app.bindle.mobile",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Bindle",
+        "url": "index.html"
+      }
+    ]
+  }
+}

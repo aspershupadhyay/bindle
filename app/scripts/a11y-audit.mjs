@@ -2,9 +2,11 @@
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
 // Accessibility audit (docs/ACCEPTANCE.md). With `npm run dev` running, walks
-// through first run and every Life screen in the browser preview and lists
-// unnamed buttons and links, images without alt text, unlabelled fields,
-// duplicate ids, missing landmarks, and a skip link that is not first.
+// through first run, every Life screen, and Work's Desk, Code, Inbox, Board and Creator, and
+// Bindle Cloud with an Ours space, in
+// the browser preview, and lists unnamed buttons and links, images without
+// alt text, unlabelled fields, duplicate ids, missing landmarks, and a skip
+// link that is not first.
 // Needs Playwright: `npm i -g playwright`, then
 // `PLAYWRIGHT_DIR=$(npm root -g) node scripts/a11y-audit.mjs`.
 
@@ -53,6 +55,53 @@ for (const screen of ["Home", "Sort", "Promises", "People", "Wrap up", "Settings
   await page.waitForTimeout(400);
   await audit(screen);
 }
+// Work: Code, before and after connecting GitHub (the preview's sample data).
+await page.getByRole("button", { name: /^Work$/ }).click();
+await page.getByRole("button", { name: /^Code/ }).click();
+await page.waitForTimeout(400);
+await audit("Code, not connected");
+await page.getByLabel("Paste the token here").fill("preview-token");
+await page.getByRole("button", { name: /^Connect$/ }).click();
+await page.waitForTimeout(400);
+await audit("Code, connected");
+await page.getByRole("button", { name: /^Inbox/ }).click();
+await page.waitForTimeout(400);
+await audit("Inbox, not connected");
+await page.getByLabel("Your Gmail address").fill("sparsh@gmail.com");
+await page.getByLabel("The app password").fill("abcd efgh ijkl mnop");
+await page.getByRole("button", { name: /^Connect$/ }).click();
+await page.waitForTimeout(400);
+await audit("Inbox, connected");
+await page.getByRole("button", { name: /^Board/ }).click();
+await page.waitForTimeout(400);
+await audit("Board");
+await page.getByRole("button", { name: /^Desk/ }).click();
+await page.waitForTimeout(400);
+await audit("Desk");
+await page.getByRole("button", { name: /^Creator/ }).click();
+await page.waitForTimeout(400);
+await audit("Creator, not connected");
+await page.getByLabel("Your channel's handle").fill("@aspersh");
+await page.getByLabel("The API key").fill("AIza-preview");
+await page.getByRole("button", { name: /^Connect$/ }).click();
+await page.waitForTimeout(400);
+await audit("Creator, connected");
+await page.getByRole("button", { name: /^Life$/ }).click();
+// Bindle Cloud: start, the recovery kit, then an Ours space.
+await page.getByRole("button", { name: /^Settings/ }).first().click();
+await page.getByLabel("Bindle Cloud address").fill("https://cloud.example.com");
+await page.getByLabel("The name others see").fill("Sparsh");
+await page.getByRole("button", { name: /^Start Bindle Cloud$/ }).click();
+await page.waitForTimeout(400);
+await audit("Recovery kit");
+await page.getByRole("button", { name: /^I saved it$/ }).click();
+await page.getByLabel("Make a shared space").fill("Upadhyay Home");
+await page.getByRole("button", { name: /^Make it$/ }).click();
+await page.waitForTimeout(400);
+await audit("Ours");
+await page.getByRole("button", { name: /^Make an invite link$/ }).click();
+await page.waitForTimeout(300);
+await audit("Ours, invite");
 console.log(problems.join("\n") || "no problems");
 await browser.close();
 process.exitCode = problems.length > 0 ? 1 : 0;
