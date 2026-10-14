@@ -11,10 +11,10 @@ A calm, local-first app that carries your promises, from your life and your work
   <img src="docs/design/hero-hills.png" alt="Pixel art: a traveller with a bindle walking over green hills at sunset" width="768">
 </p>
 
-> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, and every change can be undone. Not ready for everyday use yet: Home arrives next.
+> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. The Life core loop is in place; Promises, People and Wrap up come next.
 
 <p align="center">
-  <img src="docs/screens/week-2-home.png" alt="The Bindle desktop app on Linux: Life Home with three promises waiting in Sort, each with chips for the day, time, amount and person" width="768">
+  <img src="docs/screens/week-4-home.png" alt="Life Home in the Bindle desktop app: top 3 with one done, Waiting on others with a nudge, Coming up, and the week strip with a full Friday in honey" width="768">
 </p>
 <p align="center">
   <img src="docs/screens/week-2-jot-down.png" alt="The Jot down window reading 'Pay electricity bill ₹2,340 kal shaam 7 baje' as Tomorrow 7 PM, with a question mark, and ₹2,340" width="480">
@@ -84,7 +84,7 @@ bindle/
   docs/              handbook mirror and designs
 ```
 
-Coming next: Home with top 3, Running late, Waiting on others and the week strip (week 4 of the plan in [docs/ROADMAP.md](docs/ROADMAP.md)).
+Coming next: Promises and People with Send recap, and search (week 5 of the plan in [docs/ROADMAP.md](docs/ROADMAP.md)).
 
 Alt+Shift+J is claimed system-wide where the desktop allows it. Some Wayland sessions do not let apps claim global shortcuts; there it works inside Bindle, and the Jot down button is always there.
 

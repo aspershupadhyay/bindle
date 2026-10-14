@@ -22,3 +22,7 @@
 - `bindle-store`: Sort, Done, reopen, Let go and Move it, each recorded in history with the promise before and after. Undo puts back exactly what was there, refuses when the promise changed since, and never deletes anything. Migration 0003 lets history record "later" and "undone".
 - Undo bar after every change, and Ctrl+Z (Cmd+Z) for the latest change.
 - Home lists what is coming up, soonest first, with a box to mark each done and its history.
+- Life Home, as in the v2 design: a summary ("2 things today, 1 person waiting on you"), today's top 3 (done ones stay ticked with the time), suggestions for the top 3 from today and running late, Running late in honey with Move it and Let go, Waiting on others oldest first with Nudge, Coming up, and This week: how full each day is, a gentle note about a full day ahead, and what was kept, moved and let go.
+- Nudge copies a friendly message for you to send yourself, and remembers when you nudged. Bindle never sends it.
+- `bindle-core`: a promise's day, the Monday-to-Sunday week, and a day capacity of 5.
+- `bindle-store`: one read for all of Home, the top 3 (three at most, gaps close up), and nudges.
