@@ -10,6 +10,7 @@
 pub mod commands;
 #[cfg(desktop)]
 pub mod jot_window;
+pub mod reminders;
 
 use std::sync::Mutex;
 use tauri::Manager;
@@ -20,6 +21,7 @@ pub struct Db(pub Mutex<rusqlite::Connection>);
 /// Starts the app.
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&dir)?;
@@ -27,6 +29,7 @@ pub fn run() {
             app.manage(Db(Mutex::new(conn)));
             #[cfg(desktop)]
             jot_window::register(app.handle())?;
+            reminders::start(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -56,6 +59,11 @@ pub fn run() {
             commands::browse::people_list,
             commands::browse::person_detail,
             commands::browse::rename_person,
+            commands::day::get_settings,
+            commands::day::save_settings,
+            commands::day::test_notification,
+            commands::day::wrap_up_view,
+            commands::day::finish_wrap_up,
         ])
         .run(tauri::generate_context!())
         .expect("Bindle could not start");

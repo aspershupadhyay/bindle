@@ -26,6 +26,7 @@ iana-time-zone = "0.1"
 rusqlite.workspace = true
 serde.workspace = true
 tauri = { version = "2", features = [] }
+tauri-plugin-notification = "2"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"

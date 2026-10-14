@@ -13,13 +13,20 @@ import { WeekStrip } from "../components/home/WeekStrip";
 import { JotField } from "../components/JotField";
 import { PromiseRow } from "../components/PromiseRow";
 import { commands, onPromisesChanged, type HomeView } from "../lib/commands";
+import { timeLabel } from "../lib/chips";
 import { dateLine, greeting } from "../lib/days";
+import { useSettings } from "../lib/settings";
+import { Icon } from "../components/Icon";
 
-export const Home = forwardRef<HTMLInputElement, { onOpenSort: () => void; unsorted: number }>(function Home(
-  { onOpenSort, unsorted },
-  jotRef,
-) {
+interface HomeProps {
+  unsorted: number;
+  onOpenSort: () => void;
+  onWrapUp: () => void;
+}
+
+export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ onOpenSort, onWrapUp, unsorted }, jotRef) {
   const now = new Date();
+  const { settings } = useSettings();
   const [view, setView] = useState<HomeView | null>(null);
 
   const refresh = useCallback(() => {
@@ -42,7 +49,10 @@ export const Home = forwardRef<HTMLInputElement, { onOpenSort: () => void; unsor
       <header className="home-header">
         <div className="home-hello">
           <div className="muted small">{dateLine(now)}</div>
-          <h1 className="display">{greeting(now)}.</h1>
+          <h1 className="display">
+            {greeting(now)}
+            {settings.name ? `, ${settings.name}` : ""}.
+          </h1>
           {view && <Summary view={view} unsorted={unsorted} onOpenSort={onOpenSort} />}
           <JotField ref={jotRef} />
         </div>
@@ -81,6 +91,25 @@ export const Home = forwardRef<HTMLInputElement, { onOpenSort: () => void; unsor
           </div>
           <aside className="home-side" aria-label="This week">
             {view.week.length > 0 && <WeekStrip view={view} />}
+            <div className="wrap-card">
+              <Icon name="wrapUp" size={22} />
+              {view.wrapped_up ? (
+                <span>
+                  Day wrapped up
+                  <br />
+                  <span className="muted">Rest well. You can go again any time.</span>
+                </span>
+              ) : (
+                <span>
+                  Wrap up at {timeLabel(settings.wrap_up_time)}
+                  <br />
+                  <span className="muted">About one minute</span>
+                </span>
+              )}
+              <button type="button" className="button-quiet small-button" onClick={onWrapUp}>
+                {view.wrapped_up ? "Open" : "Start now"}
+              </button>
+            </div>
           </aside>
         </div>
       )}

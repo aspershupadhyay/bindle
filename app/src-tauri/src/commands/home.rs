@@ -35,18 +35,29 @@ pub fn home_view(db: Managed<Db>) -> Reply<HomeView> {
     Ok(home::home(&conn, today(), week_start())?)
 }
 
-/// Puts a promise in today's top 3.
+/// Puts a promise in a day's top 3: today, unless `day` says otherwise
+/// (Wrap up picks tomorrow's).
 #[tauri::command]
-pub fn add_to_top3(app: AppHandle, db: Managed<Db>, id: String) -> Reply<()> {
-    home::add_to_top3(&mut *lock(&db)?, today(), &id, Utc::now())?;
+pub fn add_to_top3(
+    app: AppHandle,
+    db: Managed<Db>,
+    id: String,
+    day: Option<NaiveDate>,
+) -> Reply<()> {
+    home::add_to_top3(&mut *lock(&db)?, day.unwrap_or_else(today), &id, Utc::now())?;
     announce(&app);
     Ok(())
 }
 
-/// Takes a promise out of today's top 3.
+/// Takes a promise out of a day's top 3: today, unless `day` says otherwise.
 #[tauri::command]
-pub fn remove_from_top3(app: AppHandle, db: Managed<Db>, id: String) -> Reply<()> {
-    home::remove_from_top3(&mut *lock(&db)?, today(), &id, Utc::now())?;
+pub fn remove_from_top3(
+    app: AppHandle,
+    db: Managed<Db>,
+    id: String,
+    day: Option<NaiveDate>,
+) -> Reply<()> {
+    home::remove_from_top3(&mut *lock(&db)?, day.unwrap_or_else(today), &id, Utc::now())?;
     announce(&app);
     Ok(())
 }

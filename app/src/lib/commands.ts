@@ -102,6 +102,7 @@ export interface HomeView {
   this_week: { kept: number; moved: number; let_go: number };
   today_count: number;
   people_waiting_on_you: number;
+  wrapped_up: boolean;
 }
 
 export interface DayLoad {
@@ -131,6 +132,28 @@ export interface PersonDetail {
   you_owe: Promise[];
   they_owe: Promise[];
   kept_lately: Promise[];
+}
+
+/** The person's settings, as `bindle_store::settings::Settings` sends them. Times are `HH:MM:SS`. */
+export interface Settings {
+  name: string | null;
+  onboarded: boolean;
+  wrap_up_time: string;
+  wrap_up_reminder: boolean;
+  morning_time: string;
+  morning_note: boolean;
+  timed_reminders: boolean;
+  theme: "system" | "light" | "dark";
+}
+
+export interface WrapUpView {
+  day: string;
+  kept_today: Promise[];
+  still_open: Promise[];
+  tomorrow: Promise[];
+  tomorrow_top3: string[];
+  wrapped_up_at: string | null;
+  mind_load: number | null;
 }
 
 export interface AppInfo {
@@ -169,8 +192,8 @@ export const commands = {
   undoLast: () => call<Change | null>("undo_last"),
   history: (id: string) => call<HistoryEntry[]>("history", { id }),
   homeView: () => call<HomeView>("home_view"),
-  addToTop3: (id: string) => call<void>("add_to_top3", { id }),
-  removeFromTop3: (id: string) => call<void>("remove_from_top3", { id }),
+  addToTop3: (id: string, day?: string) => call<void>("add_to_top3", { id, day }),
+  removeFromTop3: (id: string, day?: string) => call<void>("remove_from_top3", { id, day }),
   nudge: (id: string) => call<void>("nudge", { id }),
   searchPromises: (query: string) => call<Promise[]>("search_promises", { query }),
   stateCounts: () => call<StateCounts>("state_counts"),
@@ -178,6 +201,11 @@ export const commands = {
   peopleList: () => call<PersonSummary[]>("people_list"),
   personDetail: (id: string) => call<PersonDetail>("person_detail", { id }),
   renamePerson: (id: string, name: string) => call<void>("rename_person", { id, name }),
+  getSettings: () => call<Settings>("get_settings"),
+  saveSettings: (settings: Settings) => call<Settings>("save_settings", { settings }),
+  testNotification: () => call<void>("test_notification"),
+  wrapUpView: () => call<WrapUpView>("wrap_up_view"),
+  finishWrapUp: (mindLoad: number | null, note: string | null) => call<void>("finish_wrap_up", { mindLoad, note }),
   hideJot: () => call<void>("hide_jot"),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),
@@ -193,6 +221,13 @@ export const inDesktopApp = isTauri;
 export function onPromisesChanged(handler: () => void): () => void {
   if (!isTauri()) return previewEvents.on("promises-changed", handler);
   const stop = listen("promises-changed", handler);
+  return () => void stop.then((unlisten) => unlisten());
+}
+
+/** Runs `handler` with the new settings whenever they change, in any window. */
+export function onSettingsChanged(handler: (settings: Settings) => void): () => void {
+  if (!isTauri()) return previewEvents.on("settings-changed", () => {});
+  const stop = listen<Settings>("settings-changed", (event) => handler(event.payload));
   return () => void stop.then((unlisten) => unlisten());
 }
 

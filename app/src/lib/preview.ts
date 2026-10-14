@@ -6,9 +6,19 @@
 // rules are not checked: the real ones live in Rust. It exists so screens can
 // be tried and screenshotted without building the desktop app.
 
-import type { Change, HomeView, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
+import type { Change, HomeView, Settings, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
 
 const promises: BindlePromise[] = [];
+let settings: Settings = {
+  name: null,
+  onboarded: false,
+  wrap_up_time: "21:00:00",
+  wrap_up_reminder: false,
+  morning_time: "08:30:00",
+  morning_note: false,
+  timed_reminders: true,
+  theme: "system",
+};
 const changes = new Map<string, { before: BindlePromise; undone: boolean }>();
 const listeners = new Map<string, Set<() => void>>();
 
@@ -77,6 +87,25 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
     case "person_detail":
     case "rename_person":
       throw { message: "People works in the desktop app only" };
+    case "get_settings":
+      return settings as T;
+    case "save_settings":
+      settings = { ...(args.settings as Settings) };
+      return settings as T;
+    case "test_notification":
+      return undefined as T;
+    case "wrap_up_view":
+      return {
+        day: new Date().toISOString().slice(0, 10),
+        kept_today: promises.filter((p) => p.state === "done"),
+        still_open: promises.filter((p) => p.state === "open"),
+        tomorrow: [],
+        tomorrow_top3: [],
+        wrapped_up_at: null,
+        mind_load: null,
+      } as T;
+    case "finish_wrap_up":
+      return undefined as T;
     case "add_to_top3":
     case "remove_from_top3":
     case "nudge":
@@ -168,5 +197,6 @@ function homeView(): HomeView {
     this_week: { kept: 0, moved: 0, let_go: 0 },
     today_count: 0,
     people_waiting_on_you: 0,
+    wrapped_up: false,
   };
 }

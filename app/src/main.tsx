@@ -12,9 +12,12 @@ import "@fontsource/jetbrains-mono/400.css";
 import "./tokens.css";
 import "./app.css";
 import { App } from "./App";
+import { SettingsProvider } from "./lib/settings";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <SettingsProvider>
+      <App />
+    </SettingsProvider>
   </StrictMode>,
 );

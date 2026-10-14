@@ -7,13 +7,17 @@ import { UndoProvider } from "./components/Undo";
 import { commands, inDesktopApp, onPromisesChanged, type Mode } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Home } from "./screens/Home";
+import { useSettings } from "./lib/settings";
+import { FirstRun } from "./screens/FirstRun";
 import { People } from "./screens/People";
 import { Promises } from "./screens/Promises";
 import { Settings } from "./screens/Settings";
 import { Sort } from "./screens/Sort";
+import { WrapUp } from "./screens/WrapUp";
 import { Soon } from "./screens/Soon";
 
 export function App() {
+  const { settings } = useSettings();
   const [mode, setMode] = useState<Mode>("life");
   const [current, setCurrent] = useState<ScreenId>("home");
   const [unsorted, setUnsorted] = useState(0);
@@ -67,6 +71,14 @@ export function App() {
     setCurrent(screens[next][0].id);
   }
 
+  if (!settings.onboarded) {
+    return (
+      <UndoProvider>
+        <FirstRun />
+      </UndoProvider>
+    );
+  }
+
   return (
     <UndoProvider>
       <div className="shell">
@@ -80,13 +92,20 @@ export function App() {
         />
         <main className="main">
           {current === "home" ? (
-            <Home ref={jotRef} unsorted={unsorted} onOpenSort={() => setCurrent("sort")} />
+            <Home
+              ref={jotRef}
+              unsorted={unsorted}
+              onOpenSort={() => setCurrent("sort")}
+              onWrapUp={() => setCurrent("wrapUp")}
+            />
           ) : current === "sort" ? (
             <Sort />
           ) : current === "promises" ? (
             <Promises focusSearch={focusSearch} onOpenSort={() => setCurrent("sort")} />
           ) : current === "people" ? (
             <People />
+          ) : current === "wrapUp" ? (
+            <WrapUp onDone={() => setCurrent("home")} />
           ) : current === "settings" ? (
             <Settings />
           ) : (

@@ -61,8 +61,32 @@
     --sage-text: #8DB394;
     --honey: #E3B864;
     --honey-text: #E3B864;
+    --clay-wash: #3D2A20;
+    --sage-wash: #25302A;
+    --honey-wash: #3A3020;
     --error: #F2B8B5;
   }
+}
+
+/* Dark chosen in Settings, whatever the system says. Same values as above. */
+:root[data-theme="dark"] {
+  --paper: #1E1B18;
+  --card: #262220;
+  --sand: #3A342E;
+  --sand-soft: #2C2824;
+  --ink: #EDE6DC;
+  --ink-mid: #D4CBBF;
+  --ink-soft: #B3A99D;
+  --clay: #D9825C;
+  --clay-text: #D9825C;
+  --sage: #8DB394;
+  --sage-text: #8DB394;
+  --honey: #E3B864;
+  --honey-text: #E3B864;
+  --clay-wash: #3D2A20;
+  --sage-wash: #25302A;
+  --honey-wash: #3A3020;
+  --error: #F2B8B5;
 }
 
 /* Pixel sprites are drawn at 1x and only ever scaled by whole numbers. */

@@ -15,7 +15,8 @@ import "./tokens.css";
 import "./app.css";
 import logo from "./art/bindle-24.png";
 import { JotField } from "./components/JotField";
-import { commands, onJotOpened } from "./lib/commands";
+import { commands, onJotOpened, onSettingsChanged } from "./lib/commands";
+import { applyTheme } from "./lib/settings";
 
 /** How long "Saved" stays on screen before the window goes. */
 const SAVED_PAUSE_MS = 700;
@@ -32,6 +33,12 @@ function JotWindow() {
       }),
     [],
   );
+
+  // Follow the theme chosen in Settings, here as in the main window.
+  useEffect(() => {
+    commands.getSettings().then((s) => applyTheme(s.theme), () => {});
+    return onSettingsChanged((s) => applyTheme(s.theme));
+  }, []);
 
   useEffect(() => {
     input.current?.focus();
