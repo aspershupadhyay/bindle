@@ -70,21 +70,42 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] Updates inside the app: Bindle looks for a new version on GitHub after opening and every six hours, offers "Install and restart", and checks the signature first. Releases take their version from the tag, so nothing is bumped by hand
 - [x] GitHub's language bar counts design mockups as documentation
 
+## Picking this up in a new session
+
+Read this first if you are continuing the work (another person or a new Claude session).
+
+- **Branch:** `claude/stoic-cannon-hm2xzg`. Everything since v0.0.2 is on it, in the open pull request [#5](https://github.com/aspershupadhyay/bindle/pull/5), which is **not merged yet**. Keep committing to this branch, and update #5's title and description after each push. Only the owner merges.
+- **Checks before every push** (same as CI): `(cd app && npm run typecheck && npm test && npx vite build)`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`. The views must be built before the Rust workspace compiles.
+- **Accessibility audit and screenshots:** start `npx vite --port 1420` in `app/`, then `PLAYWRIGHT_DIR=$(npm root -g) node app/scripts/a11y-audit.mjs`. In the cloud container, Chromium is at `/opt/pw-browsers/chromium` (pass it as `executablePath`). Screenshots for each week go in `docs/screens/`.
+- **Where things live:** all SQL is in `crates/bindle-store` (one migration per change, numbered; the latest is 0010). Sources (GitHub, Gmail) are in `crates/bindle-sources`; Bindle Cloud is in `crates/bindle-cloud` and `crates/bindle-relay`. Tauri commands are in `app/src-tauri/src/commands/`, one file per area, and every command needs a stand-in in `app/src/lib/preview*.ts` so the views run in a browser.
+- **House rules:** sources are read only; Bindle never sends email or posts anything; suggestions wait in Sort; no scores or shaming; tokens and keys live in the system keychain (`app/src-tauri/src/secrets.rs`), never in the database; errors in plain words; tests for everything; every source file starts with the SPDX licence header.
+- **Cannot be done from a cloud session:** reaching GitHub search, Gmail or other mailboxes with real accounts, hosting the relay, building for a phone (no Android SDK or Xcode), signing. These are listed as gates below.
+- **The owner has added** the updater secrets (`TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, `TAURI_UPDATER_PUBKEY`). The v0.0.2 release waits until #5 is merged.
+
 ## Being worked on now
+
+### Weeks 18–20: Creator, Outlook and IMAP, phone build (gate: Ours works on a phone)
+- [ ] Any IMAP mailbox, not only Gmail: server, port and sent folder in Settings, with presets for Gmail, iCloud, Fastmail, Yahoo, Zoho and Outlook. Still read only (EXAMINE and BODY.PEEK)
+- [ ] Outlook: Microsoft turned off app passwords for most Outlook.com accounts, so Outlook needs "Sign in with Microsoft" (OAuth, XOAUTH2 over IMAP), which needs an app registered by the owner in Azure. Build the IMAP side so it can take an OAuth token; note the owner step
+- [ ] Creator (v2 design `docs/design/v2/creator*.png`): YouTube, read only: your channel's latest uploads and comments waiting on a reply, with Make it a promise. Uses a YouTube Data API key the person pastes (kept in the keychain); OAuth later
+- [ ] Instagram: needs a Meta app and review, which only the owner can register. Leave a clear "not yet" state on the Creator screen
+- [ ] Creator screen in Work mode, sidebar entry, preview data, audit and screenshots
+- [ ] Phone build: Tauri mobile entry point, a layout that works at phone width (360 px: sidebar becomes a bottom bar or menu), and an Android build workflow in CI. The desktop-only parts (global shortcut, tray, updater) are left out on phones
+- [ ] Gate: Ours works on a phone. Needs a hosted relay and the Android build on a real phone
 
 - [ ] Weeks 11–12 gate, "a week of email triage from Bindle": connect Gmail (Work → Inbox, with an app password), then triage from Bindle for a week. The cloud session that built this cannot reach Gmail, so this needs the real app
 - [ ] Weeks 9–10 gate, "real review requests become promises": connect your own GitHub in the desktop app (Work → Code), make a promise from a real review request, and keep it. The cloud session that built this cannot reach GitHub's search, so this needs the real app
 
 - [ ] Week 8 gate, "all acceptance checks pass": the automated checks pass. The hands-on checks in [ACCEPTANCE.md](ACCEPTANCE.md) still need a person on a real Windows and macOS machine
 - [ ] Signed builds need the Apple and Windows certificates added as repository secrets. Only the owner can do this
-- [ ] Turn on updates: the owner makes the updater key and adds three secrets (see "Updates inside the app" in [RELEASING.md](RELEASING.md)), then releases v0.0.2. People on v0.0.1 install v0.0.2 by hand once; every later version arrives inside the app
+- [ ] Turn on updates: the three updater secrets are added; release v0.0.2 once #5 is merged (see "Updates inside the app" in [RELEASING.md](RELEASING.md)). People on v0.0.1 install v0.0.2 by hand once; every later version arrives inside the app
 
 ## Left to deal with
 
 ### Before Tier 1 is called done
 - [ ] **Founder gate:** use Bindle on at least 25 of 30 days (handbook P10)
 - [ ] Hands-on test on Windows and macOS: Jot down shortcut, notifications (macOS may ask for permission first), dark theme, and the AI connection from Claude Desktop
-- [ ] Add the signing secrets and cut a signed release
+- [ ] Add the Apple and Windows signing certificates and cut a signed release
 - [ ] Hands-on test of an update: install v0.0.2, release v0.0.3, and check each system offers and installs it
 - [ ] A screen reader pass (NVDA on Windows, VoiceOver on macOS, Orca on Linux)
 - [ ] Some Wayland desktops refuse global shortcuts. Bindle then works with the in-app shortcut only; a desktop-portal shortcut would fix this
