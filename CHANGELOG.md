@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Inbox reads any mailbox, not only Gmail: iCloud Mail, Fastmail, Yahoo Mail, Zoho Mail, Outlook (where app passwords still work) or any IMAP server you type. Still read only, and Bindle still never sends email.
+
 - Bindle Cloud and Ours: make a shared space, invite someone with a link that works once, and carry promises together. Both of you can jot down to it, share one of your own promises, and mark things done; it shows who added each one and who kept it, with no scores. Works offline and catches up every 30 seconds.
 - End to end: everything shared is locked on your device with a key the server never sees, so the relay keeps only sealed boxes. Keys live in the system keychain.
 - Recovery kit: 14 groups of 4 letters, shown once when you start Bindle Cloud. Type it on a new device to bring your spaces back.

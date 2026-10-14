@@ -10,8 +10,8 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import dakghar from "../art/dakghar.png";
 import { useNotify } from "../components/Undo";
 import { whenLabel } from "../lib/chips";
-import { commands, errorMessage, onMailChanged, onPromisesChanged, type InboxView, type MailItem } from "../lib/commands";
-import { age, inboxSummary, lookedAgo } from "../lib/work";
+import { commands, errorMessage, onMailChanged, onPromisesChanged, type InboxView, type MailItem, type MailProvider } from "../lib/commands";
+import { age, inboxSummary, lookedAgo, mailName } from "../lib/work";
 
 /** "By Fri" reads "by Fri" mid-sentence. */
 const lowerFirst = (words: string) => words.charAt(0).toLowerCase() + words.slice(1);
@@ -79,7 +79,7 @@ export function Inbox({ onOpenSort }: { onOpenSort: () => void }) {
     <div className="page inbox-page">
       <header className="code-header">
         <div className="code-hello">
-          <div className="muted small">Work · Inbox · Gmail</div>
+          <div className="muted small">Work · Inbox{view?.account.address ? ` · ${mailName(view.account)}` : ""}</div>
           <h1 className="display">Inbox</h1>
           {view && connected && <p className="lead">{inboxSummary(view)}</p>}
           {view && connected && (
@@ -97,7 +97,7 @@ export function Inbox({ onOpenSort }: { onOpenSort: () => void }) {
         </figure>
       </header>
 
-      {view && !connected && <ConnectGmail onConnected={refresh} />}
+      {view && !connected && <ConnectMail onConnected={refresh} />}
 
       {view && connected && (
         <>
@@ -114,7 +114,7 @@ export function Inbox({ onOpenSort }: { onOpenSort: () => void }) {
               </button>
             </p>
           )}
-          {view.finished.length > 0 && <FinishedMail items={view.finished} />}
+          {view.finished.length > 0 && <FinishedMail items={view.finished} service={mailName(view.account)} />}
           {all.length === 0 ? (
             <p className="card empty">Nothing in your email needs you right now. Bindle looks again every 10 minutes.</p>
           ) : (
@@ -125,7 +125,7 @@ export function Inbox({ onOpenSort }: { onOpenSort: () => void }) {
                 <MailGroup title="Waiting on others" items={view.waiting} selected={selected} onChoose={setChosen} now={now} />
                 {view.hidden > 0 && <p className="muted small">{view.hidden} marked Not needed.</p>}
               </div>
-              {selected && <Reading item={selected} now={now} onHide={() => void hide(selected)} onOpenSort={onOpenSort} />}
+              {selected && <Reading item={selected} service={mailName(view.account)} now={now} onHide={() => void hide(selected)} onOpenSort={onOpenSort} />}
             </div>
           )}
           <p className="muted small code-account">
@@ -135,7 +135,7 @@ export function Inbox({ onOpenSort }: { onOpenSort: () => void }) {
               className="link-button"
               onClick={() =>
                 commands.gmailDisconnect().then(
-                  () => notify("Disconnected from Gmail. Promises you made stay."),
+                  () => notify(`Disconnected from ${mailName(view.account)}. Promises you made stay.`),
                   (e) => notify(errorMessage(e)),
                 )
               }
@@ -180,7 +180,7 @@ function MailGroup(props: { title: string; items: MailItem[]; selected: MailItem
   );
 }
 
-function Reading({ item, now, onHide, onOpenSort }: { item: MailItem; now: Date; onHide: () => void; onOpenSort: () => void }) {
+function Reading({ item, service, now, onHide, onOpenSort }: { item: MailItem; service: string; now: Date; onHide: () => void; onOpenSort: () => void }) {
   const notify = useNotify();
   const [busy, setBusy] = useState(false);
 
@@ -243,17 +243,19 @@ function Reading({ item, now, onHide, onOpenSort }: { item: MailItem; now: Date;
           <button type="button" className="button-quiet small-button" onClick={onHide}>
             Not needed
           </button>
-          <button type="button" className="button-quiet small-button" onClick={() => void open()}>
-            Open in Gmail
-          </button>
+          {item.url && (
+            <button type="button" className="button-quiet small-button" onClick={() => void open()}>
+              Open in {service}
+            </button>
+          )}
         </div>
       )}
-      <p className="muted small">Bindle never sends email. Replies happen in Gmail.</p>
+      <p className="muted small">Bindle never sends email. Replies happen in {service}.</p>
     </article>
   );
 }
 
-function FinishedMail({ items }: { items: MailItem[] }) {
+function FinishedMail({ items, service }: { items: MailItem[]; service: string }) {
   const notify = useNotify();
   async function close(item: MailItem) {
     const promise = item.promise;
@@ -269,7 +271,7 @@ function FinishedMail({ items }: { items: MailItem[] }) {
   return (
     <section aria-labelledby="mail-finished" className="card code-finished">
       <h2 id="mail-finished">Answered already?</h2>
-      <p className="muted small">These no longer need a reply in Gmail. If the promise is kept, mark it so.</p>
+      <p className="muted small">These no longer need a reply in {service}. If the promise is kept, mark it so.</p>
       <ul className="stack">
         {items.map((item) => (
           <li key={item.id} className="finished-row">
@@ -286,16 +288,28 @@ function FinishedMail({ items }: { items: MailItem[] }) {
   );
 }
 
-function ConnectGmail({ onConnected }: { onConnected: () => void }) {
+function ConnectMail({ onConnected }: { onConnected: () => void }) {
   const notify = useNotify();
+  const [providers, setProviders] = useState<MailProvider[]>([]);
+  const [providerId, setProviderId] = useState("gmail");
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
+  const [host, setHost] = useState("");
+  const [port, setPort] = useState("993");
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
+  useEffect(() => {
+    commands.mailProviders().then(setProviders, (e) => notify(errorMessage(e)));
+  }, [notify]);
+  const provider = providers.find((p) => p.id === providerId);
+  const other = providerId === "other";
+  const name = provider && !other ? provider.name : "your mailbox";
+
   async function openPasswordPage() {
+    if (!provider?.password_page) return;
     try {
-      await commands.openInGmail(await commands.gmailPasswordPage());
+      await commands.openInGmail(provider.password_page);
     } catch (error) {
       notify(errorMessage(error));
     }
@@ -306,7 +320,7 @@ function ConnectGmail({ onConnected }: { onConnected: () => void }) {
     setBusy(true);
     setProblem(null);
     try {
-      const account = await commands.gmailConnect(address, password);
+      const account = await commands.gmailConnect(address, password, providerId, other ? host : undefined, other ? Number(port) || 993 : undefined);
       setPassword("");
       notify(`Connected to ${account.address}`);
       onConnected();
@@ -318,31 +332,52 @@ function ConnectGmail({ onConnected }: { onConnected: () => void }) {
   }
 
   return (
-    <section className="card code-connect" aria-labelledby="connect-gmail">
-      <h2 id="connect-gmail">Connect Gmail</h2>
+    <section className="card code-connect" aria-labelledby="connect-mail">
+      <h2 id="connect-mail">Connect your email</h2>
       <p className="muted">
         See who is waiting on your reply, which of your questions are still open, and the promises you made in an email. Bindle only reads. It never
         marks anything as read, moves it, or sends email.
       </p>
+      <div className="pills" role="group" aria-label="Your mail service">
+        {providers.map((p) => (
+          <button key={p.id} type="button" className="pill" aria-pressed={providerId === p.id} onClick={() => setProviderId(p.id)}>
+            {p.name}
+          </button>
+        ))}
+      </div>
       <ol className="connect-steps">
         <li>
-          <span>Google gives each app its own password. 2-Step Verification must be on for your account.</span>{" "}
-          <button type="button" className="button-quiet small-button" onClick={() => void openPasswordPage()}>
-            Make an app password
-          </button>
-          <span className="muted small"> Name it "Bindle", then copy the 16 letters Google shows.</span>
+          <span>{provider?.note ?? "Your mail service gives each app its own password."}</span>{" "}
+          {provider?.password_page && (
+            <button type="button" className="button-quiet small-button" onClick={() => void openPasswordPage()}>
+              Make an app password
+            </button>
+          )}
+          <span className="muted small"> Name it "Bindle", then copy the password it shows.</span>
         </li>
         <li>
           <form className="connect-form" onSubmit={(e) => void connect(e)}>
+            {other && (
+              <>
+                <label className="field">
+                  <span className="field-label">IMAP server</span>
+                  <input value={host} onChange={(e) => setHost(e.target.value)} placeholder="imap.example.com" spellCheck={false} autoCapitalize="off" />
+                </label>
+                <label className="field field-narrow">
+                  <span className="field-label">Port</span>
+                  <input inputMode="numeric" value={port} onChange={(e) => setPort(e.target.value.replace(/\D/g, ""))} placeholder="993" />
+                </label>
+              </>
+            )}
             <label className="field">
-              <span className="field-label">Your Gmail address</span>
-              <input type="email" autoComplete="email" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="you@gmail.com" />
+              <span className="field-label">Your {other ? "email" : name} address</span>
+              <input type="email" autoComplete="email" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="you@example.com" />
             </label>
             <label className="field">
               <span className="field-label">The app password</span>
               <input type="password" autoComplete="off" spellCheck={false} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="abcd efgh ijkl mnop" />
             </label>
-            <button type="submit" className="button-primary small-primary" disabled={busy || !address.trim() || !password.trim()}>
+            <button type="submit" className="button-primary small-primary" disabled={busy || !address.trim() || !password.trim() || (other && !host.trim())}>
               {busy ? "Checking…" : "Connect"}
             </button>
           </form>

@@ -190,11 +190,26 @@ export interface MailItem {
   promise: { id: string; state: State } | null;
 }
 
-/** The Gmail connection. The app password is never sent to the views. */
+/** The mailbox connection. The app password is never sent to the views. */
 export interface MailAccount {
   address: string | null;
   synced_at: string | null;
   error: string | null;
+  /** "gmail", "icloud", … or "other"; missing means Gmail. */
+  provider?: string | null;
+  host?: string | null;
+  port?: number | null;
+}
+
+/** A mail service Bindle knows how to read. */
+export interface MailProvider {
+  id: string;
+  name: string;
+  host: string;
+  port: number;
+  password_page: string;
+  webmail: string;
+  note: string;
 }
 
 export interface InboxView {
@@ -445,8 +460,9 @@ export const commands = {
   openOnGithub: (url: string) => call<void>("open_on_github", { url }),
   inboxView: () => call<InboxView>("inbox_view"),
   repliesOwed: () => call<number>("replies_owed"),
-  gmailPasswordPage: () => call<string>("gmail_password_page"),
-  gmailConnect: (address: string, password: string) => call<MailAccount>("gmail_connect", { address, password }),
+  mailProviders: () => call<MailProvider[]>("mail_providers"),
+  gmailConnect: (address: string, password: string, provider: string, host?: string, port?: number) =>
+    call<MailAccount>("gmail_connect", { address, password, provider, host: host ?? null, port: port ?? null }),
   gmailDisconnect: () => call<void>("gmail_disconnect"),
   gmailRefresh: () => call<MailAccount>("gmail_refresh"),
   mailMakePromise: (itemId: string) => call<Promise>("mail_make_promise", { itemId }),

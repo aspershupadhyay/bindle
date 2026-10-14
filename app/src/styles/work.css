@@ -30,6 +30,8 @@
 .connect-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
 .connect-form .field { flex: 1 1 260px; }
 .connect-form .field input { width: 100%; }
+.connect-form .field.field-narrow { flex: 0 0 96px; }
+.code-connect .pills { flex-wrap: wrap; margin: 4px 0 8px; }
 .code-account { margin: 0; }
 
 /* Inbox (v2 design, Inbox): a list and a reading pane. */

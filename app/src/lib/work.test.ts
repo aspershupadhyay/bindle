@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { BoardView, CodeView, DeskView, InboxView, WorkItem } from "./commands";
-import { age, boardSummary, cardFrom, cardSource, codeSummary, compareWait, countWord, deskSummary, hoursLabel, inboxSummary, lookedAgo, promiseNote, shortName, streak, waitStory } from "./work";
+import { age, boardSummary, cardFrom, cardSource, codeSummary, compareWait, countWord, deskSummary, hoursLabel, inboxSummary, lookedAgo, mailName, promiseNote, shortName, streak, waitStory } from "./work";
 
 const now = new Date("2026-10-14T12:00:00Z");
 
@@ -102,6 +102,15 @@ describe("small words", () => {
     expect(promiseNote({ ...base, promise: { id: "p", state: "unsorted" } })).toBe("Waiting in Sort");
     expect(promiseNote({ ...base, promise: { id: "p", state: "open" } })).toBe("A promise");
     expect(promiseNote({ ...base, promise: { id: "p", state: "let_go" } })).toBeNull();
+  });
+});
+
+describe("mailName", () => {
+  it("names the service, Gmail when an older account says nothing, and the server for others", () => {
+    expect(mailName({})).toBe("Gmail");
+    expect(mailName({ provider: "icloud" })).toBe("iCloud Mail");
+    expect(mailName({ provider: "other", host: "imap.zoho.eu" })).toBe("imap.zoho.eu");
+    expect(mailName({ provider: "other" })).toBe("your mailbox");
   });
 });
 

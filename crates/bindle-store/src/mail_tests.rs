@@ -184,8 +184,29 @@ fn the_account_is_saved_without_a_password() {
         address: Some("me@gmail.com".into()),
         synced_at: None,
         error: None,
+        ..Default::default()
     };
     save_gmail_account(&conn, &account).unwrap();
     assert_eq!(gmail_account(&conn).unwrap(), account);
     forget(&conn, "gmail").unwrap();
+}
+
+#[test]
+fn accounts_saved_before_other_mailboxes_read_as_gmail() {
+    let conn = open_in_memory().unwrap();
+    conn.execute(
+        "INSERT INTO setting (key, value) VALUES ('gmail', '{\"address\":\"me@gmail.com\",\"synced_at\":null,\"error\":null}')",
+        [],
+    )
+    .unwrap();
+    let account = gmail_account(&conn).unwrap();
+    assert_eq!(account.address.as_deref(), Some("me@gmail.com"));
+    assert_eq!(account.provider, None);
+    let icloud = MailAccount {
+        address: Some("me@icloud.com".into()),
+        provider: Some("icloud".into()),
+        ..Default::default()
+    };
+    save_gmail_account(&conn, &icloud).unwrap();
+    assert_eq!(gmail_account(&conn).unwrap(), icloud);
 }

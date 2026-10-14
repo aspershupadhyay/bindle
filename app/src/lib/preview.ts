@@ -10,7 +10,7 @@ import { SAMPLE_KIT, addSpace, cloud, oursView } from "./preview-cloud";
 import { sampleDesk } from "./preview-desk";
 import { hideMail, sampleBoard, sampleInbox, sampleMail } from "./preview-mail";
 import { sampleCodeView, sampleWork } from "./preview-work";
-import type { Change, GithubAccount, HomeView, MailAccount, Settings, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
+import type { Change, GithubAccount, HomeView, MailAccount, MailProvider, Settings, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
 
 const promises: BindlePromise[] = [];
 let settings: Settings = {
@@ -28,6 +28,15 @@ let settings: Settings = {
   making_limit: 2,
 };
 let gmail: MailAccount = { address: null, synced_at: null, error: null };
+const MAIL_PROVIDERS: MailProvider[] = [
+  { id: "gmail", name: "Gmail", host: "imap.gmail.com", port: 993, password_page: "https://myaccount.google.com/apppasswords", webmail: "https://mail.google.com/", note: "Needs 2-Step Verification on your Google account. Then make an app password named Bindle." },
+  { id: "icloud", name: "iCloud Mail", host: "imap.mail.me.com", port: 993, password_page: "https://account.apple.com/account/manage", webmail: "https://www.icloud.com/mail/", note: "In your Apple Account, open Sign-In and Security, then App-Specific Passwords. Use your full iCloud address." },
+  { id: "fastmail", name: "Fastmail", host: "imap.fastmail.com", port: 993, password_page: "https://app.fastmail.com/settings/security/apps", webmail: "https://app.fastmail.com/", note: "Make an app password with IMAP access only." },
+  { id: "yahoo", name: "Yahoo Mail", host: "imap.mail.yahoo.com", port: 993, password_page: "https://login.yahoo.com/account/security", webmail: "https://mail.yahoo.com/", note: "In Account Security, choose Generate app password." },
+  { id: "zoho", name: "Zoho Mail", host: "imap.zoho.com", port: 993, password_page: "https://accounts.zoho.com/home#security/app_password", webmail: "https://mail.zoho.com/", note: "Turn on IMAP access in Zoho Mail's settings first." },
+  { id: "outlook", name: "Outlook", host: "outlook.office365.com", port: 993, password_page: "https://account.live.com/proofs/AppPassword", webmail: "https://outlook.live.com/mail/", note: "Microsoft has turned off app passwords for most Outlook.com and many work accounts. If yours refuses, Outlook needs Sign in with Microsoft, which is not in Bindle yet." },
+  { id: "other", name: "Another mailbox", host: "", port: 993, password_page: "", webmail: "", note: "Type your mail service's IMAP server. Bindle only uses encrypted connections (usually port 993)." },
+];
 const making = new Set<string>();
 let github: GithubAccount = { login: null, synced_at: null, error: null };
 const changes = new Map<string, { before: BindlePromise; undone: boolean }>();
@@ -160,12 +169,18 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
       return sampleInbox(gmail) as T;
     case "replies_owed":
       return sampleInbox(gmail).reply.length as T;
-    case "gmail_password_page":
-      return "https://myaccount.google.com/apppasswords" as T;
+    case "mail_providers":
+      return MAIL_PROVIDERS as T;
     case "gmail_connect":
     case "gmail_refresh":
-      if (name === "gmail_connect" && !String(args.password).trim()) throw { message: "paste the app password from Google first" };
-      gmail = { address: String(args.address ?? gmail.address ?? "sparsh@gmail.com"), synced_at: new Date().toISOString(), error: null };
+      if (name === "gmail_connect" && !String(args.password).trim()) throw { message: "paste the app password first" };
+      gmail = {
+        address: String(args.address ?? gmail.address ?? "sparsh@gmail.com"),
+        synced_at: new Date().toISOString(),
+        error: null,
+        provider: name === "gmail_connect" ? String(args.provider ?? "gmail") : gmail.provider,
+        host: name === "gmail_connect" ? ((args.host as string | null) ?? null) : gmail.host,
+      };
       previewEvents.emit("mail-changed");
       return gmail as T;
     case "gmail_disconnect":

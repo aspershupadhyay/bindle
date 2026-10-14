@@ -21,7 +21,7 @@ import {
 } from "../lib/commands";
 import { dateLine, dayString } from "../lib/days";
 import type { ScreenId } from "../screens";
-import { age, compareWait, deskSummary, hoursLabel, lookedAgo, waitStory } from "../lib/work";
+import { age, compareWait, deskSummary, hoursLabel, lookedAgo, mailName, waitStory } from "../lib/work";
 
 export function Desk({ onScreen, onOpenSort }: { onScreen: (id: ScreenId) => void; onOpenSort: () => void }) {
   const [view, setView] = useState<DeskView | null>(null);
@@ -61,7 +61,7 @@ export function Desk({ onScreen, onOpenSort }: { onScreen: (id: ScreenId) => voi
           <span className="code-count">{view.needs_you.length}</span>
           <span className="muted small">GitHub {github} · Email {email}</span>
         </li>
-        <WaitTile label="Email reply time, median" trend={view.email_reply} source="Gmail" />
+        <WaitTile label="Email reply time, median" trend={view.email_reply} source={mailName(view.gmail)} />
         <WaitTile label="Review wait, median" trend={view.review_wait} source="GitHub" />
         <li className="card code-tile">
           <span className="muted small">Shipped this week</span>
@@ -92,12 +92,12 @@ export function Desk({ onScreen, onOpenSort }: { onScreen: (id: ScreenId) => voi
               <p className="card empty">
                 {view.github.login || view.gmail.address
                   ? "Nobody is waiting on you at work. Enjoy it."
-                  : "Connect GitHub in Code and Gmail in Inbox, and whatever needs you shows up here."}
+                  : "Connect GitHub in Code and your email in Inbox, and whatever needs you shows up here."}
               </p>
             ) : (
               <ul className="card list">
                 {view.needs_you.map((item) => (
-                  <NeedsYouRow key={item.id} item={item} now={now} onOpenSort={onOpenSort} />
+                  <NeedsYouRow key={item.id} item={item} service={mailName(view.gmail)} now={now} onOpenSort={onOpenSort} />
                 ))}
               </ul>
             )}
@@ -129,7 +129,7 @@ export function Desk({ onScreen, onOpenSort }: { onScreen: (id: ScreenId) => voi
                 onOpen={() => onScreen("code")}
               />
               <SourceRow
-                name="Gmail"
+                name={mailName(view.gmail)}
                 connected={Boolean(view.gmail.address)}
                 error={view.gmail.error}
                 syncedAt={view.gmail.synced_at}
@@ -167,7 +167,7 @@ function WaitTile({ label, trend, source }: { label: string; trend: WaitTrend; s
   );
 }
 
-function NeedsYouRow({ item, now, onOpenSort }: { item: DeskItem; now: Date; onOpenSort: () => void }) {
+function NeedsYouRow({ item, service, now, onOpenSort }: { item: DeskItem; service: string; now: Date; onOpenSort: () => void }) {
   const notify = useNotify();
   const [busy, setBusy] = useState(false);
   const detail =
@@ -175,7 +175,7 @@ function NeedsYouRow({ item, now, onOpenSort }: { item: DeskItem; now: Date; onO
       ? `${item.reference} · review asked by ${item.person}`
       : item.kind === "issue"
         ? `${item.reference} · assigned to you`
-        : `${item.person} · Gmail`;
+        : `${item.person} · ${service}`;
 
   async function makePromise() {
     setBusy(true);

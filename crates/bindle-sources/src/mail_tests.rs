@@ -106,12 +106,12 @@ fn automated_email_never_needs_a_reply() {
         "Payment received",
     ));
     assert!(newsletter.automated && receipt.automated);
-    assert!(triage(&[newsletter, receipt], &[], ME, now(), ist(), gmail_link).is_empty());
+    assert!(triage(&[newsletter, receipt], &[], ME, now(), ist(), &gmail_link).is_empty());
 }
 
 #[test]
 fn a_thread_needs_a_reply_until_you_answer() {
-    let found = triage(&[priya_brief()], &[], ME, now(), ist(), gmail_link);
+    let found = triage(&[priya_brief()], &[], ME, now(), ist(), &gmail_link);
     assert_eq!(found.len(), 1);
     let item = &found[0];
     assert_eq!(item.kind, MailKind::Reply);
@@ -134,7 +134,7 @@ fn a_thread_needs_a_reply_until_you_answer() {
         "In-Reply-To: <brief-1@brand.example>\r\nReferences: <brief-1@brand.example>\r\n",
         "Sounds great. I will send the first concept by Friday.\n\nOn Mon, Priya wrote:\n> We would love",
     ));
-    let found = triage(&[priya_brief()], &[answer], ME, now(), ist(), gmail_link);
+    let found = triage(&[priya_brief()], &[answer], ME, now(), ist(), &gmail_link);
     assert!(found.iter().all(|f| f.kind != MailKind::Reply));
 
     // And the promise in your answer is noticed, with Friday read from Monday.
@@ -163,7 +163,7 @@ fn email_you_were_only_copied_on_still_counts_but_mail_to_others_does_not() {
         "",
         "Thoughts?",
     ));
-    assert!(triage(&[to_team], &[], ME, now(), ist(), gmail_link).is_empty());
+    assert!(triage(&[to_team], &[], ME, now(), ist(), &gmail_link).is_empty());
 
     let copied = mail(raw(
         "Rohan <rohan@studio.example>",
@@ -175,7 +175,7 @@ fn email_you_were_only_copied_on_still_counts_but_mail_to_others_does_not() {
         "Thoughts?",
     ));
     assert_eq!(
-        triage(&[copied], &[], ME, now(), ist(), gmail_link).len(),
+        triage(&[copied], &[], ME, now(), ist(), &gmail_link).len(),
         1
     );
 }
@@ -199,7 +199,7 @@ fn a_question_you_asked_waits_after_a_day() {
         ME,
         now(),
         ist(),
-        gmail_link,
+        &gmail_link,
     );
     assert_eq!(found.len(), 1);
     assert_eq!(found[0].kind, MailKind::Waiting);
@@ -212,7 +212,7 @@ fn a_question_you_asked_waits_after_a_day() {
         ME,
         now(),
         ist(),
-        gmail_link,
+        &gmail_link,
     );
     assert!(recent.is_empty());
 }
@@ -228,7 +228,7 @@ fn old_threads_are_left_alone() {
         "",
         "Hello?",
     ));
-    assert!(triage(&[old], &[], ME, now(), ist(), gmail_link).is_empty());
+    assert!(triage(&[old], &[], ME, now(), ist(), &gmail_link).is_empty());
 }
 
 #[test]

@@ -78,6 +78,21 @@ export function promiseNote(item: WorkItem): string | null {
 }
 
 /** The sentences under the Inbox title. */
+const MAIL_NAMES: Record<string, string> = {
+  gmail: "Gmail",
+  icloud: "iCloud Mail",
+  fastmail: "Fastmail",
+  yahoo: "Yahoo Mail",
+  zoho: "Zoho Mail",
+  outlook: "Outlook",
+};
+
+/** The mailbox's name as people know it: "Gmail", "iCloud Mail", or its server. */
+export function mailName(account: { provider?: string | null; host?: string | null }): string {
+  const id = account.provider ?? "gmail";
+  return MAIL_NAMES[id] ?? account.host ?? "your mailbox";
+}
+
 export function inboxSummary(view: InboxView): string {
   const replies = view.reply.length;
   const first =

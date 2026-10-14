@@ -127,7 +127,7 @@ pub fn run() {
             commands::work::open_on_github,
             commands::mail::inbox_view,
             commands::mail::replies_owed,
-            commands::mail::gmail_password_page,
+            commands::mail::mail_providers,
             commands::mail::gmail_connect,
             commands::mail::gmail_disconnect,
             commands::mail::gmail_refresh,

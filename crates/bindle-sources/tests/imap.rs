@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
-//! The Gmail client against a tiny local IMAP server: it signs in, opens
+//! The IMAP client against a tiny local IMAP server: it signs in, opens
 //! both folders read-only, reads emails without marking them, and turns a
 //! refused sign-in into plain words.
 
-use bindle_sources::gmail::{Gmail, MailError};
+use bindle_sources::imap::{MailError, Mailbox};
 use chrono::{TimeZone, Utc};
 use std::sync::{Arc, Mutex};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
@@ -24,8 +24,15 @@ fn fetch_line(uid: u32, header: &str, text: &str) -> String {
     )
 }
 
-/// Serves one IMAP session and records every command it got.
+const GMAIL_FOLDERS: &str = "* LIST (\\HasNoChildren) \"/\" \"INBOX\"\r\n* LIST (\\HasNoChildren \\Sent) \"/\" \"[Gmail]/Sent Mail\"\r\n";
+
+/// Serves one Gmail-like IMAP session and records every command it got.
 async fn serve(password_ok: bool) -> (u16, Arc<Mutex<Vec<String>>>) {
+    serve_folders(password_ok, GMAIL_FOLDERS).await
+}
+
+/// The same, listing `folders` (LIST lines) instead of Gmail's.
+async fn serve_folders(password_ok: bool, folders: &'static str) -> (u16, Arc<Mutex<Vec<String>>>) {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let port = listener.local_addr().unwrap().port();
     let seen = Arc::new(Mutex::new(Vec::new()));
@@ -47,7 +54,7 @@ async fn serve(password_ok: bool) -> (u16, Arc<Mutex<Vec<String>>>) {
                     format!("{tag} NO [AUTHENTICATIONFAILED] Invalid credentials (Failure)\r\n")
                 }
             } else if upper.starts_with("LIST") {
-                format!("* LIST (\\HasNoChildren) \"/\" \"INBOX\"\r\n* LIST (\\HasNoChildren \\Sent) \"/\" \"[Gmail]/Sent Mail\"\r\n{tag} OK Success\r\n")
+                format!("{folders}{tag} OK Success\r\n")
             } else if upper.starts_with("EXAMINE") {
                 folder = command.to_string();
                 format!("* FLAGS (\\Seen)\r\n* 1 EXISTS\r\n{tag} OK [READ-ONLY] Success\r\n")
@@ -77,7 +84,7 @@ async fn serve(password_ok: bool) -> (u16, Arc<Mutex<Vec<String>>>) {
 #[tokio::test]
 async fn reads_both_folders_read_only() {
     let (port, seen) = serve(true).await;
-    let gmail = Gmail::on_test_server("sparsh@gmail.com", "abcd efgh ijkl mnop", port);
+    let gmail = Mailbox::on_test_server("sparsh@gmail.com", "abcd efgh ijkl mnop", port);
     let now = Utc.with_ymd_and_hms(2026, 10, 14, 12, 0, 0).unwrap();
     let recent = gmail.recent(now).await.unwrap();
 
@@ -107,7 +114,7 @@ async fn reads_both_folders_read_only() {
 #[tokio::test]
 async fn a_refused_sign_in_says_so() {
     let (port, _) = serve(false).await;
-    let gmail = Gmail::on_test_server("sparsh@gmail.com", "wrong", port);
+    let gmail = Mailbox::on_test_server("sparsh@gmail.com", "wrong", port);
     assert_eq!(
         gmail.check().await,
         Err(MailError::SignIn("Invalid credentials".into()))
@@ -116,6 +123,42 @@ async fn a_refused_sign_in_says_so() {
 
 #[tokio::test]
 async fn no_server_means_offline() {
-    let gmail = Gmail::on_test_server("sparsh@gmail.com", "x", 9);
+    let gmail = Mailbox::on_test_server("sparsh@gmail.com", "x", 9);
     assert_eq!(gmail.check().await, Err(MailError::Offline));
+}
+
+#[tokio::test]
+async fn an_unmarked_sent_folder_is_found_by_its_name() {
+    let (port, seen) = serve_folders(
+        true,
+        "* LIST (\\HasNoChildren) \"/\" \"INBOX\"\r\n* LIST (\\HasNoChildren) \"/\" \"Sent Items\"\r\n",
+    )
+    .await;
+    let mailbox = Mailbox::on_test_server("sparsh@outlook.com", "pw", port);
+    let now = Utc.with_ymd_and_hms(2026, 10, 14, 12, 0, 0).unwrap();
+    let recent = mailbox.recent(now).await.unwrap();
+    assert_eq!(recent.sent.len(), 1);
+    assert!(seen
+        .lock()
+        .unwrap()
+        .join("\n")
+        .contains("EXAMINE \"Sent Items\""));
+}
+
+#[tokio::test]
+async fn a_mailbox_without_sent_mail_still_reads_the_inbox() {
+    let (port, seen) = serve_folders(true, "* LIST (\\HasNoChildren) \"/\" \"INBOX\"\r\n").await;
+    let mailbox = Mailbox::on_test_server("sparsh@example.com", "pw", port);
+    let now = Utc.with_ymd_and_hms(2026, 10, 14, 12, 0, 0).unwrap();
+    let recent = mailbox.recent(now).await.unwrap();
+    assert_eq!(recent.inbox.len(), 1);
+    assert!(recent.sent.is_empty());
+    assert_eq!(
+        seen.lock()
+            .unwrap()
+            .iter()
+            .filter(|l| l.contains("EXAMINE"))
+            .count(),
+        1
+    );
 }

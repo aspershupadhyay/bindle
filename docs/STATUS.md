@@ -85,8 +85,8 @@ Read this first if you are continuing the work (another person or a new Claude s
 ## Being worked on now
 
 ### Weeks 18–20: Creator, Outlook and IMAP, phone build (gate: Ours works on a phone)
-- [ ] Any IMAP mailbox, not only Gmail: server, port and sent folder in Settings, with presets for Gmail, iCloud, Fastmail, Yahoo, Zoho and Outlook. Still read only (EXAMINE and BODY.PEEK)
-- [ ] Outlook: Microsoft turned off app passwords for most Outlook.com accounts, so Outlook needs "Sign in with Microsoft" (OAuth, XOAUTH2 over IMAP), which needs an app registered by the owner in Azure. Build the IMAP side so it can take an OAuth token; note the owner step
+- [x] Any IMAP mailbox, not only Gmail (done): Inbox's connect card has Gmail, iCloud Mail, Fastmail, Yahoo Mail, Zoho Mail, Outlook and "Another mailbox" (server and port). `crates/bindle-sources/src/imap.rs` (was `gmail.rs`) holds the presets; the sent folder is found by its \\Sent mark or its usual name, and a mailbox without one is read without it. Labels say the service's name. Still read only. Internally the source is still called "gmail" (setting key, `mail_item.source`, keychain name, command names) so connected accounts stay connected; renaming needs a migration
+- [ ] Outlook "Sign in with Microsoft": Microsoft turned off app passwords for most Outlook.com accounts, so Outlook needs OAuth (XOAUTH2 over IMAP). That needs an app registered by the owner in Microsoft Entra (Azure), then a device-code sign-in in Bindle and `AUTHENTICATE XOAUTH2` in `imap.rs`. Not started
 - [ ] Creator (v2 design `docs/design/v2/creator*.png`): YouTube, read only: your channel's latest uploads and comments waiting on a reply, with Make it a promise. Uses a YouTube Data API key the person pastes (kept in the keychain); OAuth later
 - [ ] Instagram: needs a Meta app and review, which only the owner can register. Leave a clear "not yet" state on the Creator screen
 - [ ] Creator screen in Work mode, sidebar entry, preview data, audit and screenshots

@@ -208,7 +208,7 @@ pub fn triage(
     me: &str,
     now: DateTime<Utc>,
     zone: FixedOffset,
-    link: fn(&str) -> String,
+    link: &dyn Fn(&str) -> String,
 ) -> Vec<FoundMail> {
     let me = me.to_lowercase();
     let since = now - Duration::days(LOOK_BACK_DAYS);

@@ -102,6 +102,15 @@ pub struct MailAccount {
     pub address: Option<String>,
     pub synced_at: Option<String>,
     pub error: Option<String>,
+    /// Which mail service: "gmail", "icloud", … or "other". Missing on
+    /// accounts saved before other mailboxes, which were all Gmail.
+    #[serde(default)]
+    pub provider: Option<String>,
+    /// The IMAP server and port, for "other".
+    #[serde(default)]
+    pub host: Option<String>,
+    #[serde(default)]
+    pub port: Option<u16>,
 }
 
 const GMAIL_KEY: &str = "gmail";
