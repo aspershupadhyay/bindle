@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/bindle-core",
+    "crates/bindle-parse",
+    "crates/bindle-store",
+    "crates/bindle-sync",
+]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["Sparsh Upadhyay and the Bindle contributors"]
+repository = "https://github.com/aspershupadhyay/bindle"
+rust-version = "1.80"
+
+[workspace.dependencies]
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+uuid = { version = "1", features = ["v7"] }

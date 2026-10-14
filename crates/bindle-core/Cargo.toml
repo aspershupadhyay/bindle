@@ -1,0 +1,13 @@
+[package]
+name = "bindle-core"
+description = "Promise rules for Bindle: states, allowed changes and what counts as running late."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+chrono.workspace = true
+serde.workspace = true
+thiserror.workspace = true

@@ -1,0 +1,76 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Copyright 2026 Sparsh Upadhyay and the Bindle contributors. */
+
+/* Bindle design tokens (handbook P2 and P16). Every colour in the app comes from here. */
+
+:root {
+  /* Surfaces */
+  --paper: #FAF7F2;
+  --card: #FFFDF9;
+  --sand: #E8E1D6;
+  --sand-soft: #F2ECE3;
+
+  /* Text */
+  --ink: #2B2622;
+  --ink-soft: #6E655C;
+
+  /* Accent: one per screen */
+  --clay: #C2653D;       /* shapes, primary buttons, focus ring */
+  --clay-text: #A4502C;  /* accent text and links */
+  --clay-wash: #F6E6DC;
+
+  /* Meaning */
+  --sage: #6B8F71;       /* done, kept */
+  --sage-text: #4F6E55;
+  --sage-wash: #E6EFE6;
+  --honey: #D9A441;      /* running late, over capacity. Never red. */
+  --honey-text: #8A5F12;
+  --honey-wash: #F8EED8;
+  --error: #B3261E;      /* real system errors only */
+
+  /* Pixel art helpers: sprites only */
+  --pixel-clay-light: #E89A72;
+  --pixel-honey-light: #F0CF85;
+  --pixel-stick: #7A5326;
+
+  /* Type */
+  --font-display: "Newsreader", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Shape and motion */
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --motion: 160ms ease-out;
+  --motion-panel: 200ms ease-out;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1E1B18;
+    --card: #262220;
+    --sand: #3A342E;
+    --sand-soft: #2C2824;
+    --ink: #EDE6DC;
+    --ink-soft: #B3A99D;
+    --clay: #D9825C;
+    --clay-text: #D9825C;
+    --sage: #8DB394;
+    --sage-text: #8DB394;
+    --honey: #E3B864;
+    --honey-text: #E3B864;
+    --error: #F2B8B5;
+  }
+}
+
+/* Pixel sprites are drawn at 1x and only ever scaled by whole numbers. */
+.sprite {
+  image-rendering: pixelated;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion: 0ms;
+    --motion-panel: 0ms;
+  }
+}

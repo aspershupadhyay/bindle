@@ -1,0 +1,11 @@
+[package]
+name = "bindle-parse"
+description = "Understands what you type in Jot down: dates in English and Hinglish."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+chrono.workspace = true

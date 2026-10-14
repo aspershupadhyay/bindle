@@ -1,0 +1,36 @@
+# Roadmap
+
+One developer, a working build every week. Each stage has a gate before the next starts.
+
+## Tier 1: the core loop (8 weeks)
+
+| Week | Build | Done when |
+|---|---|---|
+| 1 | Tauri shell, design tokens, migrations, core types, typed commands, CI on three OSes | Empty app opens on Windows, macOS and Linux |
+| 2 | Jot down window, global shortcut, parser with the test table | All parsing tests pass |
+| 3 | Sort, lifecycle, history, Undo | Founder uses it daily |
+| 4 | Home: top 3, running late, waiting on others, week strip | Home checks pass |
+| 5 | Promises, People with Send recap, search | Search under 100 ms on 10,000 promises |
+| 6 | Wrap up, notifications, first run, Settings | New user reaches Home in under 3 minutes |
+| 7 | AI connection (MCP), export, safety copies | Claude reads Home and suggests a promise |
+| 8 | Accessibility, Linux fixes, signed builds | All acceptance checks pass |
+
+**Gate:** the founder uses Bindle on at least 25 of 30 days.
+
+## Then: Work and Ours
+
+| Weeks | Build | Done when |
+|---|---|---|
+| 9–10 | Mode switch, GitHub source, Code screen, Make it a promise | Real review requests become promises |
+| 11–12 | Gmail source, Inbox, Board | A week of email triage from Bindle |
+| 13–14 | Insights and the Work Desk | Desk checks pass |
+| 15–17 | Bindle Cloud: accounts, Mine and Ours, invites, recovery kit | Two people share Ours for two weeks |
+| 18–20 | Creator (YouTube, Instagram), Outlook and IMAP, phone build | Ours works on a phone |
+
+## Done so far
+
+- [x] Handbook and designs
+- [x] `bindle-core`: states, allowed changes, running late, waiting on others
+- [x] `bindle-parse`: English and Hinglish day words
+- [x] `bindle-store`: schema and migrations 0001 and 0002
+- [x] `bindle-sync`: hybrid logical clocks and field merges
