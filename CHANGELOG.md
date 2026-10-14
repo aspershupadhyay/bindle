@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.0.2 (14 October 2026)
+
+- Updates from inside Bindle: it looks for a new version shortly after opening and every six hours, shows a bar with "Install and restart" or "Later", and checks the download's signature before installing. Settings, About has "Check for a new version". Works for the Windows installer, macOS, and Linux AppImage, .deb and .rpm. Copies of v0.0.1 cannot update themselves, so v0.0.1 users install the next version once by hand.
+- Releases take their version from the tag (`app/scripts/release-config.mjs`), so nothing needs bumping by hand before a release.
+
+## 0.0.1 (14 October 2026)
+
 - Project renamed from Life OS to Bindle.
 - Rust workspace with four tested crates: `bindle-core` (promise rules), `bindle-parse` (English and Hinglish day words), `bindle-store` (SQLite schema and migrations, including Mine and Ours spaces), `bindle-sync` (hybrid logical clocks and field merges).
 - Design tokens and the first pixel art sprites.
@@ -55,5 +62,3 @@
 - A download page (`site/`, published to GitHub Pages) in Bindle's pixel style. It finds the latest installers for the visitor's system.
 - Releases are published as soon as they are built, so the download page can link to them.
 - GitHub's language bar now counts the design mockups as documentation, so it shows the app's real languages.
-- Updates from inside Bindle: it looks for a new version shortly after opening and every six hours, shows a bar with "Install and restart" or "Later", and checks the download's signature before installing. Settings, About has "Check for a new version". Works for the Windows installer, macOS, and Linux AppImage, .deb and .rpm. Copies of v0.0.1 cannot update themselves, so v0.0.1 users install the next version once by hand.
-- Releases take their version from the tag (`app/scripts/release-config.mjs`), so nothing needs bumping by hand before a release.
