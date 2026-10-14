@@ -87,8 +87,13 @@ const MAIL_NAMES: Record<string, string> = {
   outlook: "Outlook",
 };
 
-/** The mailbox's name as people know it: "Gmail", "iCloud Mail", or its server. */
-export function mailName(account: { provider?: string | null; host?: string | null }): string {
+/**
+ * The mailbox's name as people know it: "Gmail", "iCloud Mail", or its
+ * server. An account connected before other mailboxes existed is Gmail;
+ * with nothing connected it is just "Email".
+ */
+export function mailName(account: { provider?: string | null; host?: string | null; address?: string | null }): string {
+  if (!account.provider && account.address === null) return "Email";
   const id = account.provider ?? "gmail";
   return MAIL_NAMES[id] ?? account.host ?? "your mailbox";
 }
