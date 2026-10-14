@@ -190,8 +190,10 @@ footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wr
       <h1 id="hero-title">Carry less <em>in your head.</em></h1>
       <p class="lead">Bindle keeps the promises you make and the ones made to you. Jot one down in three seconds, sort it when you have a moment, and close each day knowing nothing slipped.</p>
       <div class="cta">
-        <a class="button" id="hero-download" href="#download">Download Bindle</a>
-        <span class="small" id="hero-note">For Windows, macOS and Linux</span>
+        <a class="button quiet" data-hero="windows" href="#download">Windows</a>
+        <a class="button quiet" data-hero="mac" href="#download">macOS</a>
+        <a class="button quiet" data-hero="linux" href="#download">Linux</a>
+        <span class="small" id="hero-note">Free download</span>
       </div>
     </div>
     <div class="scene">
@@ -312,7 +314,8 @@ footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wr
   if (os) {
     var card = document.querySelector('.platform[data-os="' + os + '"]');
     if (card) { card.classList.add("here"); card.querySelector(".here-tag").hidden = false; }
-    document.getElementById("hero-download").textContent = "Download for " + names[os];
+    var mine = document.querySelector('[data-hero="' + os + '"]');
+    if (mine) { mine.classList.remove("quiet"); mine.textContent = "Download for " + names[os]; }
   }
 
   function size(bytes) { return (bytes / 1048576).toFixed(0) + " MB"; }
@@ -331,7 +334,7 @@ footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wr
       var day = new Date(release.published_at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
       document.getElementById("release-line").innerHTML =
         "Version " + release.tag_name.replace(/^v/, "") + ", released " + day + ". Every build is listed on <a href=\"" + release.html_url + "\">the release page</a>.";
-      if (os) document.getElementById("hero-note").textContent = "Version " + release.tag_name.replace(/^v/, "") + " for " + names[os];
+      document.getElementById("hero-note").textContent = "Version " + release.tag_name.replace(/^v/, "");
     })
     .catch(function () {});
 })();
