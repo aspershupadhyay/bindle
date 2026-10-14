@@ -5,13 +5,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { UndoProvider } from "./components/Undo";
 import { UpdateBar } from "./components/UpdateBar";
-import { commands, inDesktopApp, onMailChanged, onPromisesChanged, onWorkChanged, type Mode } from "./lib/commands";
+import { commands, inDesktopApp, onMailChanged, onPromisesChanged, onWorkChanged, type Mode, type Space } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Board } from "./screens/Board";
 import { Code } from "./screens/Code";
 import { Desk } from "./screens/Desk";
 import { Home } from "./screens/Home";
 import { Inbox } from "./screens/Inbox";
+import { Ours } from "./screens/Ours";
 import { useSettings } from "./lib/settings";
 import { UpdatesProvider } from "./lib/updates";
 import { FirstRun } from "./screens/FirstRun";
@@ -30,6 +31,8 @@ export function App() {
   const [unsorted, setUnsorted] = useState(0);
   const [reviewsOwed, setReviewsOwed] = useState(0);
   const [repliesOwed, setRepliesOwed] = useState(0);
+  const [spaces, setSpaces] = useState<Space[]>([]);
+  const [spaceId, setSpaceId] = useState<string | null>(null);
   const [focusSearch, setFocusSearch] = useState(0);
   const jotRef = useRef<HTMLInputElement>(null);
 
@@ -53,6 +56,18 @@ export function App() {
     const count = () => commands.repliesOwed().then(setRepliesOwed, () => setRepliesOwed(0));
     count();
     return onMailChanged(count);
+  }, []);
+
+  useEffect(() => {
+    const load = () => commands.cloudStatus().then((s) => setSpaces(s.spaces), () => setSpaces([]));
+    load();
+    return onPromisesChanged(load);
+  }, []);
+
+  const openSpace = useCallback((id: string) => {
+    setSpaceId(id);
+    setCurrent("ours");
+    commands.cloudStatus().then((s) => setSpaces(s.spaces), () => {});
   }, []);
 
   const openSort = useCallback(() => {
@@ -122,6 +137,9 @@ export function App() {
             unsorted={unsorted}
             reviewsOwed={reviewsOwed}
             repliesOwed={repliesOwed}
+            spaces={spaces}
+            currentSpace={spaceId}
+            onSpace={openSpace}
             onMode={switchMode}
             onScreen={setCurrent}
             onJotDown={jotDown}
@@ -152,7 +170,16 @@ export function App() {
             ) : current === "board" ? (
               <Board />
             ) : current === "settings" ? (
-              <Settings />
+              <Settings onOpenSpace={openSpace} />
+            ) : current === "ours" && spaceId ? (
+              <Ours
+                spaceId={spaceId}
+                onLeft={() => {
+                  setSpaceId(null);
+                  setCurrent(screens[mode][0].id);
+                  commands.cloudStatus().then((s) => setSpaces(s.spaces), () => {});
+                }}
+              />
             ) : (
               <Soon screen={findScreen(current)} />
             )}

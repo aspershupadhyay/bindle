@@ -2,7 +2,8 @@
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
 // Accessibility audit (docs/ACCEPTANCE.md). With `npm run dev` running, walks
-// through first run, every Life screen, and Work's Desk, Code, Inbox and Board in
+// through first run, every Life screen, and Work's Desk, Code, Inbox and Board, and
+// Bindle Cloud with an Ours space, in
 // the browser preview, and lists unnamed buttons and links, images without
 // alt text, unlabelled fields, duplicate ids, missing landmarks, and a skip
 // link that is not first.
@@ -78,6 +79,21 @@ await page.getByRole("button", { name: /^Desk/ }).click();
 await page.waitForTimeout(400);
 await audit("Desk");
 await page.getByRole("button", { name: /^Life$/ }).click();
+// Bindle Cloud: start, the recovery kit, then an Ours space.
+await page.getByRole("button", { name: /^Settings/ }).first().click();
+await page.getByLabel("Bindle Cloud address").fill("https://cloud.example.com");
+await page.getByLabel("The name others see").fill("Sparsh");
+await page.getByRole("button", { name: /^Start Bindle Cloud$/ }).click();
+await page.waitForTimeout(400);
+await audit("Recovery kit");
+await page.getByRole("button", { name: /^I saved it$/ }).click();
+await page.getByLabel("Make a shared space").fill("Upadhyay Home");
+await page.getByRole("button", { name: /^Make it$/ }).click();
+await page.waitForTimeout(400);
+await audit("Ours");
+await page.getByRole("button", { name: /^Make an invite link$/ }).click();
+await page.waitForTimeout(300);
+await audit("Ours, invite");
 console.log(problems.join("\n") || "no problems");
 await browser.close();
 process.exitCode = problems.length > 0 ? 1 : 0;

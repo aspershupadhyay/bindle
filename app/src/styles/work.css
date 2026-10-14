@@ -111,3 +111,20 @@
 .desk-table table { margin-top: 8px; border-collapse: collapse; font-size: 13px; width: 100%; }
 .desk-table th, .desk-table td { text-align: left; padding: 4px 8px 4px 0; border-bottom: 1px solid var(--sand); font-weight: 400; }
 .desk-table thead th { color: var(--ink-soft); font-weight: 600; }
+
+/* Bindle Cloud and Ours (v2 design, Ours). */
+
+.cloud-form { display: flex; flex-direction: column; gap: 10px; }
+.cloud-form.inline { flex-direction: row; flex-wrap: wrap; align-items: flex-end; }
+.cloud-form.inline .field { flex: 1 1 240px; }
+.cloud-form .field input, .cloud-form .field textarea { width: 100%; }
+.cloud-form textarea { font: inherit; font-family: var(--font-mono); border: 1px solid var(--sand); border-radius: var(--radius-control); padding: 10px 12px; background: var(--card); color: var(--ink); resize: vertical; }
+.kit { display: flex; flex-direction: column; gap: 10px; }
+.kit p { margin: 0; }
+.kit-code { margin: 0; font-family: var(--font-mono); font-size: 15px; letter-spacing: 0.04em; line-height: 1.7; padding: 12px 14px; border-radius: var(--radius-control); background: var(--sand-soft); overflow-wrap: anywhere; user-select: all; }
+.kit-code.small-code { font-size: 12px; letter-spacing: 0; line-height: 1.5; }
+.jot-ours { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.jot-ours .field { flex: 1 1 280px; }
+.jot-ours .field input { width: 100%; }
+.ours-members { list-style: none; margin: 0; padding: 0; }
+.nav-item.space { width: 100%; }

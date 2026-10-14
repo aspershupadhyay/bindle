@@ -10,6 +10,8 @@ members = [
     "crates/bindle-sync",
     "crates/bindle-mcp",
     "crates/bindle-sources",
+    "crates/bindle-cloud",
+    "crates/bindle-relay",
     "app/src-tauri",
 ]
 

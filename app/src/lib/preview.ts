@@ -6,6 +6,7 @@
 // rules are not checked: the real ones live in Rust. It exists so screens can
 // be tried and screenshotted without building the desktop app.
 
+import { SAMPLE_KIT, addSpace, cloud, oursView } from "./preview-cloud";
 import { sampleDesk } from "./preview-desk";
 import { hideMail, sampleBoard, sampleInbox, sampleMail } from "./preview-mail";
 import { sampleCodeView, sampleWork } from "./preview-work";
@@ -191,6 +192,35 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
       return undefined as T;
     case "desk_view":
       return sampleDesk(sampleCodeView(github), sampleInbox(gmail)) as T;
+    case "cloud_status":
+    case "cloud_sync":
+      return { account: { ...cloud.account }, spaces: cloud.spaces.map((s) => ({ ...s, synced_at: new Date().toISOString() })) } as T;
+    case "cloud_start":
+      if (!String(args.relay).startsWith("https://")) throw { message: "the Bindle Cloud address starts with https://" };
+      cloud.account = { relay: String(args.relay), name: String(args.name), account: "me", device: "preview", kit_saved_at: null };
+      return SAMPLE_KIT as T;
+    case "cloud_recovery_kit":
+      return SAMPLE_KIT as T;
+    case "cloud_kit_saved":
+      cloud.account.kit_saved_at = new Date().toISOString();
+      return undefined as T;
+    case "cloud_restore":
+      throw { message: "restoring works in the desktop app only" };
+    case "ours_create":
+      return addSpace(String(args.name) || "Ours") as T;
+    case "ours_join":
+      return addSpace("Upadhyay Home") as T;
+    case "ours_invite":
+      return "https://aspershupadhyay.github.io/bindle/join/#preview-secret.aHR0cHM6Ly9jbG91ZC5leGFtcGxl" as T;
+    case "ours_view":
+      return oursView(String(args.spaceId)) as T;
+    case "ours_share":
+    case "ours_jot":
+      if (name === "ours_jot") return jotDown(String(args.text)) as T;
+      return undefined as T;
+    case "ours_leave":
+      cloud.spaces.splice(cloud.spaces.findIndex((s) => s.id === args.spaceId), 1);
+      return undefined as T;
     case "board_view":
       return sampleBoard(promises, making) as T;
     case "set_making":

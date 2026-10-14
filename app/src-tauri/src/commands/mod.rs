@@ -9,10 +9,11 @@
 //! and search in [`browse`]; Settings, first run and Wrap up in [`day`]; the AI
 //! connection, export, safety copies and people's pictures in [`data`]; GitHub
 //! and the Code screen in [`work`]; Gmail and Inbox in [`mail`]; the Board in
-//! [`board`]; the Work Desk in [`desk`].
+//! [`board`]; the Work Desk in [`desk`]; Bindle Cloud and Ours in [`cloud`].
 
 pub mod board;
 pub mod browse;
+pub mod cloud;
 pub mod data;
 pub mod day;
 pub mod desk;

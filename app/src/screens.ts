@@ -9,7 +9,7 @@ import type { Mode } from "./lib/commands";
 export type ScreenId =
   | "home" | "sort" | "promises" | "people" | "wrapUp"
   | "desk" | "inbox" | "code" | "board" | "creator"
-  | "settings";
+  | "settings" | "ours";
 
 export interface ScreenInfo {
   id: ScreenId;

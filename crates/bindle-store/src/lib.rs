@@ -10,6 +10,7 @@
 pub mod ai;
 pub mod backup;
 pub mod board;
+pub mod cloud;
 pub mod export;
 pub mod home;
 pub mod insights;
@@ -55,6 +56,10 @@ const MIGRATIONS: &[(&str, &str)] = &[
         include_str!("../migrations/0008_mail_and_board.sql"),
     ),
     ("0009_waits", include_str!("../migrations/0009_waits.sql")),
+    (
+        "0010_cloud_sync",
+        include_str!("../migrations/0010_cloud_sync.sql"),
+    ),
 ];
 
 /// Everything that can go wrong in the store.
@@ -88,6 +93,8 @@ pub enum StoreError {
     AiReadOnly,
     #[error("{0} suggestions are already waiting in Sort. Sort those first.")]
     TooManySuggestions(u32),
+    #[error("that shared space is not on this device")]
+    NoSuchSpace,
     #[error("only an open promise can be in Making")]
     NotForMaking,
     #[error("that is already a promise")]

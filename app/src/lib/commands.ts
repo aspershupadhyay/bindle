@@ -247,6 +247,53 @@ export interface DeskView {
   replies_owed: number;
 }
 
+/** Bindle Cloud on this device. Keys never reach the views. */
+export interface CloudAccount {
+  relay: string | null;
+  name: string | null;
+  account: string | null;
+  device: string | null;
+  kit_saved_at: string | null;
+}
+
+/** A shared space on this device. */
+export interface Space {
+  id: string;
+  name: string;
+  relay: string | null;
+  promises: number;
+  synced_at: string | null;
+  /** Changes waiting to go up. */
+  waiting: number;
+}
+
+export interface CloudStatus {
+  account: CloudAccount;
+  spaces: Space[];
+}
+
+export interface Member {
+  account: string;
+  name: string;
+  joined_at: string;
+}
+
+/** A promise in Ours. `added_by` and `done_by` are null when it was you. */
+export interface SharedPromise {
+  promise: Promise;
+  added_by: string | null;
+  done_by: string | null;
+}
+
+export interface OursView {
+  space: Space;
+  members: Member[];
+  me: string | null;
+  open: SharedPromise[];
+  kept_lately: SharedPromise[];
+  kept_this_month: number;
+}
+
 export interface BoardView {
   ideas: BoardCard[];
   next: BoardCard[];
@@ -408,6 +455,19 @@ export const commands = {
   openInGmail: (url: string) => call<void>("open_in_gmail", { url }),
   boardView: () => call<BoardView>("board_view"),
   deskView: () => call<DeskView>("desk_view"),
+  cloudStatus: () => call<CloudStatus>("cloud_status"),
+  cloudStart: (relay: string, name: string) => call<string>("cloud_start", { relay, name }),
+  cloudRecoveryKit: () => call<string>("cloud_recovery_kit"),
+  cloudKitSaved: () => call<void>("cloud_kit_saved"),
+  cloudRestore: (relay: string, kit: string) => call<CloudStatus>("cloud_restore", { relay, kit }),
+  cloudSync: () => call<CloudStatus>("cloud_sync"),
+  oursCreate: (name: string) => call<Space>("ours_create", { name }),
+  oursInvite: (spaceId: string) => call<string>("ours_invite", { spaceId }),
+  oursJoin: (link: string) => call<Space>("ours_join", { link }),
+  oursShare: (promiseId: string, spaceId: string | null) => call<void>("ours_share", { promiseId, spaceId }),
+  oursJot: (spaceId: string, text: string) => call<Promise>("ours_jot", { spaceId, text }),
+  oursView: (spaceId: string) => call<OursView>("ours_view", { spaceId }),
+  oursLeave: (spaceId: string) => call<void>("ours_leave", { spaceId }),
   setMaking: (id: string, making: boolean) => call<void>("set_making", { id, making }),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),

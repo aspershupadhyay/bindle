@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { AvatarPicker } from "../components/Avatar";
 import { AiSection } from "../components/settings/AiSection";
+import { CloudSection } from "../components/settings/CloudSection";
 import { DataSection } from "../components/settings/DataSection";
 import { useNotify } from "../components/Undo";
 import { commands, errorMessage, type AppInfo, type Settings as SettingsData } from "../lib/commands";
@@ -18,7 +19,7 @@ const themes: { value: SettingsData["theme"]; label: string }[] = [
   { value: "dark", label: "Dark" },
 ];
 
-export function Settings() {
+export function Settings({ onOpenSpace }: { onOpenSpace?: (id: string) => void }) {
   const { settings, update } = useSettings();
   const notify = useNotify();
   const [info, setInfo] = useState<AppInfo | null>(null);
@@ -113,6 +114,7 @@ export function Settings() {
         <p className="muted small">When more than this are in progress, the Board says so. It never stops you. GitHub and Gmail are connected from Code and Inbox.</p>
       </section>
 
+      <CloudSection onOpenSpace={onOpenSpace} />
       <AiSection />
       <DataSection />
 

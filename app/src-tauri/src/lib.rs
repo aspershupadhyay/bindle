@@ -75,6 +75,7 @@ pub fn run() {
             watch::start(app.handle().clone());
             commands::work::start(app.handle().clone());
             commands::mail::start(app.handle().clone());
+            commands::cloud::start(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -136,6 +137,19 @@ pub fn run() {
             commands::mail::open_in_gmail,
             commands::board::board_view,
             commands::desk::desk_view,
+            commands::cloud::cloud_status,
+            commands::cloud::cloud_start,
+            commands::cloud::cloud_recovery_kit,
+            commands::cloud::cloud_kit_saved,
+            commands::cloud::cloud_restore,
+            commands::cloud::ours_create,
+            commands::cloud::ours_invite,
+            commands::cloud::ours_join,
+            commands::cloud::ours_share,
+            commands::cloud::ours_jot,
+            commands::cloud::ours_view,
+            commands::cloud::ours_leave,
+            commands::cloud::cloud_sync,
             commands::board::set_making,
         ])
         .run(tauri::generate_context!())

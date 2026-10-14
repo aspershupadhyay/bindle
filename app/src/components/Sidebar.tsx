@@ -7,7 +7,7 @@
 import { Avatar } from "./Avatar";
 import { Logo } from "./Logo";
 import { useSettings } from "../lib/settings";
-import type { Mode } from "../lib/commands";
+import type { Mode, Space } from "../lib/commands";
 import { screens, settingsScreen, type ScreenId } from "../screens";
 import { Icon } from "./Icon";
 
@@ -19,12 +19,16 @@ interface SidebarProps {
   reviewsOwed: number;
   /** Emails waiting on your reply, from Gmail. */
   repliesOwed: number;
+  /** Shared spaces on this device, and the one open now. */
+  spaces: Space[];
+  currentSpace: string | null;
+  onSpace: (id: string) => void;
   onMode: (mode: Mode) => void;
   onScreen: (id: ScreenId) => void;
   onJotDown: () => void;
 }
 
-export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, onMode, onScreen, onJotDown }: SidebarProps) {
+export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, spaces, currentSpace, onSpace, onMode, onScreen, onJotDown }: SidebarProps) {
   const { settings } = useSettings();
   return (
     <aside className="sidebar" aria-label="Bindle navigation">
@@ -76,6 +80,19 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, onM
           <Avatar name={settings.name ?? "Me"} avatar={settings.avatar} size={32} />
           Mine<span className="space-note">private</span>
         </div>
+        {spaces.map((space) => (
+          <button
+            key={space.id}
+            type="button"
+            className="nav-item space"
+            aria-current={current === "ours" && currentSpace === space.id ? "page" : undefined}
+            onClick={() => onSpace(space.id)}
+          >
+            <Icon name="people" size={18} />
+            {space.name}
+            <span className="space-note">{space.waiting > 0 ? "to sync" : "synced"}</span>
+          </button>
+        ))}
       </div>
 
       <div className="sidebar-foot">
