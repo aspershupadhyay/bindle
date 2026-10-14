@@ -7,13 +7,15 @@
 //! Keep the two in step: same names, same argument names, same shapes.
 //! Sort, the lifecycle and Undo live in [`lifecycle`]; Home in [`home`]; Promises, People
 //! and search in [`browse`]; Settings, first run and Wrap up in [`day`]; the AI
-//! connection, export, safety copies and people's pictures in [`data`].
+//! connection, export, safety copies and people's pictures in [`data`]; GitHub
+//! and the Code screen in [`work`].
 
 pub mod browse;
 pub mod data;
 pub mod day;
 pub mod home;
 pub mod lifecycle;
+pub mod work;
 
 use crate::Db;
 use bindle_core::{Promise, State};
@@ -72,14 +74,17 @@ pub fn read_jot(db: Managed<Db>, text: String) -> Reply<Reading> {
 
 /// Saves what was typed in Jot down, with what Bindle understood from it.
 /// The reply arrives only after the write is committed, so the view can say
-/// "Saved" honestly. Every window then hears [`PROMISES_CHANGED`].
+/// "Saved" honestly. Every window then hears [`PROMISES_CHANGED`]. The
+/// promise is in Life or Work, whichever the person last chose.
 #[tauri::command]
 pub fn jot_down(app: AppHandle, db: Managed<Db>, text: String) -> Reply<Promise> {
     let mut conn = lock(&db)?;
     let known = people::names(&conn)?;
     let reading = bindle_parse::read(&text, chrono::Local::now().naive_local(), &known);
     let jot = jot_from(&text, reading, iana_time_zone::get_timezone().ok());
-    let promise = promises::jot_down(&mut conn, &jot, chrono::Utc::now())?;
+    // Jot down saves into the mode the person is in (handbook P14).
+    let mode = bindle_store::settings::load(&conn)?.mode;
+    let promise = promises::jot_down_in(&mut conn, &jot, mode, chrono::Utc::now())?;
     announce(&app);
     Ok(promise)
 }

@@ -15,7 +15,7 @@ import "./tokens.css";
 import "./app.css";
 import { Logo } from "./components/Logo";
 import { JotField } from "./components/JotField";
-import { commands, onJotOpened, onSettingsChanged } from "./lib/commands";
+import { commands, onJotOpened, onSettingsChanged, type Mode } from "./lib/commands";
 import { applyTheme } from "./lib/settings";
 
 /** How long "Saved" stays on screen before the window goes. */
@@ -24,6 +24,7 @@ const SAVED_PAUSE_MS = 700;
 function JotWindow() {
   const input = useRef<HTMLInputElement>(null);
   const [opened, setOpened] = useState(0);
+  const [mode, setMode] = useState<Mode>("life");
 
   useEffect(
     () =>
@@ -34,10 +35,15 @@ function JotWindow() {
     [],
   );
 
-  // Follow the theme chosen in Settings, here as in the main window.
+  // Follow the theme chosen in Settings, here as in the main window, and
+  // show which mode the promise will be saved in.
   useEffect(() => {
-    commands.getSettings().then((s) => applyTheme(s.theme), () => {});
-    return onSettingsChanged((s) => applyTheme(s.theme));
+    const follow = (s: { theme: Parameters<typeof applyTheme>[0]; mode: Mode }) => {
+      applyTheme(s.theme);
+      setMode(s.mode);
+    };
+    commands.getSettings().then(follow, () => {});
+    return onSettingsChanged(follow);
   }, []);
 
   useEffect(() => {
@@ -53,6 +59,7 @@ function JotWindow() {
       <div className="jot-window-head">
         <Logo size={24} />
         <span>Jot down</span>
+        {mode === "work" && <span className="chip plain">Work</span>}
         <span className="muted small jot-window-tip">Enter to save · Esc to close</span>
       </div>
       <JotField

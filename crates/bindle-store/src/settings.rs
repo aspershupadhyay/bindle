@@ -8,6 +8,7 @@
 use crate::ai::AiAccess;
 use crate::StoreError;
 use bindle_core::notify::NoticeSettings;
+use bindle_core::Mode;
 use chrono::NaiveTime;
 use rusqlite::{Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -37,6 +38,8 @@ pub struct Settings {
     pub ai_access: AiAccess,
     /// The person's own picture, one of [`crate::people::AVATARS`].
     pub avatar: Option<String>,
+    /// Life or Work, as last chosen. Jot down saves promises in this mode.
+    pub mode: Mode,
 }
 
 impl Default for Settings {
@@ -52,6 +55,7 @@ impl Default for Settings {
             theme: "system".into(),
             ai_access: AiAccess::Off,
             avatar: None,
+            mode: Mode::Life,
         }
     }
 }

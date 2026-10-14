@@ -2,9 +2,10 @@
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
 // Accessibility audit (docs/ACCEPTANCE.md). With `npm run dev` running, walks
-// through first run and every Life screen in the browser preview and lists
-// unnamed buttons and links, images without alt text, unlabelled fields,
-// duplicate ids, missing landmarks, and a skip link that is not first.
+// through first run, every Life screen and Work's Code screen in the browser
+// preview and lists unnamed buttons and links, images without alt text,
+// unlabelled fields, duplicate ids, missing landmarks, and a skip link that
+// is not first.
 // Needs Playwright: `npm i -g playwright`, then
 // `PLAYWRIGHT_DIR=$(npm root -g) node scripts/a11y-audit.mjs`.
 
@@ -53,6 +54,16 @@ for (const screen of ["Home", "Sort", "Promises", "People", "Wrap up", "Settings
   await page.waitForTimeout(400);
   await audit(screen);
 }
+// Work: Code, before and after connecting GitHub (the preview's sample data).
+await page.getByRole("button", { name: /^Work$/ }).click();
+await page.getByRole("button", { name: /^Code/ }).click();
+await page.waitForTimeout(400);
+await audit("Code, not connected");
+await page.getByLabel("Paste the token here").fill("preview-token");
+await page.getByRole("button", { name: /^Connect$/ }).click();
+await page.waitForTimeout(400);
+await audit("Code, connected");
+await page.getByRole("button", { name: /^Life$/ }).click();
 console.log(problems.join("\n") || "no problems");
 await browser.close();
 process.exitCode = problems.length > 0 ? 1 : 0;

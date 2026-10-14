@@ -49,7 +49,9 @@ fn linux_fixes() {
 
 /// Starts the app.
 pub fn run() {
-    let builder = tauri::Builder::default().plugin(tauri_plugin_notification::init());
+    let builder = tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_opener::init());
     // New versions are found and installed from the app (see `UpdateBar`).
     #[cfg(desktop)]
     let builder = builder
@@ -70,6 +72,7 @@ pub fn run() {
             jot_window::register(app.handle())?;
             reminders::start(app.handle().clone());
             watch::start(app.handle().clone());
+            commands::work::start(app.handle().clone());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -111,6 +114,14 @@ pub fn run() {
             commands::data::restore_safety_copy,
             commands::data::set_person_look,
             commands::data::set_person_hidden,
+            commands::work::code_view,
+            commands::work::reviews_owed,
+            commands::work::github_token_page,
+            commands::work::github_connect,
+            commands::work::github_disconnect,
+            commands::work::github_refresh,
+            commands::work::make_promise,
+            commands::work::open_on_github,
         ])
         .run(tauri::generate_context!())
         .expect("Bindle could not start");

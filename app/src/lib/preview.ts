@@ -6,7 +6,8 @@
 // rules are not checked: the real ones live in Rust. It exists so screens can
 // be tried and screenshotted without building the desktop app.
 
-import type { Change, HomeView, Settings, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
+import { sampleCodeView, sampleWork } from "./preview-work";
+import type { Change, GithubAccount, HomeView, Settings, Promise as BindlePromise, Reading, SortItem, Sorting, State, When } from "./commands";
 
 const promises: BindlePromise[] = [];
 let settings: Settings = {
@@ -20,7 +21,9 @@ let settings: Settings = {
   theme: "system",
   ai_access: "off",
   avatar: null,
+  mode: "life",
 };
+let github: GithubAccount = { login: null, synced_at: null, error: null };
 const changes = new Map<string, { before: BindlePromise; undone: boolean }>();
 const listeners = new Map<string, Set<() => void>>();
 
@@ -122,6 +125,34 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
     case "remove_from_top3":
     case "nudge":
       throw { message: "the top 3 and nudges work in the desktop app only" };
+    case "code_view":
+      return sampleCodeView(github) as T;
+    case "reviews_owed":
+      return (github.login ? sampleWork.filter((i) => i.kind === "review").length : 0) as T;
+    case "github_token_page":
+      return "https://github.com/settings/tokens/new?description=Bindle&scopes=repo" as T;
+    case "github_connect":
+    case "github_refresh":
+      if (name === "github_connect" && !String(args.token).trim()) throw { message: "paste the token from GitHub first" };
+      github = { login: "aspershupadhyay", synced_at: new Date().toISOString(), error: null };
+      previewEvents.emit("work-changed");
+      return github as T;
+    case "github_disconnect":
+      github = { login: null, synced_at: null, error: null };
+      previewEvents.emit("work-changed");
+      return undefined as T;
+    case "make_promise": {
+      const item = sampleWork.find((i) => i.id === args.itemId);
+      if (!item) throw { message: "that promise is not here any more" };
+      const promise = { ...jotDown(`Review ${item.repo.split("/")[1]} #${item.number}: ${item.title}`), mode: "work" as const, person: item.author };
+      promises[promises.length - 1] = promise;
+      item.promise = { id: promise.id, state: "unsorted" };
+      previewEvents.emit("work-changed");
+      return promise as T;
+    }
+    case "open_on_github":
+      window.open(String(args.url), "_blank", "noopener");
+      return undefined as T;
     default:
       throw { message: `the preview does not know "${name}"` };
   }

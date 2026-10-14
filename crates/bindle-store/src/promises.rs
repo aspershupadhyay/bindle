@@ -57,8 +57,9 @@ impl Jot {
     }
 }
 
-/// Where a new promise came from: typed by the person, or suggested by a
-/// connected AI (handbook P8). Either way it waits in Sort.
+/// Where a new promise came from: typed by the person, suggested by a
+/// connected AI (handbook P8), or made from a work item (handbook P14).
+/// Either way it waits in Sort.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Origin<'a> {
     Typed,
@@ -66,6 +67,11 @@ pub(crate) enum Origin<'a> {
     Ai {
         client: &'a str,
         reason: Option<&'a str>,
+    },
+    /// Made from something a source found, such as a GitHub review request.
+    Link {
+        label: &'a str,
+        url: &'a str,
     },
 }
 
@@ -79,7 +85,18 @@ pub fn jot_down(
     jot: &Jot,
     now: DateTime<Utc>,
 ) -> Result<Promise, StoreError> {
-    insert(conn, jot, Origin::Typed, now)
+    jot_down_in(conn, jot, Mode::Life, now)
+}
+
+/// Like [`jot_down`], for a promise in `mode`: Jot down in Work saves a work
+/// promise (handbook P14).
+pub fn jot_down_in(
+    conn: &mut Connection,
+    jot: &Jot,
+    mode: Mode,
+    now: DateTime<Utc>,
+) -> Result<Promise, StoreError> {
+    insert(conn, jot, Origin::Typed, mode, now)
 }
 
 /// Saves a new unsorted promise from `origin`. See [`jot_down`].
@@ -87,6 +104,7 @@ pub(crate) fn insert(
     conn: &mut Connection,
     jot: &Jot,
     origin: Origin,
+    mode: Mode,
     now: DateTime<Utc>,
 ) -> Result<Promise, StoreError> {
     let title = jot.title.trim();
@@ -101,15 +119,16 @@ pub(crate) fn insert(
     } else {
         (jot.when, None)
     };
-    let (kind, label, actor, reason) = match origin {
-        Origin::Typed => ("typed", None, "user", None),
-        Origin::Ai { client, reason } => ("ai", Some(client), "ai", reason),
+    let (kind, label, actor, reason, url) = match origin {
+        Origin::Typed => ("typed", None, "user", None, None),
+        Origin::Ai { client, reason } => ("ai", Some(client), "ai", reason, None),
+        Origin::Link { label, url } => ("link", Some(label), "user", None, Some(url)),
     };
 
     let tx = conn.transaction()?;
     tx.execute(
-        "INSERT INTO source (id, kind, label, snippet, captured_at) VALUES (?1, ?2, ?3, ?4, ?5)",
-        params![source_id, kind, label, jot.text, at],
+        "INSERT INTO source (id, kind, url, label, snippet, captured_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        params![source_id, kind, url, label, jot.text, at],
     )?;
     let person_id = match &jot.person {
         Some(name) => Some(people::find_or_add(&tx, name, &at)?),
@@ -118,8 +137,8 @@ pub(crate) fn insert(
     tx.execute(
         "INSERT INTO promise (id, title, direction, strength, person_id, source_id,
                               do_on, do_on_has_time, due, due_has_time, tz,
-                              amount_minor, currency, origin, origin_client, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?16)",
+                              amount_minor, currency, origin, origin_client, mode, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?17)",
         params![
             id,
             title,
@@ -135,7 +154,8 @@ pub(crate) fn insert(
             jot.amount.as_ref().map(|m| m.minor),
             jot.amount.as_ref().map(|m| m.currency.as_str()),
             if kind == "ai" { "ai" } else { "user" },
-            label,
+            label.filter(|_| kind == "ai"),
+            mode.as_str(),
             at,
         ],
     )?;

@@ -5,8 +5,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { UndoProvider } from "./components/Undo";
 import { UpdateBar } from "./components/UpdateBar";
-import { commands, inDesktopApp, onPromisesChanged, type Mode } from "./lib/commands";
+import { commands, inDesktopApp, onPromisesChanged, onWorkChanged, type Mode } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
+import { Code } from "./screens/Code";
 import { Home } from "./screens/Home";
 import { useSettings } from "./lib/settings";
 import { UpdatesProvider } from "./lib/updates";
@@ -19,10 +20,12 @@ import { WrapUp } from "./screens/WrapUp";
 import { Soon } from "./screens/Soon";
 
 export function App() {
-  const { settings } = useSettings();
-  const [mode, setMode] = useState<Mode>("life");
-  const [current, setCurrent] = useState<ScreenId>("home");
+  const { settings, update } = useSettings();
+  // Bindle opens in the mode last chosen, on that mode's first screen.
+  const [mode, setMode] = useState<Mode>(settings.mode);
+  const [current, setCurrent] = useState<ScreenId>(screens[settings.mode][0].id);
   const [unsorted, setUnsorted] = useState(0);
+  const [reviewsOwed, setReviewsOwed] = useState(0);
   const [focusSearch, setFocusSearch] = useState(0);
   const jotRef = useRef<HTMLInputElement>(null);
 
@@ -35,6 +38,12 @@ export function App() {
     // Changes from any window, or any screen, refresh the badge.
     return onPromisesChanged(refresh);
   }, [refresh]);
+
+  useEffect(() => {
+    const count = () => commands.reviewsOwed().then(setReviewsOwed, () => setReviewsOwed(0));
+    count();
+    return onWorkChanged(count);
+  }, []);
 
   const jotDown = useCallback(() => {
     if (inDesktopApp()) {
@@ -73,6 +82,12 @@ export function App() {
     setCurrent(screens[next][0].id);
   }
 
+  // The mode is saved whenever it changes, so Jot down (in its own window)
+  // files promises there, and Bindle opens in it next time.
+  useEffect(() => {
+    if (mode !== settings.mode) void update({ mode }).catch(() => {});
+  }, [mode, settings.mode, update]);
+
   if (!settings.onboarded) {
     return (
       <UndoProvider>
@@ -90,6 +105,7 @@ export function App() {
             mode={mode}
             current={current}
             unsorted={unsorted}
+            reviewsOwed={reviewsOwed}
             onMode={switchMode}
             onScreen={setCurrent}
             onJotDown={jotDown}
@@ -111,6 +127,13 @@ export function App() {
               <People />
             ) : current === "wrapUp" ? (
               <WrapUp onDone={() => setCurrent("home")} />
+            ) : current === "code" ? (
+              <Code
+                onOpenSort={() => {
+                  setMode("life");
+                  setCurrent("sort");
+                }}
+              />
             ) : current === "settings" ? (
               <Settings />
             ) : (

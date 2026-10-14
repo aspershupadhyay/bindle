@@ -16,6 +16,7 @@ pub mod people;
 pub mod promises;
 pub mod search;
 pub mod settings;
+pub mod work;
 pub mod wrap_up;
 
 use rusqlite::Connection;
@@ -41,6 +42,10 @@ const MIGRATIONS: &[(&str, &str)] = &[
     (
         "0006_ai_and_avatars",
         include_str!("../migrations/0006_ai_and_avatars.sql"),
+    ),
+    (
+        "0007_work_items",
+        include_str!("../migrations/0007_work_items.sql"),
     ),
 ];
 
@@ -75,6 +80,8 @@ pub enum StoreError {
     AiReadOnly,
     #[error("{0} suggestions are already waiting in Sort. Sort those first.")]
     TooManySuggestions(u32),
+    #[error("that is already a promise")]
+    AlreadyPromised,
     #[error("that is not one of the pictures")]
     UnknownAvatar,
     #[error("file error: {0}")]

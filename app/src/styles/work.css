@@ -1,0 +1,33 @@
+/* SPDX-License-Identifier: Apache-2.0
+   Copyright 2026 Sparsh Upadhyay and the Bindle contributors. */
+
+/* Work screens: Code (v2 design, Code). */
+
+.code-header { display: flex; flex-wrap: wrap; align-items: stretch; gap: 24px; }
+.code-hello { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.code-synced { margin: 0; }
+.code-problem { margin: 0; padding: 12px 16px; box-shadow: inset 4px 0 0 var(--honey); color: var(--ink-mid); }
+
+.code-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.code-tile { padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+.code-count { font-family: var(--font-display); font-size: 38px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+
+.work-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.work-main { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.work-title { font-weight: 500; overflow-wrap: anywhere; }
+.work-age { font-variant-numeric: tabular-nums; min-width: 52px; text-align: right; }
+
+.code-finished { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; box-shadow: inset 4px 0 0 var(--sage); }
+.code-finished h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.code-finished p { margin: 0; }
+.code-finished .stack { list-style: none; margin: 4px 0 0; padding: 0; }
+.finished-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; }
+
+.code-connect { padding: 20px; display: flex; flex-direction: column; gap: 12px; max-width: 640px; }
+.code-connect h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.code-connect p { margin: 0; }
+.connect-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 14px; }
+.connect-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.connect-form .field { flex: 1 1 260px; }
+.connect-form .field input { width: 100%; }
+.code-account { margin: 0; }

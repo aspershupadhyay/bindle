@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
+
+[package]
+name = "bindle-sources"
+description = "Where Bindle reads work from: GitHub reviews, pull requests and issues."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+bindle-store = { path = "../bindle-store" }
+reqwest = { version = "0.13", default-features = false, features = ["query", "rustls-no-provider", "system-proxy"] }
+rustls = { version = "0.23", default-features = false, features = ["ring"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt", "net", "io-util", "time"] }

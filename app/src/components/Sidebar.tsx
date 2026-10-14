@@ -15,12 +15,14 @@ interface SidebarProps {
   mode: Mode;
   current: ScreenId;
   unsorted: number;
+  /** Reviews people are waiting on, from GitHub. */
+  reviewsOwed: number;
   onMode: (mode: Mode) => void;
   onScreen: (id: ScreenId) => void;
   onJotDown: () => void;
 }
 
-export function Sidebar({ mode, current, unsorted, onMode, onScreen, onJotDown }: SidebarProps) {
+export function Sidebar({ mode, current, unsorted, reviewsOwed, onMode, onScreen, onJotDown }: SidebarProps) {
   const { settings } = useSettings();
   return (
     <aside className="sidebar" aria-label="Bindle navigation">
@@ -52,6 +54,11 @@ export function Sidebar({ mode, current, unsorted, onMode, onScreen, onJotDown }
             <Icon name={screen.icon} />
             {screen.label}
             {screen.id === "sort" && unsorted > 0 && <span className="badge">{unsorted} new</span>}
+            {screen.id === "code" && reviewsOwed > 0 && (
+              <span className="badge" aria-label={`${reviewsOwed} ${reviewsOwed === 1 ? "review" : "reviews"} waiting on you`}>
+                {reviewsOwed}
+              </span>
+            )}
           </button>
         ))}
       </nav>

@@ -160,6 +160,47 @@ export interface Settings {
   ai_access: AiAccess;
   /** The person's own picture. */
   avatar: Avatar | null;
+  /** Life or Work, as last chosen. Jot down saves promises in this mode. */
+  mode: Mode;
+}
+
+export type WorkKind = "review" | "mine" | "issue";
+
+/** Something GitHub says needs you, as `bindle_store::work::WorkItem` sends it. */
+export interface WorkItem {
+  id: string;
+  kind: WorkKind;
+  /** "owner/name". */
+  repo: string;
+  number: number;
+  title: string;
+  author: string;
+  url: string;
+  draft: boolean;
+  labels: string[];
+  created_at: string;
+  updated_at: string;
+  /** GitHub no longer lists it: reviewed, merged, closed or reassigned. */
+  gone: boolean;
+  /** The promise made from it, if there is one. */
+  promise: { id: string; state: State } | null;
+}
+
+/** The GitHub connection. The token is never sent to the views. */
+export interface GithubAccount {
+  login: string | null;
+  synced_at: string | null;
+  error: string | null;
+}
+
+/** Everything the Code screen shows. */
+export interface CodeView {
+  account: GithubAccount;
+  reviews: WorkItem[];
+  mine: WorkItem[];
+  issues: WorkItem[];
+  finished: WorkItem[];
+  reviews_older_than_a_day: number;
 }
 
 export type AiAccess = "off" | "read" | "suggest";
@@ -256,6 +297,14 @@ export const commands = {
   setPersonLook: (id: string, avatar: Avatar | null, pronouns: string | null) =>
     call<void>("set_person_look", { id, avatar, pronouns }),
   setPersonHidden: (id: string, hidden: boolean) => call<void>("set_person_hidden", { id, hidden }),
+  codeView: () => call<CodeView>("code_view"),
+  reviewsOwed: () => call<number>("reviews_owed"),
+  githubTokenPage: () => call<string>("github_token_page"),
+  githubConnect: (token: string) => call<GithubAccount>("github_connect", { token }),
+  githubDisconnect: () => call<void>("github_disconnect"),
+  githubRefresh: () => call<GithubAccount>("github_refresh"),
+  makePromise: (itemId: string) => call<Promise>("make_promise", { itemId }),
+  openOnGithub: (url: string) => call<void>("open_on_github", { url }),
   listPromises: (state: State) => call<Promise[]>("list_promises", { state }),
   countPromises: (state: State) => call<number>("count_promises", { state }),
 };
@@ -270,6 +319,13 @@ export const inDesktopApp = isTauri;
 export function onPromisesChanged(handler: () => void): () => void {
   if (!isTauri()) return previewEvents.on("promises-changed", handler);
   const stop = listen("promises-changed", handler);
+  return () => void stop.then((unlisten) => unlisten());
+}
+
+/** Runs `handler` after each look at GitHub, or when it is connected or disconnected. */
+export function onWorkChanged(handler: () => void): () => void {
+  if (!isTauri()) return previewEvents.on("work-changed", handler);
+  const stop = listen("work-changed", handler);
   return () => void stop.then((unlisten) => unlisten());
 }
 

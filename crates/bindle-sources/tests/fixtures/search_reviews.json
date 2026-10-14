@@ -1,0 +1,38 @@
+{
+  "total_count": 2,
+  "incomplete_results": false,
+  "items": [
+    {
+      "url": "https://api.github.com/repos/kunal-m/latch/issues/42",
+      "repository_url": "https://api.github.com/repos/kunal-m/latch",
+      "html_url": "https://github.com/kunal-m/latch/pull/42",
+      "node_id": "PR_kwDOLatch42",
+      "number": 42,
+      "title": "Permission prompts for the share sheet ",
+      "user": { "login": "kunal-m", "id": 1 },
+      "labels": [{ "name": "android" }, { "name": "ux" }],
+      "state": "open",
+      "comments": 3,
+      "created_at": "2026-10-12T10:00:00Z",
+      "updated_at": "2026-10-13T08:30:00Z",
+      "draft": false,
+      "pull_request": { "url": "https://api.github.com/repos/kunal-m/latch/pulls/42" }
+    },
+    {
+      "url": "https://api.github.com/repos/neha-k/gymbros/issues/88",
+      "repository_url": "https://api.github.com/repos/neha-k/gymbros",
+      "html_url": "https://github.com/neha-k/gymbros/pull/88",
+      "node_id": "PR_kwDOGym88",
+      "number": 88,
+      "title": "Exercise animation loader",
+      "user": null,
+      "labels": [],
+      "state": "open",
+      "comments": 0,
+      "created_at": "2026-10-14T06:00:00Z",
+      "updated_at": "2026-10-14T06:00:00Z",
+      "draft": true,
+      "pull_request": { "url": "https://api.github.com/repos/neha-k/gymbros/pulls/88" }
+    }
+  ]
+}
