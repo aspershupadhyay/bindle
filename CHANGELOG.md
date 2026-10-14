@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Work Desk: what needs you at work from GitHub and Gmail, oldest first; how long people wait on your email replies and reviews (medians, compared with your own last four weeks); what shipped this week; how each source is doing; and this week's work. Work mode opens on the Desk.
+- Insights: each look at Gmail and GitHub records how long people waited for your answers, so eight weeks of history builds up by itself. "Who waits longer" shows it as two small charts with a table view.
+- Migration 0009 (`wait_sample`).
+
 - Gmail (read only): connect with an app password, kept in the system keychain. Bindle opens the inbox and sent mail read-only, never marks anything as read, and never sends email.
 - Inbox: who is waiting on your reply, your questions still waiting after a day, and promises you wrote in an email ("I'll send the first concept by Friday" becomes "Send the first concept, by Fri"). Newsletters, receipts and alerts never count. Make it a promise, Add to promises, Not needed (with Undo) and Open in Gmail. The sidebar shows how many emails wait on your reply.
 - Board: work promises in Ideas, Next, Making, Waiting and Shipped this week, filtered by where they came from. Start, Not now, Done and Plan it on each card. Making has a limit (2 by default, in Settings), which Bindle mentions but never enforces.

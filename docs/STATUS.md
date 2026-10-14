@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 11 and 12 (14 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 13 and 14 (14 October 2026).
 
 ## Built
 
@@ -44,6 +44,11 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] Board (v2 design): Ideas, Next, Making, Waiting and Shipped this week, filtered by Code, Inbox or Other. Start, Not now, Done and Plan it are buttons, so it works from the keyboard. The Making limit (2 by default, in Settings → Work) is a gentle note, never a block
 - [x] Migration 0008 (`mail_item`, the Board's Making lane); the accessibility audit covers Inbox and Board
 
+### Work mode (weeks 13 and 14)
+- [x] Wait history: each look records how long people waited. Email replies run from the first email someone wrote you after your last word to your next email; reviews run from opening a pull request to your first review of it (at most 20 new pull requests per look). Samples are never changed, so history grows by itself (migration 0009)
+- [x] Desk (v2 design): what needs you from GitHub and Gmail, oldest first, with Make it a promise and Open; tiles for needs you now, email reply time and review wait (medians, compared with your own last four weeks), and shipped this week; how each source is doing; this week's work as bars (done and planned); "Who waits longer" with eight weeks of medians and a table view
+- [x] Desk checks: 7 tests in `bindle-store` (medians, counting each answer once, comparing with the four weeks before, shipped by week and source, the week's work, and merging what needs you). Chart colours checked with the dataviz validator in both themes
+
 ### Project
 - [x] Handbook mirror, roadmap, changelog, contributing guide, DCO and licence headers
 - [x] CI on Windows, macOS and Linux: format, lint, tests, views and licence headers. It runs on pushes to `main`, to working branches, and on pull requests. First full run passed on all three on 14 October 2026
@@ -81,6 +86,8 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [ ] Each search reads at most 100 items
 - [ ] Gmail uses an app password, which needs 2-Step Verification on the Google account. "Sign in with Google" needs a Google Cloud app that only the owner can register (and Google's review for Gmail access)
 - [ ] Inbox reads the newest 200 emails of the last two weeks in each folder, and only the start of each email
+- [ ] Review waits count from when a pull request was opened, not from when your review was requested; GitHub's search does not say when that was without one more request per pull request
+- [ ] The Desk's numbers need a few weeks of history before the comparisons say much
 - [ ] Gmail only for now; Outlook and other IMAP mailboxes come in weeks 18–20
 - [ ] Putting back an old safety copy also brings back that day's settings (by design, but it can surprise)
 - [ ] When an AI's suggestion mentions an amount, Bindle stores it as the promise's amount
@@ -89,6 +96,5 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [ ] `bindle-parse/tests/table.rs` is just over 400 lines; split it when it next grows
 
 ### After Tier 1 (the roadmap's next stages)
-- [ ] Weeks 13–14: Insights and the Work Desk
 - [ ] Weeks 15–17: Bindle Cloud: accounts, Mine and Ours, invites, recovery kit (sync and end-to-end encryption)
 - [ ] Weeks 18–20: Creator (YouTube, Instagram), Outlook and IMAP, phone build
