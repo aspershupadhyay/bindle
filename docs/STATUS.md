@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 15 to 17 (14 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 18 to 20 (14 October 2026).
 
 ## Built
 
@@ -93,7 +93,7 @@ Read this first if you are continuing the work (another person or a new Claude s
 - [ ] Several channels at once (the design's account switcher): one channel for now
 - [x] Phone-ready app (done, not yet run on a phone): `#[cfg_attr(mobile, tauri::mobile_entry_point)]` on `run()`; desktop-only parts (Jot window, global shortcut, updater, process restart, keychain) are left out on phones; `capabilities/desktop.json` holds the updater permissions for desktops only; `tauri.android.conf.json` and `tauri.ios.conf.json` keep one window (identifier `app.bindle.mobile`). On phones, secrets are kept in `secrets.json` in the app's private folder (`app/src-tauri/src/secrets.rs`, `phone` module)
 - [x] Phone layout (done): under 600 px the sidebar becomes a bar across the top with the screens and spaces in sideways-scrolling rows, Jot down floats bottom right (it focuses Home's field, as there is no second window), and Undo sits above it. No sideways page scroll at 390 px. Screenshots `docs/screens/week-20-phone-*.png`
-- [ ] Android build: `.github/workflows/android.yml` (run it from the Actions tab; it runs `tauri android init` and builds a debug arm64 APK as an artifact). Not yet seen passing: check its first run, fix what it reports
+- [ ] Android build: `.github/workflows/android.yml` runs `tauri android init` and builds a debug arm64 APK as an artifact. It runs on pushes that change `app/src-tauri/**`, `app/package*.json` or the workflow, on version tags, and by hand once it is on main. First run: https://github.com/aspershupadhyay/bindle/actions/runs/38652153535 (check it; fix what it reports)
 - [ ] Phone keychain: use the Android Keystore and iOS Keychain (a Tauri plugin such as a stronghold or keystore plugin) instead of the private-folder file
 - [ ] iOS build: needs a Mac with Xcode and an Apple developer account (owner)
 - [ ] Gate: Ours works on a phone. Needs a hosted relay and the Android build on a real phone
@@ -135,4 +135,5 @@ Read this first if you are continuing the work (another person or a new Claude s
 
 ### After Tier 1 (the roadmap's next stages)
 - [x] Weeks 15–17: Bindle Cloud: accounts, Mine and Ours, invites, recovery kit (sync and end-to-end encryption). Built; the gate waits on a hosted relay
-- [ ] Weeks 18–20: Creator (YouTube, Instagram), Outlook and IMAP, phone build
+- [x] Weeks 18–20: Creator (YouTube), any IMAP mailbox, phone-ready app and layout, Android build workflow. Built; Instagram, Outlook sign-in and YouTube Analytics wait on owner-registered apps; the gate waits on a hosted relay and a phone
+- [ ] Next on the roadmap: see [ROADMAP.md](ROADMAP.md) (nothing is planned after week 20 yet; ask the owner)
