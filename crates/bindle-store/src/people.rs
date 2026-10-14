@@ -166,6 +166,78 @@ pub fn set_look(
     Ok(())
 }
 
+/// Archives a person with nothing open between you: they leave People and
+/// Jot down's suggestions, and their kept promises stay as they were.
+/// Naming them in a new promise brings them back.
+pub fn archive(conn: &Connection, id: &str, at: &str) -> Result<(), StoreError> {
+    let (name, open): (String, u32) = conn
+        .query_row(
+            "SELECT person.display_name,
+                    (SELECT count(*) FROM promise p WHERE p.person_id = person.id AND p.state = 'open')
+             FROM person WHERE person.id = ?1",
+            [id],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .optional()?
+        .ok_or(StoreError::NotFound)?;
+    if open > 0 {
+        return Err(StoreError::StillOpen(name));
+    }
+    conn.execute(
+        "UPDATE person SET archived_at = ?2, updated_at = ?2 WHERE id = ?1",
+        params![id, at],
+    )?;
+    Ok(())
+}
+
+/// Brings an archived person back to People. If someone else has taken
+/// their name since, the two are told apart by adding "(2)".
+pub fn unarchive(conn: &Connection, id: &str, at: &str) -> Result<(), StoreError> {
+    let name: String = conn
+        .query_row("SELECT display_name FROM person WHERE id = ?1", [id], |r| {
+            r.get(0)
+        })
+        .optional()?
+        .ok_or(StoreError::NotFound)?;
+    let mut free = name.clone();
+    let mut n = 2;
+    while conn
+        .query_row(
+            "SELECT 1 FROM person WHERE display_name = ?1 COLLATE NOCASE AND id != ?2 AND archived_at IS NULL",
+            params![free, id],
+            |_| Ok(()),
+        )
+        .optional()?
+        .is_some()
+    {
+        free = format!("{name} ({n})");
+        n += 1;
+    }
+    conn.execute(
+        "UPDATE person SET archived_at = NULL, display_name = ?2, updated_at = ?3 WHERE id = ?1",
+        params![id, free, at],
+    )?;
+    Ok(())
+}
+
+/// Everyone archived, by name.
+pub fn archived(conn: &Connection) -> Result<Vec<PersonSummary>, StoreError> {
+    let mut stmt = conn.prepare(
+        "SELECT id, display_name, avatar FROM person
+         WHERE archived_at IS NOT NULL ORDER BY display_name COLLATE NOCASE",
+    )?;
+    let rows = stmt.query_map([], |row| {
+        Ok(PersonSummary {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            avatar: row.get(2)?,
+            you_owe: 0,
+            they_owe: 0,
+        })
+    })?;
+    Ok(rows.collect::<Result<_, _>>()?)
+}
+
 /// The names of everyone in Bindle, for the parser to recognise.
 /// People hidden from AI are still listed: this never leaves the device.
 pub fn names(conn: &Connection) -> Result<Vec<String>, StoreError> {
@@ -186,6 +258,22 @@ pub fn find_or_add(conn: &Connection, name: &str, at: &str) -> Result<String, St
         )
         .optional()?;
     if let Some(id) = existing {
+        return Ok(id);
+    }
+    // Someone archived comes back with their history rather than as a stranger.
+    let archived: Option<String> = conn
+        .query_row(
+            "SELECT id FROM person WHERE display_name = ?1 COLLATE NOCASE
+             ORDER BY archived_at DESC LIMIT 1",
+            [name],
+            |row| row.get(0),
+        )
+        .optional()?;
+    if let Some(id) = archived {
+        conn.execute(
+            "UPDATE person SET archived_at = NULL, updated_at = ?2 WHERE id = ?1",
+            params![id, at],
+        )?;
         return Ok(id);
     }
     let id = Uuid::now_v7().to_string();
@@ -277,6 +365,50 @@ mod tests {
         let again = find_or_add(&conn, "rohan", "2026-10-14").expect("find");
         assert_eq!(first, again);
         assert_eq!(names(&conn).expect("names"), ["Rohan"]);
+    }
+
+    #[test]
+    fn only_someone_with_nothing_open_can_be_archived() {
+        let mut conn = open_in_memory().expect("open");
+        let open = kept_with(&mut conn, "Send lesson plan", "Rohan", Direction::Mine);
+        let rohan = find_or_add(&conn, "Rohan", "x").expect("find");
+        assert!(matches!(
+            archive(&conn, &rohan, "y"),
+            Err(StoreError::StillOpen(name)) if name == "Rohan"
+        ));
+        let now = Utc.with_ymd_and_hms(2026, 10, 14, 13, 0, 0).unwrap();
+        lifecycle::mark_done(&mut conn, &open, now).expect("done");
+        archive(&conn, &rohan, "y").expect("archive");
+        assert!(summaries(&conn).expect("people").is_empty());
+        assert!(names(&conn).expect("names").is_empty());
+        assert_eq!(archived(&conn).expect("archived")[0].name, "Rohan");
+        let kept = detail(&conn, &rohan, "2026-10-01T00:00:00Z").expect("detail");
+        assert_eq!(kept.kept_lately.len(), 1, "their history stays");
+        assert!(matches!(
+            archive(&conn, "nobody", "y"),
+            Err(StoreError::NotFound)
+        ));
+    }
+
+    #[test]
+    fn naming_an_archived_person_brings_them_back() {
+        let conn = open_in_memory().expect("open");
+        let rohan = find_or_add(&conn, "Rohan", "x").expect("add");
+        archive(&conn, &rohan, "y").expect("archive");
+        assert_eq!(find_or_add(&conn, "rohan", "z").expect("find"), rohan);
+        assert!(archived(&conn).expect("archived").is_empty());
+        assert_eq!(names(&conn).expect("names"), ["Rohan"]);
+    }
+
+    #[test]
+    fn bringing_back_never_makes_two_people_with_one_name() {
+        let conn = open_in_memory().expect("open");
+        let first = find_or_add(&conn, "Rohan", "x").expect("add");
+        archive(&conn, &first, "y").expect("archive");
+        let wifey = find_or_add(&conn, "Wifey", "x").expect("add");
+        rename(&conn, &wifey, "Rohan", "y").expect("the name is free while archived");
+        unarchive(&conn, &first, "z").expect("bring back");
+        assert_eq!(names(&conn).expect("names"), ["Rohan", "Rohan (2)"]);
     }
 
     #[test]

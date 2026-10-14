@@ -11,17 +11,37 @@ import { PersonEdit } from "../components/PersonEdit";
 import { ScreenArt, ScreenTitle } from "../components/ScreenTitle";
 import { useNotify } from "../components/Undo";
 import { chipsForPromise } from "../lib/chips";
-import { commands, onPromisesChanged, type PersonDetail, type PersonSummary, type Promise as BindlePromise } from "../lib/commands";
+import { commands, errorMessage, onPromisesChanged, type PersonDetail, type PersonSummary, type Promise as BindlePromise } from "../lib/commands";
 import { recapMessage } from "../lib/recap";
 
 export function People() {
+  const notify = useNotify();
   const [people, setPeople] = useState<PersonSummary[] | null>(null);
+  const [archived, setArchived] = useState<PersonSummary[]>([]);
   const [chosen, setChosen] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
 
   const refresh = useCallback(() => {
     commands.peopleList().then(setPeople, () => setPeople([]));
+    commands.archivedPeople().then(setArchived, () => setArchived([]));
   }, []);
+
+  async function bringBack(person: PersonSummary) {
+    try {
+      await commands.unarchivePerson(person.id);
+      setChosen(person.id);
+      notify(`${person.name} is back on People.`);
+    } catch (error) {
+      notify(errorMessage(error));
+    }
+    refresh();
+  }
+
+  function archivedNow(name: string) {
+    setChosen(null);
+    notify(`${name} archived. They come back when a promise names them, or from Archived.`);
+    refresh();
+  }
 
   useEffect(() => {
     refresh();
@@ -39,9 +59,9 @@ export function People() {
     <div className="page">
       <header className="sort-head">
         <ScreenTitle art="people">People</ScreenTitle>
-        <p className="lead">{people.length === 0 ? "No one yet." : "Who you owe, and who owes you."}</p>
+        <p className="lead">{people.length > 0 ? "Who you owe, and who owes you." : archived.length > 0 ? "Everyone here is archived." : "No one yet."}</p>
       </header>
-      {people.length === 0 ? (
+      {people.length === 0 && archived.length === 0 ? (
         <div className="card all-sorted">
           <ScreenArt name="people" scale={3} />
           <p>When a promise names someone, like “send the deck to Priya”, they appear here.</p>
@@ -52,21 +72,39 @@ export function People() {
             {people.length > 6 && (
               <input className="people-filter" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Find someone" aria-label="Find someone" />
             )}
-            <ul className="card list">
-              {shown.map((p) => (
-                <li key={p.id}>
-                  <button type="button" className="person-button" aria-current={chosen === p.id ? "true" : undefined} onClick={() => setChosen(p.id)}>
-                    <Avatar name={p.name} avatar={p.avatar} size={32} />
-                    <span className="promise-main">
+            {shown.length > 0 && (
+              <ul className="card list">
+                {shown.map((p) => (
+                  <li key={p.id}>
+                    <button type="button" className="person-button" aria-current={chosen === p.id ? "true" : undefined} onClick={() => setChosen(p.id)}>
+                      <Avatar name={p.name} avatar={p.avatar} size={32} />
+                      <span className="promise-main">
+                        <span className="promise-title">{p.name}</span>
+                        <span className="muted small">{owes(p)}</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {archived.length > 0 && (
+              <details className="people-archived">
+                <summary className="muted small">Archived ({archived.length})</summary>
+                <ul className="card list">
+                  {archived.map((p) => (
+                    <li key={p.id} className="archived-row">
+                      <Avatar name={p.name} avatar={p.avatar} size={32} />
                       <span className="promise-title">{p.name}</span>
-                      <span className="muted small">{owes(p)}</span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+                      <button type="button" className="link-button small" onClick={() => void bringBack(p)} aria-label={`Bring back ${p.name}`}>
+                        Bring back
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </div>
-          {chosen && <Person key={chosen} id={chosen} />}
+          {chosen && people.some((p) => p.id === chosen) && <Person key={chosen} id={chosen} onArchived={archivedNow} />}
         </div>
       )}
     </div>
@@ -81,7 +119,7 @@ function owes(p: PersonSummary): string {
   return parts.join(" · ");
 }
 
-function Person({ id }: { id: string }) {
+function Person({ id, onArchived }: { id: string; onArchived: (name: string) => void }) {
   const notify = useNotify();
   const [person, setPerson] = useState<PersonDetail | null>(null);
   const [editing, setEditing] = useState(false);
@@ -97,6 +135,16 @@ function Person({ id }: { id: string }) {
 
   if (!person) return <div className="person-detail" />;
   const recap = recapMessage(person, new Date());
+  const nothingOpen = person.you_owe.length === 0 && person.they_owe.length === 0;
+
+  async function archive() {
+    try {
+      await commands.archivePerson(id);
+      onArchived(person!.name);
+    } catch (error) {
+      notify(errorMessage(error));
+    }
+  }
 
   async function copyRecap() {
     try {
@@ -125,6 +173,15 @@ function Person({ id }: { id: string }) {
       <Side title="You'll do" empty={`Nothing you owe ${person.name}.`} promises={person.you_owe} />
       <Side title={`${person.name} will do`} empty={`Nothing ${person.name} owes you.`} promises={person.they_owe} />
       {person.kept_lately.length > 0 && <Side title="Kept lately" empty="" promises={person.kept_lately} />}
+
+      {nothingOpen && (
+        <p className="muted small person-archive">
+          Nothing open with {person.name}.{" "}
+          <button type="button" className="link-button" onClick={() => void archive()}>
+            Archive {person.name}
+          </button>
+        </p>
+      )}
 
       {recap && (
         <section className="card recap" aria-labelledby="recap">
