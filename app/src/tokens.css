@@ -19,6 +19,7 @@
   --clay: #C2653D;       /* shapes, primary buttons, focus ring */
   --clay-text: #A4502C;  /* accent text and links */
   --clay-wash: #F6E6DC;
+  --clay-button: #A4502C; /* primary buttons: white text needs 4.5:1 */
 
   /* Meaning */
   --sage: #6B8F71;       /* done, kept */
@@ -62,6 +63,7 @@
     --honey: #E3B864;
     --honey-text: #E3B864;
     --clay-wash: #3D2A20;
+    --clay-button: #D9825C;
     --sage-wash: #25302A;
     --honey-wash: #3A3020;
     --error: #F2B8B5;
@@ -84,6 +86,7 @@
   --honey: #E3B864;
   --honey-text: #E3B864;
   --clay-wash: #3D2A20;
+  --clay-button: #D9825C;
   --sage-wash: #25302A;
   --honey-wash: #3A3020;
   --error: #F2B8B5;

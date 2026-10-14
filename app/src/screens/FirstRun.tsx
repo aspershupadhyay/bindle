@@ -46,7 +46,7 @@ export function FirstRun() {
   }
 
   return (
-    <div className="first-run">
+    <main className="first-run">
       <div className="card first-card">
         <ol className="first-dots" aria-label={`Step ${steps.indexOf(step) + 1} of ${steps.length}`}>
           {steps.map((s) => (
@@ -123,6 +123,6 @@ export function FirstRun() {
         )}
       </div>
       <img className="sprite first-hills" src={hills} alt="" width={384} height={160} />
-    </div>
+    </main>
   );
 }

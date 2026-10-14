@@ -94,7 +94,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .button-primary {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   border: 0; border-radius: 10px; padding: 12px 14px;
-  background: var(--clay); color: var(--card); font-weight: 600;
+  background: var(--clay-button); color: var(--card); font-weight: 600;
 }
 .button-primary:hover { filter: brightness(0.95); }
 
@@ -168,3 +168,13 @@ kbd {
   .sidebar { position: static; height: auto; flex-basis: auto; }
   .display { font-size: 34px; }
 }
+
+/* Accessibility (week 8): a skip link that shows on focus, and no ring on
+   the page itself when the skip link moves focus there. */
+.skip-link {
+  position: absolute; left: 12px; top: -48px; z-index: 50;
+  padding: 10px 14px; border-radius: var(--radius-control);
+  background: var(--ink); color: var(--paper); font-weight: 600; text-decoration: none;
+}
+.skip-link:focus { top: 12px; }
+.main:focus { outline: none; }

@@ -82,6 +82,7 @@ export function App() {
   return (
     <UndoProvider>
       <div className="shell">
+        <a className="skip-link" href="#main">Skip to the page</a>
         <Sidebar
           mode={mode}
           current={current}
@@ -90,7 +91,7 @@ export function App() {
           onScreen={setCurrent}
           onJotDown={jotDown}
         />
-        <main className="main">
+        <main className="main" id="main" tabIndex={-1}>
           {current === "home" ? (
             <Home
               ref={jotRef}

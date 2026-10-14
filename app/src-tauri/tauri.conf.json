@@ -51,6 +51,25 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "publisher": "Sparsh Upadhyay and the Bindle contributors",
+    "homepage": "https://github.com/aspershupadhyay/bindle",
+    "longDescription": "Bindle keeps the promises you make and the ones made to you, so your head does not have to. Everything stays on your device.",
+    "linux": {
+      "deb": {
+        "section": "utils"
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "11.0",
+      "hardenedRuntime": true
+    },
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com"
+    }
   }
 }

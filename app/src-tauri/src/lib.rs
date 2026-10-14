@@ -32,8 +32,19 @@ pub fn main() -> std::process::ExitCode {
     if args.iter().any(|a| a == "--mcp") {
         return bindle_mcp::run_from_args(args);
     }
+    linux_fixes();
     run();
     std::process::ExitCode::SUCCESS
+}
+
+/// Works around a WebKitGTK bug: with some graphics drivers (NVIDIA on
+/// Wayland and X11 most often) the window stays blank unless the DMA-BUF
+/// renderer is off. A value the person already set is left alone.
+fn linux_fixes() {
+    #[cfg(target_os = "linux")]
+    if std::env::var_os("WEBKIT_DISABLE_DMABUF_RENDERER").is_none() {
+        std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+    }
 }
 
 /// Starts the app.
