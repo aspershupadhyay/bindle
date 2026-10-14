@@ -36,6 +36,7 @@ pub enum Direction {
     /// "They'll do it": someone owes you this.
     Theirs,
     /// "Just for me": a promise to yourself.
+    #[serde(rename = "self")]
     SelfPromise,
 }
 
@@ -55,6 +56,60 @@ pub enum Strength {
 pub enum Mode {
     Life,
     Work,
+}
+
+/// Gives each enum the exact word the database stores, and reads it back.
+macro_rules! stored_words {
+    ($name:ident { $($variant:ident => $word:literal),+ $(,)? }) => {
+        impl $name {
+            /// The word stored in the database for this value.
+            pub fn as_str(self) -> &'static str {
+                match self { $(Self::$variant => $word),+ }
+            }
+
+            /// Reads a stored word back. Unknown words give `None`.
+            pub fn from_word(word: &str) -> Option<Self> {
+                match word { $($word => Some(Self::$variant),)+ _ => None }
+            }
+        }
+    };
+}
+
+stored_words!(State {
+    Unsorted => "unsorted",
+    Open => "open",
+    Later => "later",
+    Done => "done",
+    LetGo => "let_go",
+});
+stored_words!(Direction { Mine => "mine", Theirs => "theirs", SelfPromise => "self" });
+stored_words!(Strength { Firm => "firm", Soft => "soft" });
+stored_words!(Mode { Life => "life", Work => "work" });
+
+/// A promise as the app sees it: the fields every screen needs.
+///
+/// Dates are plain calendar days (`YYYY-MM-DD`); times of day come later with
+/// the `*_has_time` columns. Timestamps are RFC 3339 text, as stored.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Promise {
+    pub id: String,
+    pub title: String,
+    pub state: State,
+    pub direction: Option<Direction>,
+    pub strength: Strength,
+    pub mode: Mode,
+    pub first_step: Option<String>,
+    pub do_on: Option<NaiveDate>,
+    pub due: Option<NaiveDate>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+impl Promise {
+    /// Running late, measured against `today`. See [`is_running_late`].
+    pub fn is_running_late(&self, today: NaiveDate) -> bool {
+        is_running_late(self.state, self.strength, self.due, self.do_on, today)
+    }
 }
 
 /// A change that the lifecycle does not allow.
@@ -160,6 +215,27 @@ mod tests {
             Some(day(2026, 10, 13)),
             today
         ));
+    }
+
+    #[test]
+    fn a_promise_uses_the_same_words_as_the_database() {
+        let json = serde_json::to_string(&(State::LetGo, Direction::SelfPromise, Mode::Work))
+            .expect("serialise");
+        assert_eq!(json, r#"["let_go","self","work"]"#);
+    }
+
+    #[test]
+    fn stored_words_read_back_to_the_same_value() {
+        for state in [
+            State::Unsorted,
+            State::Open,
+            State::Later,
+            State::Done,
+            State::LetGo,
+        ] {
+            assert_eq!(State::from_word(state.as_str()), Some(state));
+        }
+        assert_eq!(State::from_word("overdue"), None);
     }
 
     #[test]

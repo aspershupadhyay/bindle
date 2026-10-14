@@ -7,6 +7,8 @@
 //! `user_version`. A failed migration rolls back and leaves the file untouched
 //! (handbook P10, Data checks).
 
+pub mod promises;
+
 use rusqlite::Connection;
 use std::path::Path;
 use thiserror::Error;
@@ -20,8 +22,11 @@ const MIGRATIONS: &[(&str, &str)] = &[
     ),
 ];
 
+/// Everything that can go wrong in the store.
 #[derive(Debug, Error)]
 pub enum StoreError {
+    #[error("a promise needs a few words")]
+    EmptyTitle,
     #[error("database error: {0}")]
     Sqlite(#[from] rusqlite::Error),
     #[error("migration {name} failed: {source}")]
