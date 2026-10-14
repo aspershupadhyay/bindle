@@ -48,3 +48,7 @@
 - "Buy diyas for Diwali" no longer makes Diwali a person: festivals, months, weekdays and places are never read as names.
 - CI also runs on pushes to working branches, and can be started by hand.
 - Migration 0006: pictures and pronouns for people, and the AI log.
+- Accessibility: a "Skip to the page" link, a main landmark on every screen including first run, and tests that hold every text colour to WCAG AA in both themes. Primary buttons use a darker clay so their text passes 4.5:1. `app/scripts/a11y-audit.mjs` checks every screen for unnamed buttons, missing alt text and unlabelled fields.
+- Linux: the WebKitGTK DMA-BUF renderer is turned off by default, which fixes a blank window on some graphics drivers. Package details for .deb, .rpm and AppImage.
+- Release workflow: a version tag builds installers for Windows, macOS (Apple silicon and Intel) and Linux on a draft release. They are signed when the Apple and Windows certificates are added as secrets (docs/RELEASING.md).
+- docs/STATUS.md (what is built, in progress and left) and docs/ACCEPTANCE.md (every acceptance check and its state).

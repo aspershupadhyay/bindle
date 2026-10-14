@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: start of week 8 (14 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: week 8 (14 October 2026).
 
 ## Built
 
@@ -26,13 +26,13 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: sta
 - [x] Undo bar and Ctrl+Z for every change
 - [x] Light and dark themes, with the logo's "on dark" version
 - [x] Pixel art: the logo, Home hills, Work scenes, icons for Sort, Promises, People and Wrap up, and nine people's pictures
-- [ ] Accessibility (week 8, in progress): skip link, landmarks, live announcements, visible focus, colour contrast checked by tests, and nothing done by colour alone
-- [ ] Linux (week 8, in progress): the blank window on some graphics drivers is avoided, a shortcut that cannot be claimed no longer stops the app, and .deb, .rpm and AppImage packages are set up
+- [x] Accessibility (week 8): skip link, a main landmark on every screen, live announcements, visible focus, colour contrast checked by 48 tests (primary buttons were darkened to pass), and an audit script that finds unnamed buttons, missing alt text and unlabelled fields (none left)
+- [x] Linux (week 8): the blank window on some graphics drivers is avoided, a shortcut that cannot be claimed never stops the app, and the .deb package builds, installs with a menu entry, and runs the AI connection (.rpm and AppImage are configured)
 
 ### Project
 - [x] Handbook mirror, roadmap, changelog, contributing guide, DCO and licence headers
-- [x] CI on Windows, macOS and Linux: format, lint, tests, views and licence headers. It runs on pushes to `main`, to working branches, and on pull requests
-- [ ] Release workflow (week 8, in progress): a version tag builds installers for all three systems. They are signed once the signing secrets are added (see [RELEASING.md](RELEASING.md))
+- [x] CI on Windows, macOS and Linux: format, lint, tests, views and licence headers. It runs on pushes to `main`, to working branches, and on pull requests. First full run passed on all three on 14 October 2026
+- [x] Release workflow (week 8): a version tag builds installers for all three systems. They are signed once the signing secrets are added (see [RELEASING.md](RELEASING.md))
 
 ## Being worked on now
 

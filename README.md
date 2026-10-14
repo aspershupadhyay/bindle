@@ -11,7 +11,7 @@ A calm, local-first app that carries your promises, from your life and your work
   <img src="docs/design/hero-hills.png" alt="Pixel art: a traveller with a bindle walking over green hills at sunset" width="768">
 </p>
 
-> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. Promises lists everything by state with search across all of it (Ctrl+K), and People shows what you and each person owe each other, with a recap you can send. Wrap up closes the day in about a minute, reminders are quiet by default (at most three a day), and a new person reaches Home in under a minute. An AI app such as Claude can connect over MCP, when you allow it, to read Home and suggest promises that wait in Sort for you. Everything exports to JSON or CSV, and safety copies are made every day. Next: accessibility, Linux fixes and signed builds.
+> **Status: early.** The handbook and designs are done, the Rust core has its first tested crates, and the desktop app opens, and Jot down works from anywhere with Alt+Shift+J, understanding days, times, money and people in English and Hinglish. Sort turns each jot into a real promise, every change can be undone, and Home shows your top 3, what is running late, what others owe you and how full the week is. Promises lists everything by state with search across all of it (Ctrl+K), and People shows what you and each person owe each other, with a recap you can send. Wrap up closes the day in about a minute, reminders are quiet by default (at most three a day), and a new person reaches Home in under a minute. An AI app such as Claude can connect over MCP, when you allow it, to read Home and suggest promises that wait in Sort for you. Everything exports to JSON or CSV, and safety copies are made every day. Week 8 added accessibility checks, Linux fixes and a release workflow; see [docs/STATUS.md](docs/STATUS.md) for what is done and what is left.
 
 <p align="center">
   <img src="docs/screens/week-4-home.png" alt="Life Home in the Bindle desktop app: top 3 with one done, Waiting on others with a nudge, Coming up, and the week strip with a full Friday in honey" width="768">
@@ -94,7 +94,7 @@ bindle/
   docs/              handbook mirror and designs
 ```
 
-Coming next: accessibility, Linux fixes and signed builds (week 8 of the plan in [docs/ROADMAP.md](docs/ROADMAP.md)).
+Where things stand: [docs/STATUS.md](docs/STATUS.md). Acceptance checks: [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md). Releasing: [docs/RELEASING.md](docs/RELEASING.md).
 
 Alt+Shift+J is claimed system-wide where the desktop allows it. Some Wayland sessions do not let apps claim global shortcuts; there it works inside Bindle, and the Jot down button is always there.
 
