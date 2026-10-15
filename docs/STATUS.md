@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: desktop polish after weeks 18 to 20 (15 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: v0.0.2 release (15 October 2026).
 
 ## Built
 
@@ -83,7 +83,7 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: des
 
 Read this first if you are continuing the work (another person or a new Claude session).
 
-- **Branch:** `claude/awesome-mccarthy-vtojde`, started from `main` after [#5](https://github.com/aspershupadhyay/bindle/pull/5) (weeks 9–20) was merged. It holds the desktop polish below; no pull request is open for it yet. Only the owner merges.
+- **Branch:** `claude/awesome-mccarthy-vtojde`. [#5](https://github.com/aspershupadhyay/bindle/pull/5) (weeks 9–20) and [#6](https://github.com/aspershupadhyay/bindle/pull/6) (desktop polish) are merged, and v0.0.2 is released from `main`. Start new work from the latest `main`.
 - **Focus now:** the desktop app. The owner asked to leave Android until the desktop works well.
 - **Checks before every push** (same as CI): `(cd app && npm run typecheck && npm test && npx vite build)`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`. The views must be built before the Rust workspace compiles.
 - **Desktop checks (the real app, not the preview):** build with `(cd app && npx vite build) && cargo build -p bindle-app --features tauri/custom-protocol && cargo build -p bindle-relay`, install `cargo install tauri-driver --locked` and `apt-get install webkit2gtk-driver xvfb`, then `dbus-run-session -- xvfb-run -a app/scripts/desktop/run.sh`. Two copies of the app share a space through a local relay; screenshots go to `$BINDLE_SHOTS`. CI runs the same in the "Desktop app (Linux)" job.
@@ -114,7 +114,8 @@ Read this first if you are continuing the work (another person or a new Claude s
 
 - [ ] Week 8 gate, "all acceptance checks pass": the automated checks pass. The hands-on checks in [ACCEPTANCE.md](ACCEPTANCE.md) still need a person on a real Windows and macOS machine
 - [ ] Signed builds need the Apple and Windows certificates added as repository secrets. Only the owner can do this
-- [ ] Turn on updates: the three updater secrets are added and #5 is merged, so v0.0.2 can be released (see "Updates inside the app" in [RELEASING.md](RELEASING.md)). People on v0.0.1 install v0.0.2 by hand once; every later version arrives inside the app
+- [x] v0.0.2 released on 15 October 2026 with signed update files: the first version that updates itself. People on v0.0.1 install v0.0.2 by hand once; every later version arrives inside the app
+- [ ] Hands-on test of an update: install v0.0.2 on Windows and macOS, release v0.0.3, and check each offers and installs it
 
 ## Left to deal with
 
@@ -122,7 +123,6 @@ Read this first if you are continuing the work (another person or a new Claude s
 - [ ] **Founder gate:** use Bindle on at least 25 of 30 days (handbook P10)
 - [ ] Hands-on test on Windows and macOS: Jot down shortcut, notifications (macOS may ask for permission first), dark theme, and the AI connection from Claude Desktop
 - [ ] Add the Apple and Windows signing certificates and cut a signed release
-- [ ] Hands-on test of an update: install v0.0.2, release v0.0.3, and check each system offers and installs it
 - [ ] A screen reader pass (NVDA on Windows, VoiceOver on macOS, Orca on Linux)
 - [ ] Some Wayland desktops refuse global shortcuts. Bindle then works with the in-app shortcut only; a desktop-portal shortcut would fix this
 

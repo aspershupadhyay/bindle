@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+Nothing yet.
+
+## 0.0.2 (15 October 2026)
+
 - Jot down reads a day of the month on its own: "pay rent on the 1st", "file GST by the 20th", "15th tak". It means the next time that day comes round. "The 1st draft" and "2nd floor" are left alone.
 - People: archive someone once nothing is open between you. They come back from Archived, or when a new promise names them, with their history.
 - Linux desktops without a keychain (no Secret Service) can now connect GitHub, mail, YouTube and Bindle Cloud: Bindle keeps those secrets in a file only your account can read. The keychain is still used wherever there is one.
@@ -33,8 +37,6 @@
 - Code screen: who is waiting on you, tiles for reviews, pull requests and issues, and each item with "Make it a promise" and "Open" on GitHub. The sidebar shows how many reviews you owe.
 - Make it a promise: a work promise waits in Sort, such as "Review latch #42: Permission prompts" for kunal-m. When GitHub stops listing the item, Code asks whether the promise is done.
 - `bindle-sources` crate and migration 0007 (`work_item`).
-
-## 0.0.2 (14 October 2026)
 
 - Updates from inside Bindle: it looks for a new version shortly after opening and every six hours, shows a bar with "Install and restart" or "Later", and checks the download's signature before installing. Settings, About has "Check for a new version". Works for the Windows installer, macOS, and Linux AppImage, .deb and .rpm. Copies of v0.0.1 cannot update themselves, so v0.0.1 users install the next version once by hand.
 - Releases take their version from the tag (`app/scripts/release-config.mjs`), so nothing needs bumping by hand before a release.
