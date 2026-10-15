@@ -233,6 +233,7 @@ pub(crate) async fn refresh(app: &AppHandle) -> Reply<MailAccount> {
                 mail::sync(&mut conn, "gmail", &found, now)?;
                 let waits = reply_waits(&recent.inbox, &recent.sent, &address);
                 bindle_store::insights::record_waits(&mut conn, &waits)?;
+                account.today = Some(bindle_sources::mail::the_day(&recent.inbox, now));
                 account.synced_at = Some(now.to_rfc3339_opts(SecondsFormat::Millis, true));
                 account.error = None;
             }

@@ -72,9 +72,9 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: v0.
 - [x] The sample Bindle (`crates/bindle-store/src/sample.rs`): opens on a new install, in memory, written through the store's own functions. A sample band, a ten-stop tour (`app/src/components/Tour.tsx`), and Start my own Bindle. Network, keychain, reminders and safety copies are off while it shows (`showing_sample()` in `app/src-tauri/src/lib.rs`)
 - [x] Pixel pictures for everyone, picked from the name when none is chosen
 - [x] v2 design pass on the Work sidebar (sources), Ours, Inbox, Code and Desk
-- [ ] Code's "a check keeps failing", 16 weeks of commits, merged per week and Your repos cards from the v2 design need more GitHub reads (check runs, commit activity, repositories)
-- [ ] The Desk's "Load this week" stacked chart with capacity, and "Creator this week" card
-- [ ] Inbox's FYI, Receipts and Newsletters counts: Bindle skips those emails today, so it would need to count them
+- [x] Code's cards (`crates/bindle-sources/src/github_stats.rs`, kept in `bindle_store::github_stats`): your four most active repositories with open pull requests, issues and checks (passing, failing or flaky from the last 12 runs); a check that keeps failing, with Open logs and Make it a promise; 16 weeks of contributions (GraphQL contribution calendar) with the streak; merged per week for 8 weeks, with a table view; a Merged this week tile. Each read is a bonus: if one fails, the rest still show
+- [x] The Desk's Load this week: work per day stacked by where it came from (Email, Code, Content, Other) against what a day holds (5), faded for days still to come, with a table view. Chart colours checked with the dataviz validator in both themes. Creator this week card and YouTube in "How your sources are doing"
+- [x] Inbox counts what Bindle skipped today (FYI, Receipts, Newsletters) and says "41 emails came in today. Only 2 need you."
 
 ### Project
 - [x] Handbook mirror, roadmap, changelog, contributing guide, DCO and licence headers

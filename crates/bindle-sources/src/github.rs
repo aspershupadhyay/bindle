@@ -173,11 +173,32 @@ impl Client {
         })
     }
 
-    async fn get(&self, path: &str, query: &[(&str, &str)]) -> Result<String, GithubError> {
-        let response = self
-            .http
-            .get(format!("{}{path}", self.base))
-            .query(query)
+    pub(crate) async fn get(
+        &self,
+        path: &str,
+        query: &[(&str, &str)],
+    ) -> Result<String, GithubError> {
+        self.send(self.http.get(format!("{}{path}", self.base)).query(query))
+            .await
+    }
+
+    /// A POST with a JSON body, for GitHub's GraphQL API.
+    pub(crate) async fn post(
+        &self,
+        path: &str,
+        body: &serde_json::Value,
+    ) -> Result<String, GithubError> {
+        self.send(
+            self.http
+                .post(format!("{}{path}", self.base))
+                .header("Content-Type", "application/json")
+                .body(body.to_string()),
+        )
+        .await
+    }
+
+    async fn send(&self, request: reqwest::RequestBuilder) -> Result<String, GithubError> {
+        let response = request
             .bearer_auth(&self.token)
             .header("Accept", "application/vnd.github+json")
             .header("X-GitHub-Api-Version", "2022-11-28")

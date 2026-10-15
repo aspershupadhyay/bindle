@@ -45,6 +45,18 @@
      the dataviz validator against --card in each theme. */
   --chart-planned: #DE9B78;
   --chart-done: #A4502C;
+  /* Work by source (Email, Code, Content), checked with the dataviz
+     validator against --card: CVD ΔE 7.1, so legends, gaps and a table view
+     always go with them. */
+  --series-email: #2E8A5A;
+  --series-code: #C25A35;
+  --series-content: #5A6FC0;
+  /* Contributions: one green, light to dark; 0 is the empty cell. */
+  --heat-0: #EFEAE2;
+  --heat-1: #CFE3D2;
+  --heat-2: #9CC6A6;
+  --heat-3: #5E9D70;
+  --heat-4: #2E6B45;
 
   --radius-card: 12px;
   --radius-control: 8px;
@@ -56,6 +68,14 @@
   :root:not([data-theme="light"]) {
     --chart-planned: #7A4A35;
     --chart-done: #D9825C;
+    --series-email: #3F9A64;
+    --series-code: #D46A40;
+    --series-content: #6B84D4;
+    --heat-0: #2E2A26;
+    --heat-1: #2C4433;
+    --heat-2: #3B6A4A;
+    --heat-3: #5A9A6C;
+    --heat-4: #9CD3A8;
     --paper: #1E1B18;
     --card: #262220;
     --sand: #3A342E;
@@ -81,6 +101,14 @@
 :root[data-theme="dark"] {
   --chart-planned: #7A4A35;
   --chart-done: #D9825C;
+  --series-email: #3F9A64;
+  --series-code: #D46A40;
+  --series-content: #6B84D4;
+  --heat-0: #2E2A26;
+  --heat-1: #2C4433;
+  --heat-2: #3B6A4A;
+  --heat-3: #5A9A6C;
+  --heat-4: #9CD3A8;
   --paper: #1E1B18;
   --card: #262220;
   --sand: #3A342E;

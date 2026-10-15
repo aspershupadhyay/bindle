@@ -25,7 +25,7 @@ export function sampleDesk(code: CodeView, inbox: InboxView): DeskView {
   ].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
   const today = new Date();
   const monday = addDays(today, -((today.getDay() + 6) % 7));
-  const week = Array.from({ length: 7 }, (_, i) => ({ day: dayString(addDays(monday, i)), open: [1, 2, 1, 3, 2, 0, 0][i], done: [2, 1, 2, 0, 0, 0, 0][i] }));
+  const week = Array.from({ length: 7 }, (_, i) => ({ day: dayString(addDays(monday, i)), open: [1, 2, 1, 3, 2, 0, 0][i], done: [2, 1, 2, 0, 0, 0, 0][i], email: [1, 1, 1, 1, 0, 0, 0][i], code: [2, 1, 1, 1, 1, 0, 0][i], content: [0, 1, 1, 1, 1, 0, 0][i], other: [0, 0, 0, 0, 0, 0, 0][i] }));
   return {
     needs_you: needs,
     email_reply: connected ? { recent: 3.2, before: 4.1, weekly: [5.6, 5.1, null, 4.8, 4.4, 4.0, 3.6, 3.2] } : { recent: null, before: null, weekly: Array(8).fill(null) },

@@ -209,3 +209,60 @@ button.sorted-item:hover { background: var(--sand-soft); }
 .work-row .kind-icon + .work-main { flex-basis: 160px; }
 .mail-reading .update-actions { flex-wrap: wrap; }
 .mail-reading .update-actions button { white-space: nowrap; }
+
+/* Code cards, v2. */
+.failing-card { background: var(--honey-wash); border-color: var(--honey); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.failing-card h2 { margin: 0; font-size: 17px; }
+.failing-card p { margin: 0; color: var(--ink-mid); line-height: 1.5; }
+.failing-head { display: flex; gap: 12px; align-items: center; }
+.failing-bug { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--clay); color: var(--card); font-weight: 700; flex: none; }
+.failing-where { color: var(--honey-text); }
+.button-dark { background: var(--ink); color: var(--paper); border: 0; border-radius: var(--radius-control); font-weight: 600; }
+.button-dark:hover { opacity: 0.9; }
+.heat { display: flex; gap: 3px; justify-content: space-between; }
+.heat-week { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.heat-cell { aspect-ratio: 1; border-radius: 3px; background: var(--heat-0); }
+.heat-cell.blank { background: transparent; }
+.heat-cell.l1 { background: var(--heat-1); }
+.heat-cell.l2 { background: var(--heat-2); }
+.heat-cell.l3 { background: var(--heat-3); }
+.heat-cell.l4 { background: var(--heat-4); }
+.heat-cell:not(.blank):hover { outline: 2px solid var(--ink); outline-offset: 1px; }
+.heat-foot { display: flex; justify-content: space-between; margin-top: 8px; }
+.merged-bars { display: flex; align-items: flex-end; gap: 10px; height: 120px; padding-top: 8px; }
+.merged-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; }
+.merged-bar { width: 100%; max-width: 26px; border-radius: 4px 4px 0 0; background: var(--heat-2); }
+.merged-bar.now { background: var(--heat-4); }
+.merged-col:hover .merged-bar { outline: 2px solid var(--ink); outline-offset: 1px; }
+.merged-label { font-size: 11px; color: var(--ink-soft); }
+.numbers { width: 100%; border-collapse: collapse; font-size: 14px; }
+.numbers th, .numbers td { padding: 6px 4px; border-bottom: 1px solid var(--sand); text-align: left; font-weight: 400; }
+.numbers td { text-align: right; font-variant-numeric: tabular-nums; }
+.link-quiet { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
+.link-quiet:hover { color: var(--clay-text); text-decoration: underline; }
+
+/* Desk: load this week, stacked by source, against a day's capacity. */
+.desk-swatch.email { background: var(--series-email); }
+.desk-swatch.code { background: var(--series-code); }
+.desk-swatch.content { background: var(--series-content); }
+.desk-swatch.other { background: var(--ink-soft); }
+.load-chart { position: relative; height: 204px; margin-top: 12px; }
+.load-capacity { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--ink-soft); pointer-events: none; z-index: 1; }
+.load-capacity span { position: absolute; right: 0; top: -20px; font-size: 12px; color: var(--ink-soft); background: var(--card); padding: 0 4px; }
+.load-days { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; height: 100%; }
+.load-days li { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; outline-offset: 2px; }
+.load-days li:focus-visible { outline: 2px solid var(--clay); border-radius: 6px; }
+.load-bar { width: 100%; max-width: 44px; display: flex; flex-direction: column-reverse; gap: 2px; }
+.load-days li > .small { height: 18px; line-height: 18px; }
+.load-fill { width: 100%; }
+.load-fill:last-child { border-radius: 4px 4px 0 0; }
+.load-fill.email { background: var(--series-email); }
+.load-fill.code { background: var(--series-code); }
+.load-fill.content { background: var(--series-content); }
+.load-fill.other { background: var(--ink-soft); }
+.load-days li.ahead .load-fill { opacity: 0.38; }
+.load-days li:hover .load-bar { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+.load-days li.today .small { color: var(--ink); font-weight: 700; }
+.load-total { font-size: 12px; font-weight: 600; color: var(--ink-mid); min-height: 16px; }
+.creator-gain { display: flex; align-items: baseline; gap: 8px; margin: 4px 0; }
+.sorted-item.skipped { color: var(--ink-soft); }

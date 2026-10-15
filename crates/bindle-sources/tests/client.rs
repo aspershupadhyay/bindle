@@ -168,3 +168,49 @@ async fn review_waits_ask_only_about_new_pull_requests() {
     let seen = server.await.unwrap();
     assert_eq!(seen.len(), 2, "one search and one list of reviews");
 }
+
+#[tokio::test]
+async fn stats_read_repos_checks_contributions_and_merges() {
+    let (base, server) = serve(|request| {
+        let line = request.lines().next().unwrap_or_default().to_string();
+        if line.starts_with("GET /user/repos") {
+            (200, r#"[{"full_name":"o/latch","language":"TypeScript","stargazers_count":184,"private":false,"open_issues_count":12,"default_branch":"main","html_url":"https://github.com/o/latch"},
+                      {"full_name":"o/old","language":null,"stargazers_count":0,"private":true,"open_issues_count":0,"default_branch":"main","html_url":"https://github.com/o/old","archived":true}]"#.into())
+        } else if line.starts_with("GET /repos/o/latch/pulls") {
+            (200, "[{},{},{}]".into())
+        } else if line.starts_with("GET /repos/o/latch/actions/runs") {
+            (200, r#"{"workflow_runs":[{"name":"CI","conclusion":"failure","html_url":"https://github.com/o/latch/actions/runs/3"},{"name":"CI","conclusion":"success","html_url":"u2"},{"name":"CI","conclusion":"failure","html_url":"u1"}]}"#.into())
+        } else if line.starts_with("POST /graphql") {
+            (200, r#"{"data":{"viewer":{"contributionsCollection":{"contributionCalendar":{"weeks":[{"contributionDays":[{"date":"2026-10-14","contributionCount":5}]}]}}}}}"#.into())
+        } else if line.starts_with("GET /search/issues") && line.contains("is%3Amerged") {
+            (200, r#"{"items":[{"closed_at":"2026-10-14T10:00:00Z"}]}"#.into())
+        } else {
+            (404, "{}".into())
+        }
+    })
+    .await;
+    let client = Client::with_base("t", &base).unwrap();
+    let now = chrono::DateTime::parse_from_rfc3339("2026-10-15T12:00:00Z")
+        .unwrap()
+        .with_timezone(&chrono::Utc);
+    let stats = client.stats(now).await.unwrap();
+    assert_eq!(stats.repos.len(), 1, "archived repositories are left out");
+    let latch = &stats.repos[0];
+    assert_eq!(
+        (latch.open_prs, latch.open_issues, latch.stars),
+        (3, 9, 184)
+    );
+    assert_eq!(
+        latch.checks,
+        Some(bindle_store::github_stats::Checks::Flaky)
+    );
+    let failing = stats.failing.unwrap();
+    assert_eq!((failing.workflow.as_str(), failing.failed), ("CI", 2));
+    assert_eq!(stats.days, [("2026-10-14".to_string(), 5)]);
+    assert_eq!(stats.merged_weeks.last(), Some(&1));
+    let seen = server.await.unwrap();
+    assert!(
+        seen.iter().any(|r| r.contains("\"query\"")),
+        "GraphQL is asked with a JSON body"
+    );
+}

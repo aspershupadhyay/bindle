@@ -96,6 +96,8 @@ const GAP = 12;
 export function Tour({ onGo, onEnd }: TourProps) {
   const [index, setIndex] = useState(0);
   const [box, setBox] = useState<DOMRect | null>(null);
+  // Hidden until placed, so it never jumps from the middle to its target.
+  const [placed, setPlaced] = useState(false);
   const card = useRef<HTMLDivElement>(null);
   const stop = TOUR[index];
 
@@ -116,8 +118,11 @@ export function Tour({ onGo, onEnd }: TourProps) {
 
   useLayoutEffect(() => {
     let tries = 0;
+    setPlaced(false);
     const timer = setInterval(() => {
       measure();
+      // Placed once the target is found, or after a short wait without one.
+      if (document.querySelector(`[data-tour="${stop.target}"]`) || tries > 4) setPlaced(true);
       if (++tries > 10) clearInterval(timer);
     }, 80);
     window.addEventListener("resize", measure);
@@ -127,11 +132,11 @@ export function Tour({ onGo, onEnd }: TourProps) {
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
-  }, [measure]);
+  }, [measure, stop]);
 
   useEffect(() => {
-    card.current?.querySelector<HTMLButtonElement>(".tour-next")?.focus();
-  }, [index]);
+    if (placed) card.current?.querySelector<HTMLButtonElement>(".tour-next")?.focus();
+  }, [index, placed]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -142,10 +147,10 @@ export function Tour({ onGo, onEnd }: TourProps) {
   }, [onEnd]);
 
   const last = index === TOUR.length - 1;
-  const place = placement(box);
+  const place = { ...placement(box), visibility: placed ? ("visible" as const) : ("hidden" as const) };
   return (
     <div className="tour" aria-live="polite">
-      {box && (
+      {box && placed && (
         <div
           className="tour-spot"
           style={{ top: box.top - 6, left: box.left - 6, width: box.width + 12, height: box.height + 12 }}

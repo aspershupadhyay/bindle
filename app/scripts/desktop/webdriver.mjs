@@ -51,8 +51,17 @@ export async function open(application, port) {
     async exists(xpath) {
       return (await s("POST", "/elements", { using: "xpath", value: xpath })).length > 0;
     },
+    /** Clicks once the element can take a click (it may still be appearing). */
     async click(xpath) {
-      await s("POST", `/element/${await find(xpath)}/click`, {});
+      for (let tries = 0; ; tries++) {
+        try {
+          await s("POST", `/element/${await find(xpath)}/click`, {});
+          break;
+        } catch (error) {
+          if (tries >= 12 || !/interactable|intercepted|stale/i.test(error.message)) throw error;
+          await sleep(250);
+        }
+      }
       await sleep(300);
     },
     /** Clicks the button whose words are exactly `words`. */

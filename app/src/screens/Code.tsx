@@ -8,17 +8,20 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import arcade from "../art/arcade.png";
+import { CommitHeat, FailingCard, MergedWeeks, Repos } from "../components/CodeCards";
 import { useNotify, useOfferUndo } from "../components/Undo";
-import { commands, errorMessage, onPromisesChanged, onWorkChanged, type CodeView, type WorkItem } from "../lib/commands";
+import { commands, errorMessage, onPromisesChanged, onWorkChanged, type CodeCards, type CodeView, type WorkItem } from "../lib/commands";
 import { age, ageTone, codeSummary, lookedAgo, promiseNote, shortName } from "../lib/work";
 
 export function Code({ onOpenSort }: { onOpenSort: () => void }) {
   const [view, setView] = useState<CodeView | null>(null);
+  const [cards, setCards] = useState<CodeCards | null>(null);
   const [looking, setLooking] = useState(false);
   const notify = useNotify();
 
   const refresh = useCallback(() => {
     commands.codeView().then(setView, (e) => notify(errorMessage(e)));
+    commands.codeCards().then(setCards, () => setCards(null));
   }, [notify]);
 
   useEffect(() => {
@@ -45,6 +48,17 @@ export function Code({ onOpenSort }: { onOpenSort: () => void }) {
 
   const now = new Date();
   const connected = Boolean(view?.account.login);
+
+  async function promiseFix(c: CodeCards) {
+    if (!c.failing) return;
+    try {
+      await commands.jotDown(`Fix the flaky ${c.failing.workflow} check in ${c.failing.repo.split("/").pop()}`);
+      notify("Sent to Sort: fix the failing check");
+      onOpenSort();
+    } catch (error) {
+      notify(errorMessage(error));
+    }
+  }
 
   return (
     <div className="page code-page">
@@ -81,37 +95,56 @@ export function Code({ onOpenSort }: { onOpenSort: () => void }) {
             <Tile label="Reviews you owe" count={view.reviews.length} note={view.reviews_older_than_a_day > 0 ? `${view.reviews_older_than_a_day} older than a day` : "None older than a day"} />
             <Tile label="Your pull requests waiting" count={view.mine.length} note={view.mine.some((m) => m.draft) ? `${view.mine.filter((m) => m.draft).length} still a draft` : "Waiting on others"} />
             <Tile label="Issues assigned" count={view.issues.length} note={view.issues.length > 0 ? "Most recently active first" : "Nothing assigned"} />
+            {cards && cards.merged_weeks.length > 0 && (
+              <Tile
+                label="Merged this week"
+                count={cards.merged_weeks[cards.merged_weeks.length - 1]}
+                note={cards.best_week ? "Best in 8 weeks" : `${cards.merged_weeks.reduce((a, b) => a + b, 0)} in 8 weeks`}
+              />
+            )}
           </ul>
 
           {view.finished.length > 0 && <Finished items={view.finished} />}
 
-          <ItemList
-            id="reviews"
-            title="Reviews you owe"
-            note="Aim for a first review within a day"
-            empty="Nobody is waiting on a review from you."
-            items={view.reviews}
-            now={now}
-            onOpenSort={onOpenSort}
-          />
-          <ItemList
-            id="mine"
-            title="Your pull requests, waiting on others"
-            note="You are blocked until they move"
-            empty="None of your pull requests are open."
-            items={view.mine}
-            now={now}
-            onOpenSort={onOpenSort}
-          />
-          <ItemList
-            id="issues"
-            title="Issues assigned to you"
-            note="Most recently active first"
-            empty="No issues are assigned to you."
-            items={view.issues}
-            now={now}
-            onOpenSort={onOpenSort}
-          />
+          <div className="home-columns">
+            <div className="home-today">
+              <ItemList
+                id="reviews"
+                title="Reviews you owe"
+                note="Aim for a first review within a day"
+                empty="Nobody is waiting on a review from you."
+                items={view.reviews}
+                now={now}
+                onOpenSort={onOpenSort}
+              />
+              <ItemList
+                id="mine"
+                title="Your pull requests, waiting on others"
+                note="You are blocked until they move"
+                empty="None of your pull requests are open."
+                items={view.mine}
+                now={now}
+                onOpenSort={onOpenSort}
+              />
+              <ItemList
+                id="issues"
+                title="Issues assigned to you"
+                note="Most recently active first"
+                empty="No issues are assigned to you."
+                items={view.issues}
+                now={now}
+                onOpenSort={onOpenSort}
+              />
+            </div>
+            {cards && (cards.failing || cards.days.length > 0 || cards.merged_weeks.length > 0) && (
+              <aside className="home-side" aria-label="Checks and activity">
+                <FailingCard cards={cards} onPromise={() => void promiseFix(cards)} />
+                <CommitHeat cards={cards} />
+                <MergedWeeks cards={cards} />
+              </aside>
+            )}
+          </div>
+          {cards && <Repos repos={cards.repos} />}
 
           <Disconnect login={view.account.login ?? ""} />
         </>

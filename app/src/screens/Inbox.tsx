@@ -82,7 +82,16 @@ export function Inbox({ onOpenSort }: { onOpenSort: () => void }) {
         <div className="code-hello">
           <div className="muted small">Work · Inbox{view?.account.address ? ` · ${mailName(view.account)}` : ""}</div>
           <h1 className="display">Inbox</h1>
-          {view && connected && <p className="lead">{inboxSummary(view)}</p>}
+          {view && connected && (
+            <p className="lead">
+              {view.account.today && view.account.today.total > 0 && (
+                <strong>
+                  {view.account.today.total} {view.account.today.total === 1 ? "email" : "emails"} came in today. Only {view.reply.length} {view.reply.length === 1 ? "needs" : "need"} you.{" "}
+                </strong>
+              )}
+              {inboxSummary(view)}
+            </p>
+          )}
           {view && connected && (
             <p className="muted small code-synced" role="status">
               {lookedAgo(view.account.synced_at, now)}
@@ -191,6 +200,19 @@ function InboxColumns(props: {
             <span className="sorted-count">{lists[id].length}</span>
           </button>
         ))}
+        {view.account.today &&
+          (
+            [
+              ["FYI", view.account.today.fyi],
+              ["Receipts", view.account.today.receipts],
+              ["Newsletters", view.account.today.newsletters],
+            ] as const
+          ).map(([label, count]) => (
+            <div key={label} className="sorted-item plain skipped" title="Bindle skipped these: no person is waiting on them">
+              {label}
+              <span className="sorted-count">{count}</span>
+            </div>
+          ))}
         {view.hidden > 0 && <p className="muted small sorted-note">{view.hidden} marked Not needed</p>}
         <div className="eyebrow">Account</div>
         <div className="sorted-item plain">

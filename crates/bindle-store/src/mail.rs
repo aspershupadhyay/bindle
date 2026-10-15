@@ -111,6 +111,19 @@ pub struct MailAccount {
     pub host: Option<String>,
     #[serde(default)]
     pub port: Option<u16>,
+    /// What came in over the last day, including what Bindle skipped.
+    #[serde(default)]
+    pub today: Option<MailDay>,
+}
+
+/// Everything that arrived in a day, sorted: most of it never needs you.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct MailDay {
+    pub total: u32,
+    /// Alerts and notifications: for your information only.
+    pub fyi: u32,
+    pub receipts: u32,
+    pub newsletters: u32,
 }
 
 const GMAIL_KEY: &str = "gmail";

@@ -13,6 +13,7 @@ pub mod board;
 pub mod cloud;
 pub mod creator;
 pub mod export;
+pub mod github_stats;
 pub mod home;
 pub mod insights;
 pub mod lifecycle;

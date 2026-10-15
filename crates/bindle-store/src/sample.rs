@@ -236,6 +236,48 @@ pub fn seed(conn: &mut Connection, today: NaiveDate, now: DateTime<Utc>) -> Resu
     github(conn, now)?;
     email(conn, now, friday)?;
     youtube(conn, today, now)?;
+    linked_work(conn, today, now)?;
+    Ok(())
+}
+
+/// Work promises made from what the sources found, spread over the week.
+fn linked_work(
+    conn: &mut Connection,
+    today: NaiveDate,
+    now: DateTime<Utc>,
+) -> Result<(), StoreError> {
+    let monday = today - Duration::days(today.weekday().num_days_from_monday() as i64);
+    let keep =
+        |conn: &mut Connection, id: &str, day: NaiveDate, done: bool| -> Result<(), StoreError> {
+            let promise = promises::get(conn, id)?;
+            let sorting = Sorting {
+                title: promise.title.clone(),
+                direction: Some(Direction::Mine),
+                strength: Strength::Firm,
+                person: promise.person.clone(),
+                first_step: None,
+                when: Some(When { day, time: None }),
+                is_deadline: false,
+            };
+            lifecycle::sort(conn, id, &sorting, State::Open, now - Duration::days(3))?;
+            if done {
+                lifecycle::mark_done(conn, id, now - Duration::hours(2))?;
+            }
+            Ok(())
+        };
+    let review = work::make_promise(conn, "github:r42", now - Duration::days(3))?.id;
+    keep(
+        conn,
+        &review,
+        monday + Duration::days(1),
+        today > monday + Duration::days(1),
+    )?;
+    let issue = work::make_promise(conn, "github:i39", now - Duration::days(3))?.id;
+    keep(conn, &issue, monday + Duration::days(3), false)?;
+    let reply = mail::make_promise(conn, "gmail:priya", now - Duration::days(3))?.id;
+    keep(conn, &reply, monday, today > monday)?;
+    let comment = creator::make_promise(conn, "c-1", now - Duration::days(3))?.id;
+    keep(conn, &comment, monday + Duration::days(4), false)?;
     Ok(())
 }
 
@@ -505,6 +547,70 @@ fn github(conn: &mut Connection, now: DateTime<Utc>) -> Result<(), StoreError> {
         }
     }
     insights::record_waits(conn, &samples)?;
+
+    // The Code screen's cards: repositories, a flaky check, contributions.
+    use crate::github_stats::{self, Checks, FailingCheck, GithubStats, Repo};
+    let repo = |name: &str,
+                language: &str,
+                stars: u32,
+                private: bool,
+                prs: u32,
+                issues: u32,
+                checks: Checks| Repo {
+        full_name: format!("aarav/{name}"),
+        language: Some(language.into()),
+        stars,
+        private,
+        open_prs: prs,
+        open_issues: issues,
+        checks: Some(checks),
+        url: format!("https://github.com/aarav/{name}"),
+    };
+    let today = now.date_naive();
+    let days = (0..112i64)
+        .rev()
+        .map(|back| {
+            let day = today - Duration::days(back);
+            // Busier lately, quieter on Sundays, a nine-day run to today.
+            let base = ((back * 7 + 3) % 5) as u32 + if back < 40 { 2 } else { 0 };
+            let count = if back < 9 {
+                base.max(1)
+            } else if day.weekday() == Weekday::Sun || (back * 13) % 7 == 0 {
+                0
+            } else {
+                base
+            };
+            (day.format("%Y-%m-%d").to_string(), count)
+        })
+        .collect();
+    github_stats::save(
+        conn,
+        &GithubStats {
+            repos: vec![
+                repo("latch", "TypeScript", 184, false, 3, 9, Checks::Passing),
+                repo(
+                    "codex-claude-bridge",
+                    "TypeScript",
+                    96,
+                    false,
+                    2,
+                    6,
+                    Checks::Flaky,
+                ),
+                repo("bindle", "Rust", 0, true, 1, 4, Checks::Passing),
+                repo("gymbros", "TypeScript", 21, false, 1, 3, Checks::Passing),
+            ],
+            failing: Some(FailingCheck {
+                repo: "aarav/codex-claude-bridge".into(),
+                workflow: "CI (windows-latest)".into(),
+                failed: 3,
+                of: 12,
+                url: "https://github.com/aarav/codex-claude-bridge/actions".into(),
+            }),
+            days,
+            merged_weeks: vec![3, 5, 2, 6, 4, 5, 3, 7],
+        },
+    )?;
     Ok(())
 }
 
@@ -589,6 +695,12 @@ fn email(conn: &mut Connection, now: DateTime<Utc>, friday: NaiveDate) -> Result
             provider: Some("gmail".into()),
             host: None,
             port: None,
+            today: Some(mail::MailDay {
+                total: 41,
+                fyi: 14,
+                receipts: 6,
+                newsletters: 12,
+            }),
         },
     )?;
     Ok(())
@@ -738,6 +850,19 @@ mod tests {
         assert!(!home.waiting_on_others.is_empty());
         assert_eq!(promises::sort_queue(&conn).unwrap().len(), 2);
         assert!(people::summaries(&conn).unwrap().len() >= 6);
+        let cards = crate::github_stats::load(&conn).unwrap();
+        assert_eq!(cards.repos.len(), 4);
+        assert!(cards.best_week());
+        assert!(cards.streak() >= 9);
+        let desk = crate::insights::desk_view(
+            &conn,
+            now,
+            today,
+            now - Duration::days(today.weekday().num_days_from_monday() as i64),
+        )
+        .unwrap();
+        let by = |f: fn(&crate::insights::WorkDay) -> u32| desk.week.iter().map(f).sum::<u32>();
+        assert!(by(|d| d.code) >= 2 && by(|d| d.email) >= 1 && by(|d| d.content) >= 1);
         let code = work::code_view(&conn, now).unwrap();
         assert_eq!(code.reviews.len(), 2);
         let inbox = mail::inbox_view(&conn).unwrap();

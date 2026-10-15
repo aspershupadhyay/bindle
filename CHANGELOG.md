@@ -7,6 +7,9 @@
 - Everyone has a pixel picture: people without one get one picked from their name, on a soft tile, instead of a letter.
 - Closer to the v2 design: the Work sidebar lists your sources and how each is doing; shared spaces show who carries them; Ours groups promises into this week, later and kept lately, with who added each and a Money filter; Inbox has three columns (sorted for you, the list with search and tags, the reading pane); Code and the Desk show ages as pills and what kind each row is.
 - Jot down reads "pay 500" and "owes me 2k" as money.
+- Code shows your most active repositories with their checks (passing, failing or flaky), a check that keeps failing with its logs, sixteen weeks of contributions and your streak, and pull requests merged each week.
+- The Desk shows this week's load stacked by where it came from (email, code, content) against what a day holds, and how your channel did this week.
+- Inbox says how much came in today and how little needs you, and counts the FYI, receipts and newsletters it set aside.
 
 ## 0.0.2 (15 October 2026)
 

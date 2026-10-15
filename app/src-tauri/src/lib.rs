@@ -179,6 +179,7 @@ pub fn run() {
             commands::creator::comment_unhide,
             commands::creator::open_on_youtube,
             commands::work::code_view,
+            commands::work::code_cards,
             commands::work::reviews_owed,
             commands::work::github_token_page,
             commands::work::github_connect,

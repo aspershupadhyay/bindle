@@ -153,6 +153,8 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
     case "remove_from_top3":
     case "nudge":
       throw { message: "the top 3 and nudges work in the desktop app only" };
+    case "code_cards":
+      return { repos: [], failing: null, days: [], merged_weeks: [], streak: 0, best_week: false } as T;
     case "code_view":
       return sampleCodeView(github) as T;
     case "reviews_owed":

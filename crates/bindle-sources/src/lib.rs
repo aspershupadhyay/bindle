@@ -7,6 +7,7 @@
 //! when the person says so.
 
 pub mod github;
+pub mod github_stats;
 pub mod imap;
 pub mod mail;
 pub mod youtube;
