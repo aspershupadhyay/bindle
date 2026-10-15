@@ -110,7 +110,7 @@ try {
     }
     await a.button("Life");
     await a.click("//button[@data-tour='space-ours']");
-    await a.find("//*[contains(normalize-space(.),'You and Meera carry this one together')]");
+    await a.find("//*[contains(normalize-space(.),'you and Meera carry this one together')]");
     await looksRight(a, "sample-ours");
   });
 

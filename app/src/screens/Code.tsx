@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import arcade from "../art/arcade.png";
 import { useNotify, useOfferUndo } from "../components/Undo";
 import { commands, errorMessage, onPromisesChanged, onWorkChanged, type CodeView, type WorkItem } from "../lib/commands";
-import { age, codeSummary, lookedAgo, promiseNote, shortName } from "../lib/work";
+import { age, ageTone, codeSummary, lookedAgo, promiseNote, shortName } from "../lib/work";
 
 export function Code({ onOpenSort }: { onOpenSort: () => void }) {
   const [view, setView] = useState<CodeView | null>(null);
@@ -189,7 +189,7 @@ function ItemRow({ item, now, onOpenSort }: { item: WorkItem; now: Date; onOpenS
         </span>
       </div>
       <div className="row-end">
-        <span className="muted small work-age" title={`Opened ${new Date(item.created_at).toLocaleString()}`}>
+        <span className={`age-pill ${ageTone(item.created_at, now, item.labels.includes("bug"))}`} title={`Opened ${new Date(item.created_at).toLocaleString()}`}>
           {age(item.created_at, now)}
         </span>
         {note === "Waiting in Sort" ? (

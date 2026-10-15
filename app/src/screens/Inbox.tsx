@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import dakghar from "../art/dakghar.png";
+import { Icon } from "../components/Icon";
 import { useNotify } from "../components/Undo";
 import { whenLabel } from "../lib/chips";
 import { commands, errorMessage, onMailChanged, onPromisesChanged, type InboxView, type MailItem, type MailProvider } from "../lib/commands";
@@ -118,15 +119,7 @@ export function Inbox({ onOpenSort }: { onOpenSort: () => void }) {
           {all.length === 0 ? (
             <p className="card empty">Nothing in your email needs you right now. Bindle looks again every 10 minutes.</p>
           ) : (
-            <div className="inbox-columns">
-              <div className="inbox-list" aria-label="Emails that need you">
-                <MailGroup title="Needs reply" items={view.reply} selected={selected} onChoose={setChosen} now={now} />
-                <MailGroup title="Promises you wrote" items={view.noticed} selected={selected} onChoose={setChosen} now={now} />
-                <MailGroup title="Waiting on others" items={view.waiting} selected={selected} onChoose={setChosen} now={now} />
-                {view.hidden > 0 && <p className="muted small">{view.hidden} marked Not needed.</p>}
-              </div>
-              {selected && <Reading item={selected} service={mailName(view.account)} now={now} onHide={() => void hide(selected)} onOpenSort={onOpenSort} />}
-            </div>
+            <InboxColumns view={view} selected={selected} onChoose={setChosen} now={now} onHide={(item) => void hide(item)} onOpenSort={onOpenSort} />
           )}
           <p className="muted small code-account">
             Reading <strong>{view.account.address}</strong>. Only email from the last two weeks, and never newsletters, receipts or alerts.{" "}
@@ -149,34 +142,92 @@ export function Inbox({ onOpenSort }: { onOpenSort: () => void }) {
   );
 }
 
-function MailGroup(props: { title: string; items: MailItem[]; selected: MailItem | null; onChoose: (id: string) => void; now: Date }) {
-  if (props.items.length === 0) return null;
-  const id = `mail-${props.title.toLowerCase().replace(/\s+/g, "-")}`;
+type Category = "reply" | "waiting" | "noticed" | "all";
+
+const tags: Record<MailItem["kind"], { label: string; tone: string }> = {
+  reply: { label: "Needs reply", tone: "clay" },
+  waiting: { label: "Waiting on them", tone: "sage" },
+  promise: { label: "Your promise", tone: "honey" },
+};
+
+/** The v2 Inbox: sorted for you, the list with search, and the reading pane. */
+function InboxColumns(props: {
+  view: InboxView;
+  selected: MailItem | null;
+  onChoose: (id: string) => void;
+  now: Date;
+  onHide: (item: MailItem) => void;
+  onOpenSort: () => void;
+}) {
+  const { view, now } = props;
+  const [category, setCategory] = useState<Category>("all");
+  const [query, setQuery] = useState("");
+  const lists: Record<Category, MailItem[]> = {
+    reply: view.reply,
+    waiting: view.waiting,
+    noticed: view.noticed,
+    all: [...view.reply, ...view.noticed, ...view.waiting],
+  };
+  const needle = query.trim().toLowerCase();
+  const shown = lists[category].filter(
+    (m) => !needle || `${m.person} ${m.subject} ${m.snippet}`.toLowerCase().includes(needle),
+  );
+  const selected = shown.find((m) => m.id === props.selected?.id) ?? shown[0] ?? null;
+  const service = mailName(view.account);
   return (
-    <section aria-labelledby={id}>
-      <h2 id={id} className="mail-group-title">
-        {props.title} <span className="muted">· {props.items.length}</span>
-      </h2>
-      <ul className="card list mail-list">
-        {props.items.map((item) => (
-          <li key={item.id}>
-            <button
-              type="button"
-              className="mail-row"
-              aria-current={props.selected?.id === item.id ? "true" : undefined}
-              onClick={() => props.onChoose(item.id)}
-            >
-              <span className="mail-line">
-                <strong>{item.person}</strong>
-                <span className="muted small">{age(item.at, props.now)}</span>
-              </span>
-              <span className="mail-subject">{item.subject}</span>
-              <span className="muted small mail-snippet">{item.snippet}</span>
-            </button>
-          </li>
+    <div className="inbox-columns three">
+      <nav className="inbox-sorted" aria-label="Sorted for you">
+        <div className="eyebrow">Sorted for you</div>
+        {(
+          [
+            ["all", "Everything"],
+            ["reply", "Needs reply"],
+            ["waiting", "Waiting on others"],
+            ["noticed", "Promises found"],
+          ] as const
+        ).map(([id, label]) => (
+          <button key={id} type="button" className="sorted-item" aria-current={category === id ? "true" : undefined} onClick={() => setCategory(id)}>
+            {label}
+            <span className="sorted-count">{lists[id].length}</span>
+          </button>
         ))}
-      </ul>
-    </section>
+        {view.hidden > 0 && <p className="muted small sorted-note">{view.hidden} marked Not needed</p>}
+        <div className="eyebrow">Account</div>
+        <div className="sorted-item plain">
+          {service}
+          <span className="sorted-count">{lists.all.length}</span>
+        </div>
+        <p className="muted small sorted-note">Newsletters, receipts and alerts never count.</p>
+      </nav>
+      <div className="inbox-list card" aria-label="Emails that need you">
+        <label className="inbox-search">
+          <Icon name="search" size={16} />
+          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search email" aria-label="Search email" />
+        </label>
+        {shown.length === 0 ? (
+          <p className="muted small empty-pad">Nothing here.</p>
+        ) : (
+          <ul className="list mail-list">
+            {shown.map((item) => (
+              <li key={item.id}>
+                <button type="button" className="mail-row" aria-current={selected?.id === item.id ? "true" : undefined} onClick={() => props.onChoose(item.id)}>
+                  <span className="mail-line">
+                    <strong>{item.person}</strong>
+                    <span className="muted small">{age(item.at, now)}</span>
+                  </span>
+                  <span className="mail-subject">{item.subject}</span>
+                  <span className="mail-foot">
+                    <span className="muted small mail-snippet">{item.snippet}</span>
+                    <span className={`tag ${tags[item.kind].tone}`}>{tags[item.kind].label}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {selected && <Reading item={selected} service={service} now={now} onHide={() => props.onHide(selected)} onOpenSort={props.onOpenSort} />}
+    </div>
   );
 }
 

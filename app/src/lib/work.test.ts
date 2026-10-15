@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { BoardView, CodeView, DeskView, InboxView, WorkItem } from "./commands";
-import { age, boardSummary, cardFrom, cardSource, codeSummary, compareWait, countWord, deskSummary, hoursLabel, inboxSummary, lookedAgo, mailName, promiseNote, shortName, streak, waitStory } from "./work";
+import { age, ageTone, boardSummary, cardFrom, cardSource, codeSummary, compareWait, countWord, deskSummary, hoursLabel, inboxSummary, lookedAgo, mailName, promiseNote, shortName, streak, waitStory } from "./work";
 
 const now = new Date("2026-10-14T12:00:00Z");
 
@@ -194,5 +194,13 @@ describe("desk words", () => {
     const view = { needs_you: [item, { ...item, id: "m", kind: "reply" as const }] } as unknown as DeskView;
     expect(deskSummary(view, now)).toBe("Two things need you. The oldest is a pull request review from Monday.");
     expect(deskSummary({ needs_you: [] } as unknown as DeskView, now)).toBe("Nothing needs you right now.");
+  });
+});
+
+describe("ageTone", () => {
+  it("warms up after a day, and a fresh bug stands out", () => {
+    expect(ageTone("2026-10-13T11:00:00Z", now)).toBe("honey");
+    expect(ageTone("2026-10-14T08:00:00Z", now)).toBe("plain");
+    expect(ageTone("2026-10-14T08:00:00Z", now, true)).toBe("clay");
   });
 });

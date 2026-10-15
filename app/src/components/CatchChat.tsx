@@ -96,7 +96,7 @@ export function CatchChat({ onClose, onOpenSort }: { onClose: () => void; onOpen
         </label>
         <div className="catch-tools">
           <label className="button-quiet small-button catch-file">
-            <Icon name="promises" size={16} />
+            <Icon name="chat" size={16} />
             Open a WhatsApp export (.txt)
             <input type="file" accept=".txt,text/plain" className="visually-hidden" onChange={(e) => void openFile(e.target.files?.[0])} />
           </label>

@@ -100,6 +100,7 @@ export function App() {
   }, []);
 
   const openSpace = useCallback((id: string) => {
+    setMode("life");
     setSpaceId(id);
     setCurrent("ours");
     commands.cloudStatus().then((s) => setSpaces(s.spaces), () => {});

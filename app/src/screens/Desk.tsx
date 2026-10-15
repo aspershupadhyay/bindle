@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import station from "../art/station.png";
+import { Icon } from "../components/Icon";
 import { useNotify } from "../components/Undo";
 import {
   commands,
@@ -21,7 +22,7 @@ import {
 } from "../lib/commands";
 import { dateLine, dayString } from "../lib/days";
 import type { ScreenId } from "../screens";
-import { age, compareWait, deskSummary, hoursLabel, lookedAgo, mailName, waitStory } from "../lib/work";
+import { age, ageTone, compareWait, deskSummary, hoursLabel, lookedAgo, mailName, waitStory } from "../lib/work";
 
 export function Desk({ onScreen, onOpenSort }: { onScreen: (id: ScreenId) => void; onOpenSort: () => void }) {
   const [view, setView] = useState<DeskView | null>(null);
@@ -192,12 +193,15 @@ function NeedsYouRow({ item, service, now, onOpenSort }: { item: DeskItem; servi
 
   return (
     <li className="work-row">
+      <span className={`kind-icon ${item.source === "github" ? "clay" : "sage"}`} aria-hidden="true">
+        <Icon name={item.kind === "review" ? "pr" : item.kind === "issue" ? "issue" : "inbox"} size={18} />
+      </span>
       <div className="work-main">
         <span className="work-title">{item.title}</span>
         <span className="muted small">{detail}</span>
       </div>
       <div className="row-end">
-        <span className="muted small work-age">{age(item.at, now)}</span>
+        <span className={`age-pill ${ageTone(item.at, now)}`}>{age(item.at, now)}</span>
         {item.promise?.state === "unsorted" ? (
           <button type="button" className="link-button small" onClick={onOpenSort}>
             Waiting in Sort

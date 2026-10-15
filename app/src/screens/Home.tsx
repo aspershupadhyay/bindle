@@ -59,7 +59,7 @@ export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ onOp
           {view && <Summary view={view} unsorted={unsorted} onOpenSort={onOpenSort} />}
           <JotField ref={jotRef} />
           <button type="button" className="link-button small catch-open" data-tour="catch" onClick={() => setCatching(true)}>
-            <Icon name="inbox" size={16} />
+            <Icon name="chat" size={16} />
             Paste a chat, and Bindle finds the promises in it
           </button>
         </div>

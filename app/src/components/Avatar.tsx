@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
-// A person's picture, or their first letter when they have none, and the
-// picker to change it. Pictures name what is drawn, never who someone is:
+// A person's picture, and the picker to change it. Someone with no picture
+// chosen gets one picked from their name, so the same name always looks the
+// same and nobody is a bare letter. Pictures name what is drawn, never who someone is:
 // anyone can pick any of them, for themselves or anyone else.
 
 import beard from "../art/av-beard.png";
@@ -31,25 +32,49 @@ export const avatarLabels: Record<AvatarName, string> = {
   grey: "Grey hair",
 };
 
+const TINTS = ["honey", "sage", "clay"] as const;
+
+/** A small, stable number from a name: the same name always gives the same. */
+function hashOf(name: string): number {
+  let hash = 7;
+  for (const c of name.trim().toLowerCase()) hash = (hash * 31 + c.charCodeAt(0)) >>> 0;
+  return hash;
+}
+
+/** The picture for someone with none chosen, picked from their name. */
+export function pictureFor(name: string): AvatarName {
+  return AVATARS[hashOf(name) % AVATARS.length];
+}
+
 /** 16px art, so sizes are whole-number scales: 16, 32, 48 or 64. */
 export function Avatar({ name, avatar, size = 32 }: { name: string; avatar: AvatarName | null; size?: 16 | 32 | 48 | 64 }) {
-  if (avatar && art[avatar]) {
-    return <img className="sprite avatar" src={art[avatar]} alt="" width={size} height={size} />;
-  }
+  const picture = avatar && art[avatar] ? avatar : pictureFor(name);
+  const tint = TINTS[hashOf(name) % TINTS.length];
   return (
-    <span className="initial honey" style={{ width: size, height: size, fontSize: size * 0.42 }} aria-hidden="true">
-      {name.trim().charAt(0).toUpperCase() || "?"}
+    <span className={`avatar-tile ${tint}`} style={{ width: size, height: size }} aria-hidden="true">
+      <img className="sprite avatar" src={art[picture]} alt="" width={size} height={size} />
     </span>
   );
 }
 
-/** Pick a picture, or the first letter. */
+/** Two or more people side by side, overlapping a little, as in Ours. */
+export function AvatarPair({ people, size = 32 }: { people: { name: string; avatar: AvatarName | null }[]; size?: 16 | 32 }) {
+  return (
+    <span className="avatar-pair" aria-hidden="true">
+      {people.slice(0, 3).map((p) => (
+        <Avatar key={p.name} name={p.name} avatar={p.avatar} size={size} />
+      ))}
+    </span>
+  );
+}
+
+/** Pick a picture, or let Bindle pick one from the name. */
 export function AvatarPicker({ name, value, onPick }: { name: string; value: AvatarName | null; onPick: (avatar: AvatarName | null) => void }) {
   return (
     <div className="avatar-picker" role="group" aria-label={`Picture for ${name}`}>
-      <button type="button" className="avatar-choice" aria-pressed={value === null} title="First letter" onClick={() => onPick(null)}>
+      <button type="button" className="avatar-choice" aria-pressed={value === null} title="Pick one for me" onClick={() => onPick(null)}>
         <Avatar name={name} avatar={null} size={48} />
-        <span className="visually-hidden">First letter</span>
+        <span className="visually-hidden">Pick one for me</span>
       </button>
       {AVATARS.map((a) => (
         <button key={a} type="button" className="avatar-choice" aria-pressed={value === a} title={avatarLabels[a]} onClick={() => onPick(a)}>

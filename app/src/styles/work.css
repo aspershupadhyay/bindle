@@ -156,3 +156,56 @@
 .creator-mix-row dd { margin: 0; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .creator-mix-bar { display: block; height: 8px; border-radius: 4px; background: var(--sand-soft); overflow: hidden; }
 .creator-mix-bar span { display: block; height: 100%; border-radius: 4px; background: var(--chart-done); }
+
+/* Inbox, v2: sorted for you, the list, and the reading pane. */
+.inbox-columns.three { display: grid; grid-template-columns: 190px minmax(240px, 320px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.inbox-columns.three .inbox-list { max-width: none; padding: 12px; gap: 8px; }
+.inbox-sorted { display: flex; flex-direction: column; gap: 4px; }
+.inbox-sorted .eyebrow { margin: 4px 0 6px; }
+.inbox-sorted .eyebrow:not(:first-child) { margin-top: 18px; }
+.sorted-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;
+  padding: 10px 14px; border: 1px solid transparent; border-radius: var(--radius-control); background: transparent;
+  color: var(--ink-mid); font: inherit; font-size: 15px; text-align: left;
+}
+button.sorted-item:hover { background: var(--sand-soft); }
+.sorted-item[aria-current="true"] { background: var(--card); border-color: var(--sand); color: var(--ink); font-weight: 600; }
+.sorted-item.plain { padding-top: 6px; padding-bottom: 6px; }
+.sorted-count { color: var(--ink-soft); font-variant-numeric: tabular-nums; font-weight: 400; }
+.sorted-note { margin: 6px 14px 0; }
+.inbox-search {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--sand); border-radius: var(--radius-control);
+  background: var(--paper); color: var(--ink-soft);
+}
+.inbox-search input { border: 0; background: transparent; font: inherit; color: var(--ink); width: 100%; outline: none; }
+.inbox-search:focus-within { outline: 2px solid var(--clay); outline-offset: 1px; }
+.inbox-columns.three .mail-list { border-radius: var(--radius-control); overflow: hidden; }
+.mail-foot { display: flex; align-items: center; gap: 8px; justify-content: space-between; min-width: 0; }
+.mail-foot .mail-snippet { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.tag { flex: none; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.tag.clay { background: var(--clay-wash); color: var(--clay-text); }
+.tag.sage { background: var(--sage-wash); color: var(--sage-text); }
+.tag.honey { background: var(--honey-wash); color: var(--honey-text); }
+.empty-pad { padding: 12px; margin: 0; }
+@media (max-width: 1100px) {
+  .inbox-columns.three { grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); }
+  .inbox-sorted { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
+  .inbox-sorted .eyebrow, .inbox-sorted .sorted-note, .inbox-sorted .plain { display: none; }
+  .sorted-item { width: auto; }
+}
+@media (max-width: 720px) {
+  .inbox-columns.three { grid-template-columns: 1fr; }
+}
+
+/* Ages as pills, and what kind of thing each row is. */
+.age-pill { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--sand-soft); color: var(--ink-mid); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.age-pill.honey { background: var(--honey-wash); color: var(--honey-text); }
+.age-pill.clay { background: var(--clay-wash); color: var(--clay-text); }
+.kind-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; flex: none; }
+.kind-icon.clay { background: var(--clay-wash); color: var(--clay-text); }
+.kind-icon.sage { background: var(--sage-wash); color: var(--sage-text); }
+.noticed { background: var(--honey-wash); }
+.noticed .eyebrow { color: var(--honey-text); }
+.work-row .kind-icon + .work-main { flex-basis: 160px; }
+.mail-reading .update-actions { flex-wrap: wrap; }
+.mail-reading .update-actions button { white-space: nowrap; }
