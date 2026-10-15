@@ -19,6 +19,7 @@ pub mod lifecycle;
 pub mod mail;
 pub mod people;
 pub mod promises;
+pub mod sample;
 pub mod search;
 pub mod settings;
 pub mod work;
