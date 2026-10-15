@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+Nothing yet.
+
+## 0.0.3 (15 October 2026)
+
 - Catch from a chat: paste a WhatsApp export, a Slack thread or an email, and Bindle finds every promise in it, yours and theirs, in English and Hinglish: "I'll send it by Friday", "Rohan: I'll pay you back the 500 kal", "bhej dunga", and a "sure" after "can you…?". Days count from when each message was sent. Pick the ones you want; they wait in Sort. The chat is read on your computer and never saved.
 - A new install opens on a sample Bindle, Aarav's made-up week, with every screen full and a short guided tour. Start my own Bindle leaves it; Settings can show it again. While it shows, nothing is sent, connected or reminded.
 - Everyone has a pixel picture: people without one get one picked from their name, on a soft tile, instead of a letter.
