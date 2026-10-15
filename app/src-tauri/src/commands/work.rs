@@ -58,6 +58,7 @@ pub fn github_token_page() -> &'static str {
 /// Checks the token with GitHub, keeps it in the keychain, and has a first look.
 #[tauri::command]
 pub async fn github_connect(app: AppHandle, token: String) -> Reply<GithubAccount> {
+    super::real_only("connect GitHub")?;
     let token = token.trim().to_string();
     if token.is_empty() {
         return Err(CommandError {
@@ -83,6 +84,7 @@ pub async fn github_connect(app: AppHandle, token: String) -> Reply<GithubAccoun
 /// Forgets the token and what GitHub listed. Promises already made stay.
 #[tauri::command]
 pub async fn github_disconnect(app: AppHandle) -> Reply<()> {
+    super::real_only("change GitHub")?;
     crate::secrets::forget(TOKEN).map_err(|message| CommandError { message })?;
     {
         let db = app.state::<Db>();
@@ -97,6 +99,7 @@ pub async fn github_disconnect(app: AppHandle) -> Reply<()> {
 /// Looks at GitHub now.
 #[tauri::command]
 pub async fn github_refresh(app: AppHandle) -> Reply<GithubAccount> {
+    super::real_only("look at your own GitHub")?;
     refresh(&app).await
 }
 
@@ -193,7 +196,7 @@ pub fn start(app: AppHandle) {
                     .and_then(|conn| work::github_account(&conn).ok())
                     .is_some_and(|a| a.login.is_some())
             };
-            if connected {
+            if connected && !crate::showing_sample() {
                 if let Err(error) = refresh(&app).await {
                     eprintln!("Bindle: could not look at GitHub: {}", error.message);
                 }

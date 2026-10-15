@@ -64,6 +64,7 @@ pub async fn youtube_connect(
     channel: String,
     key: String,
 ) -> Reply<CreatorAccount> {
+    super::real_only("connect YouTube")?;
     let (channel, key) = (channel.trim().to_string(), key.trim().to_string());
     if channel.is_empty() {
         return Err(plain("type your channel's @handle first".into()));
@@ -91,6 +92,7 @@ pub async fn youtube_connect(
 /// Forgets the key and what YouTube showed. Promises made stay.
 #[tauri::command]
 pub async fn youtube_disconnect(app: AppHandle) -> Reply<()> {
+    super::real_only("change YouTube")?;
     crate::secrets::forget(KEY).map_err(plain)?;
     {
         let db = app.state::<Db>();
@@ -105,6 +107,7 @@ pub async fn youtube_disconnect(app: AppHandle) -> Reply<()> {
 /// Looks at YouTube now.
 #[tauri::command]
 pub async fn youtube_refresh(app: AppHandle) -> Reply<CreatorAccount> {
+    super::real_only("look at your own channel")?;
     refresh(&app).await
 }
 
@@ -211,7 +214,7 @@ pub fn start(app: AppHandle) {
                     .and_then(|conn| creator::youtube_account(&conn).ok())
                     .is_some_and(|a| a.channel.is_some())
             };
-            if connected {
+            if connected && !crate::showing_sample() {
                 if let Err(error) = refresh(&app).await {
                     eprintln!("Bindle: could not look at YouTube: {}", error.message);
                 }

@@ -89,6 +89,7 @@ pub async fn gmail_connect(
     host: Option<String>,
     port: Option<u16>,
 ) -> Reply<MailAccount> {
+    super::real_only("connect your mailbox")?;
     let address = address.trim().to_lowercase();
     let known = imap::provider(provider.as_deref());
     if !address.contains('@') {
@@ -128,6 +129,7 @@ pub async fn gmail_connect(
 /// Forgets the app password and what the mailbox showed. Promises made stay.
 #[tauri::command]
 pub async fn gmail_disconnect(app: AppHandle) -> Reply<()> {
+    super::real_only("change your mailbox")?;
     crate::secrets::forget(PASSWORD).map_err(plain)?;
     {
         let db = app.state::<Db>();
@@ -142,6 +144,7 @@ pub async fn gmail_disconnect(app: AppHandle) -> Reply<()> {
 /// Looks at the mailbox now.
 #[tauri::command]
 pub async fn gmail_refresh(app: AppHandle) -> Reply<MailAccount> {
+    super::real_only("look at your own mailbox")?;
     refresh(&app).await
 }
 
@@ -254,7 +257,7 @@ pub fn start(app: AppHandle) {
                     .and_then(|conn| mail::gmail_account(&conn).ok())
                     .is_some_and(|a| a.address.is_some())
             };
-            if connected {
+            if connected && !crate::showing_sample() {
                 if let Err(error) = refresh(&app).await {
                     eprintln!("Bindle: could not look at the mailbox: {}", error.message);
                 }

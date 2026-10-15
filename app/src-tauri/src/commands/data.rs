@@ -101,6 +101,7 @@ pub fn safety_copies(paths: Managed<Paths>) -> Reply<Vec<SafetyCopy>> {
 /// Makes a safety copy now.
 #[tauri::command]
 pub fn make_safety_copy(db: Managed<Db>, paths: Managed<Paths>) -> Reply<SafetyCopy> {
+    super::real_only("make a safety copy")?;
     Ok(backup::make_copy(&*lock(&db)?, &paths.safety, Utc::now())?)
 }
 
@@ -113,6 +114,7 @@ pub fn restore_safety_copy(
     paths: Managed<Paths>,
     file_name: String,
 ) -> Reply<SafetyCopy> {
+    super::real_only("put back a safety copy")?;
     let before = backup::restore(&mut *lock(&db)?, &paths.safety, &file_name, Utc::now())?;
     announce(&app);
     super::day::announce_settings(&app, &db);

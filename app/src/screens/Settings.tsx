@@ -19,7 +19,7 @@ const themes: { value: SettingsData["theme"]; label: string }[] = [
   { value: "dark", label: "Dark" },
 ];
 
-export function Settings({ onOpenSpace }: { onOpenSpace?: (id: string) => void }) {
+export function Settings({ onOpenSpace, onTour }: { onOpenSpace?: (id: string) => void; onTour?: () => void }) {
   const { settings, update } = useSettings();
   const notify = useNotify();
   const [info, setInfo] = useState<AppInfo | null>(null);
@@ -128,6 +128,32 @@ export function Settings({ onOpenSpace }: { onOpenSpace?: (id: string) => void }
           <dt><kbd>Ctrl</kbd> <kbd>Z</kbd></dt>
           <dd>Undo the last change</dd>
         </dl>
+      </section>
+
+      <section className="card settings-card" aria-labelledby="sample">
+        <h2 id="sample">Getting to know Bindle</h2>
+        <p className="muted small">
+          Look around a made-up week, Aarav’s, with every screen full. Your own Bindle stays exactly as it is and comes back with one click.
+        </p>
+        <div className="update-actions">
+          <button
+            type="button"
+            className="button-quiet small-button"
+            onClick={() =>
+              void commands.sampleOpen().then(
+                () => window.location.reload(),
+                (e) => notify(errorMessage(e)),
+              )
+            }
+          >
+            Explore the sample Bindle
+          </button>
+          {onTour && (
+            <button type="button" className="link-button small" onClick={onTour}>
+              Take the tour
+            </button>
+          )}
+        </div>
       </section>
 
       <section className="card settings-card about" aria-labelledby="about">

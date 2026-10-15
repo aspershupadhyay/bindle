@@ -13,6 +13,7 @@
 
 pub mod board;
 pub mod browse;
+pub mod catch;
 pub mod cloud;
 pub mod creator;
 pub mod data;
@@ -21,6 +22,7 @@ pub mod desk;
 pub mod home;
 pub mod lifecycle;
 pub mod mail;
+pub mod sample;
 pub mod work;
 
 use crate::Db;
@@ -102,7 +104,7 @@ pub(crate) fn announce(app: &AppHandle) {
 }
 
 /// Turns what the parser read into what the store saves.
-fn jot_from(text: &str, reading: Reading, tz: Option<String>) -> promises::Jot {
+pub(crate) fn jot_from(text: &str, reading: Reading, tz: Option<String>) -> promises::Jot {
     promises::Jot {
         unsure_words: reading.unsure_words,
         text: text.to_string(),
@@ -147,6 +149,17 @@ pub fn list_promises(db: Managed<Db>, state: State) -> Reply<Vec<Promise>> {
 pub fn count_promises(db: Managed<Db>, state: State) -> Reply<u32> {
     let conn = lock(&db)?;
     Ok(promises::count_by_state(&conn, state)?)
+}
+
+/// Refuses, in plain words, what only makes sense in the person's own
+/// Bindle (accounts, keys, safety copies) while the sample is showing.
+pub(crate) fn real_only(what: &str) -> Reply<()> {
+    if crate::showing_sample() {
+        return Err(CommandError {
+            message: format!("This is the sample Bindle. Start your own Bindle to {what}."),
+        });
+    }
+    Ok(())
 }
 
 pub(crate) fn lock<'a>(

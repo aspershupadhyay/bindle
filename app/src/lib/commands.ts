@@ -466,10 +466,36 @@ function call<T>(name: string, args?: Record<string, unknown>): globalThis.Promi
   return isTauri() ? invoke<T>(name, args) : preview<T>(name, args);
 }
 
+/** A promise found in a pasted chat. */
+export interface Caught {
+  speaker: string | null;
+  said_at: string | null;
+  said: string;
+  reading: Reading;
+}
+
+/** Everything found in one pasted chat. */
+export interface Catch {
+  speakers: string[];
+  me: string | null;
+  found: Caught[];
+}
+
+/** Whether the sample Bindle is showing, and whether the person has their own. */
+export interface SampleStatus {
+  showing: boolean;
+  has_own: boolean;
+}
+
 export const commands = {
   appInfo: () => call<AppInfo>("app_info"),
+  sampleStatus: () => call<SampleStatus>("sample_status"),
+  sampleLeave: () => call<void>("sample_leave"),
+  sampleOpen: () => call<void>("sample_open"),
   jotDown: (text: string) => call<Promise>("jot_down", { text }),
   readJot: (text: string) => call<Reading>("read_jot", { text }),
+  catchChat: (text: string, me: string | null) => call<Catch>("catch_chat", { text, me }),
+  catchKeep: (chosen: { said: string; reading: Reading }[]) => call<Promise[]>("catch_keep", { chosen }),
   showJot: () => call<void>("show_jot"),
   sortQueue: () => call<SortItem[]>("sort_queue"),
   sortPromise: (id: string, sorting: Sorting, to: "open" | "later" | "let_go") =>

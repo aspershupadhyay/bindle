@@ -73,6 +73,7 @@ pub fn cloud_status(db: Managed<Db>) -> Reply<CloudStatus> {
 /// recovery kit to write down.
 #[tauri::command]
 pub async fn cloud_start(app: AppHandle, relay: String, name: String) -> Reply<String> {
+    super::real_only("start Bindle Cloud")?;
     let relay = relay_address(&relay)?;
     let name = name.trim().to_string();
     if name.is_empty() {
@@ -107,6 +108,7 @@ pub async fn cloud_start(app: AppHandle, relay: String, name: String) -> Reply<S
 /// The recovery kit again, from this device's keychain.
 #[tauri::command]
 pub fn cloud_recovery_kit() -> Reply<String> {
+    super::real_only("see a recovery kit")?;
     let kit = secrets::get(RECOVERY)
         .ok_or_else(|| plain("Bindle Cloud is not started on this device"))?;
     Ok(codes::recovery_text(
@@ -127,6 +129,7 @@ pub fn cloud_kit_saved(db: Managed<Db>) -> Reply<()> {
 /// the recovery kit.
 #[tauri::command]
 pub async fn cloud_restore(app: AppHandle, relay: String, kit: String) -> Reply<CloudStatus> {
+    super::real_only("bring Bindle Cloud back")?;
     let relay = relay_address(&relay)?;
     let key = codes::read_recovery_text(&kit)
         .map_err(|_| plain("that recovery kit has a typo; check each group of four"))?;
@@ -208,6 +211,7 @@ fn started(app: &AppHandle) -> Reply<CloudAccount> {
 /// Makes a new shared space.
 #[tauri::command]
 pub async fn ours_create(app: AppHandle, name: String) -> Reply<Space> {
+    super::real_only("make a shared space")?;
     let account = started(&app)?;
     let name = if name.trim().is_empty() {
         "Ours".to_string()
@@ -240,6 +244,7 @@ pub async fn ours_create(app: AppHandle, name: String) -> Reply<Space> {
 /// Makes an invite link for one person: it works once, for 7 days.
 #[tauri::command]
 pub async fn ours_invite(app: AppHandle, space_id: String) -> Reply<String> {
+    super::real_only("invite someone")?;
     let account = started(&app)?;
     let key = secrets::get(&space_secret(&space_id))
         .ok_or_else(|| plain("this device does not hold that space's key"))?;
@@ -270,6 +275,7 @@ pub async fn ours_invite(app: AppHandle, space_id: String) -> Reply<String> {
 /// first (with a name), on any relay.
 #[tauri::command]
 pub async fn ours_join(app: AppHandle, link: String) -> Reply<Space> {
+    super::real_only("join a space")?;
     let account = started(&app)?;
     let (secret, relay) =
         codes::read_invite_link(&link).map_err(|_| plain("that is not a Bindle invite link"))?;
@@ -401,6 +407,7 @@ pub fn ours_view(db: Managed<Db>, space_id: String) -> Reply<OursView> {
 /// Leaves a space on this device. Its promises stay here, in Mine.
 #[tauri::command]
 pub async fn ours_leave(app: AppHandle, space_id: String) -> Reply<()> {
+    super::real_only("leave a space")?;
     {
         let db = app.state::<Db>();
         let conn = lock(&db)?;
@@ -426,6 +433,10 @@ pub async fn cloud_sync(app: AppHandle) -> Reply<CloudStatus> {
 
 /// Sends what changed here and takes what changed elsewhere, for each space.
 pub(crate) async fn sync_all(app: &AppHandle) -> Reply<()> {
+    // The sample's space lives only on this device.
+    if crate::showing_sample() {
+        return Ok(());
+    }
     let db = app.state::<Db>();
     let (account, spaces) = {
         let conn = lock(&db)?;

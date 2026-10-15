@@ -42,7 +42,7 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, com
         </div>
       </div>
 
-      <div className="mode-switch" role="group" aria-label="Mode">
+      <div className="mode-switch" role="group" aria-label="Mode" data-tour="mode">
         {(["life", "work"] as const).map((m) => (
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => onMode(m)}>
             {m === "life" ? "Life" : "Work"}
@@ -56,6 +56,7 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, com
             key={screen.id}
             type="button"
             className="nav-item"
+            data-tour={`nav-${screen.id}`}
             aria-current={current === screen.id ? "page" : undefined}
             onClick={() => onScreen(screen.id)}
           >
@@ -92,6 +93,7 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, com
             key={space.id}
             type="button"
             className="nav-item space"
+            data-tour="space-ours"
             aria-current={current === "ours" && currentSpace === space.id ? "page" : undefined}
             onClick={() => onSpace(space.id)}
           >
@@ -103,7 +105,7 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, com
       </div>
 
       <div className="sidebar-foot">
-        <button type="button" className="button-primary jot-button" onClick={onJotDown}>
+        <button type="button" className="button-primary jot-button" data-tour="jot" onClick={onJotDown}>
           <Icon name="plus" size={18} />
           Jot down
         </button>
