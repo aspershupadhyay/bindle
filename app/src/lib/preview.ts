@@ -59,6 +59,15 @@ export const previewEvents = {
 export async function preview<T>(name: string, args: Record<string, unknown> = {}): globalThis.Promise<T> {
   const id = args.id as string;
   switch (name) {
+    case "catch_chat":
+      return previewCatch(String(args.text)) as T;
+    case "catch_keep":
+      return (args.chosen as { reading: { title: string } }[]).map((c) => jotDown(c.reading.title)) as T;
+    case "sample_status":
+      return { showing: false, has_own: true } as T;
+    case "sample_leave":
+    case "sample_open":
+      throw { message: "The sample Bindle is in the desktop app" };
     case "app_info":
       return { version: "preview", schema_version: 3 } as T;
     case "jot_down":
@@ -144,6 +153,8 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
     case "remove_from_top3":
     case "nudge":
       throw { message: "the top 3 and nudges work in the desktop app only" };
+    case "code_cards":
+      return { repos: [], failing: null, days: [], merged_weeks: [], streak: 0, best_week: false } as T;
     case "code_view":
       return sampleCodeView(github) as T;
     case "reviews_owed":
@@ -376,4 +387,30 @@ function homeView(): HomeView {
     people_waiting_on_you: 0,
     wrapped_up: false,
   };
+}
+
+/** A rough stand-in for the Rust chat reader, so the panel works in a browser. */
+function previewCatch(text: string) {
+  const found = text
+    .split("\n")
+    .map((line) => line.match(/^(?:\[[^\]]*\]\s*)?(?:([^:]{1,32}):\s*)?(.*)$/))
+    .filter((m): m is RegExpMatchArray => Boolean(m && /\b(i'll|i will|will do)\b/i.test(m[2])))
+    .map((m) => ({
+      speaker: m[1] ?? null,
+      said_at: null,
+      said: m[2],
+      reading: {
+        title: m[2].replace(/^.*?\b(i'll|i will)\s+/i, "").replace(/^./, (c) => c.toUpperCase()),
+        when: null,
+        is_deadline: false,
+        needs_check: false,
+        unsure_words: null,
+        amount: null,
+        person: null,
+        direction: "mine",
+        strength: "firm",
+      },
+    }));
+  const speakers = [...new Set(found.map((f) => f.speaker).filter((s): s is string => Boolean(s)))];
+  return { speakers, me: null, found };
 }

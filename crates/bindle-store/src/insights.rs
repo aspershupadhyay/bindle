@@ -152,6 +152,22 @@ pub struct WorkDay {
     pub day: NaiveDate,
     pub open: u32,
     pub done: u32,
+    /// The same promises by where they came from: email, code, content
+    /// (YouTube) and everything else.
+    pub email: u32,
+    pub code: u32,
+    pub content: u32,
+    pub other: u32,
+}
+
+/// Where a work promise came from, by the label of its link.
+fn source_of(label: Option<&str>) -> &'static str {
+    match label {
+        Some(l) if l.starts_with("GitHub") => "code",
+        Some("Gmail") => "email",
+        Some(l) if l.starts_with("YouTube") => "content",
+        _ => "other",
+    }
 }
 
 /// Everything the Desk shows.
@@ -301,14 +317,37 @@ fn work_week(conn: &Connection, today: NaiveDate) -> Result<Vec<WorkDay>, StoreE
     let work: Vec<Promise> = stmt
         .query_map([], promises::read_row)?
         .collect::<Result<_, _>>()?;
+    let mut labels = std::collections::HashMap::new();
+    {
+        let mut stmt = conn.prepare(
+            "SELECT p.id, s.label FROM promise p JOIN source s ON s.id = p.source_id
+             WHERE p.mode = 'work' AND s.kind = 'link'",
+        )?;
+        for row in stmt.query_map([], |r| {
+            Ok((r.get::<_, String>(0)?, r.get::<_, Option<String>>(1)?))
+        })? {
+            let (id, label) = row?;
+            labels.insert(id, label);
+        }
+    }
     Ok(week_of(today)
         .iter()
         .map(|&day| {
-            let on_day = work.iter().filter(|p| p.day() == Some(day));
+            let on_day: Vec<&Promise> = work.iter().filter(|p| p.day() == Some(day)).collect();
+            let from = |source: &str| {
+                on_day
+                    .iter()
+                    .filter(|p| source_of(labels.get(&p.id).and_then(|l| l.as_deref())) == source)
+                    .count() as u32
+            };
             WorkDay {
                 day,
-                open: on_day.clone().filter(|p| p.state == State::Open).count() as u32,
-                done: on_day.filter(|p| p.state == State::Done).count() as u32,
+                open: on_day.iter().filter(|p| p.state == State::Open).count() as u32,
+                done: on_day.iter().filter(|p| p.state == State::Done).count() as u32,
+                email: from("email"),
+                code: from("code"),
+                content: from("content"),
+                other: from("other"),
             }
         })
         .collect())

@@ -44,6 +44,10 @@ fn at(tokens: &[Token], i: usize) -> Option<MoneyHit> {
         currency = Some("INR");
         end += 1;
     }
+    // "pay 500", "owes me 2k": after a money word, a bare number is rupees.
+    if currency.is_none() && after_money_word(tokens, i) && minor >= 1_000 && !is_unit(word(end)) {
+        currency = Some("INR");
+    }
     // A bare "2k" could be views or steps; only a currency makes it money.
     let currency = currency?;
     Some(MoneyHit {
@@ -53,6 +57,53 @@ fn at(tokens: &[Token], i: usize) -> Option<MoneyHit> {
             currency: currency.to_string(),
         },
     })
+}
+
+/// Whether one of the four words before `i` is about paying.
+fn after_money_word(tokens: &[Token], i: usize) -> bool {
+    tokens[i.saturating_sub(4)..i].iter().any(|t| {
+        matches!(
+            t.word.as_str(),
+            "pay"
+                | "pays"
+                | "paying"
+                | "repay"
+                | "owe"
+                | "owes"
+                | "lend"
+                | "lent"
+                | "refund"
+                | "transfer"
+                | "udhaar"
+                | "udhar"
+                | "paise"
+                | "borrowed"
+        )
+    })
+}
+
+/// Words that make a number something other than money: "pay in 3 days".
+fn is_unit(word: &str) -> bool {
+    matches!(
+        word,
+        "day"
+            | "days"
+            | "hour"
+            | "hours"
+            | "hrs"
+            | "min"
+            | "mins"
+            | "minutes"
+            | "weeks"
+            | "week"
+            | "months"
+            | "pm"
+            | "am"
+            | "baje"
+            | "times"
+            | "people"
+            | "din"
+    )
 }
 
 /// Splits a currency marker off the front: "₹500" gives INR and "500".

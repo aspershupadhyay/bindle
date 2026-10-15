@@ -274,3 +274,65 @@ fn reply_waits_measure_from_their_first_unanswered_email() {
     // An email nobody answered yet is not a wait (it is in Inbox instead).
     assert!(reply_waits(&[priya_brief()], &[], ME).is_empty());
 }
+
+#[test]
+fn the_day_sorts_what_never_needed_you() {
+    let today = "Wed, 14 Oct 2026 09:00:00 +0530";
+    let inbox = [
+        mail(raw(
+            "Priya <priya@brand.example>",
+            ME,
+            "Quick question",
+            today,
+            "q1@x",
+            "",
+            "Can you call?",
+        )),
+        mail(raw(
+            "Razorpay <noreply@razorpay.com>",
+            ME,
+            "Payment received: invoice 0042",
+            today,
+            "r1@x",
+            "",
+            "Paid.",
+        )),
+        mail(raw(
+            "Tech Weekly <hello@techweekly.example>",
+            ME,
+            "This week in Rust",
+            today,
+            "n1@x",
+            "List-Unsubscribe: <mailto:u@x>\r\n",
+            "News.",
+        )),
+        mail(raw(
+            "GitHub <notifications@github.com>",
+            ME,
+            "[latch] CI passed",
+            today,
+            "f1@x",
+            "",
+            "Green.",
+        )),
+        mail(raw(
+            "Old <old@x.example>",
+            ME,
+            "Last week",
+            "Mon, 05 Oct 2026 09:00:00 +0530",
+            "o1@x",
+            "",
+            "Old news.",
+        )),
+    ];
+    let day = the_day(&inbox, now());
+    assert_eq!(
+        day,
+        MailDay {
+            total: 4,
+            fyi: 1,
+            receipts: 1,
+            newsletters: 1
+        }
+    );
+}

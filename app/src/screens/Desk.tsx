@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import station from "../art/station.png";
+import { Icon } from "../components/Icon";
 import { useNotify } from "../components/Undo";
 import {
   commands,
@@ -16,19 +17,21 @@ import {
   onPromisesChanged,
   onWorkChanged,
   type DeskItem,
-  type DeskView,
+  type CreatorView, type DeskView,
   type WaitTrend,
 } from "../lib/commands";
 import { dateLine, dayString } from "../lib/days";
 import type { ScreenId } from "../screens";
-import { age, compareWait, deskSummary, hoursLabel, lookedAgo, mailName, waitStory } from "../lib/work";
+import { age, ageTone, compareWait, deskSummary, hoursLabel, lookedAgo, mailName, waitStory } from "../lib/work";
 
 export function Desk({ onScreen, onOpenSort }: { onScreen: (id: ScreenId) => void; onOpenSort: () => void }) {
   const [view, setView] = useState<DeskView | null>(null);
+  const [creator, setCreator] = useState<CreatorView | null>(null);
   const notify = useNotify();
 
   const refresh = useCallback(() => {
     commands.deskView().then(setView, (e) => notify(errorMessage(e)));
+    commands.creatorView().then(setCreator, () => setCreator(null));
   }, [notify]);
 
   useEffect(() => {
@@ -103,6 +106,7 @@ export function Desk({ onScreen, onOpenSort }: { onScreen: (id: ScreenId) => voi
             )}
           </section>
 
+          <WeekLoad week={view.week} now={now} />
           <section aria-labelledby="who-waits" className="card desk-card">
             <h2 id="who-waits">Who waits longer</h2>
             <p className="muted">{waitStory(view.email_reply, view.review_wait)}</p>
@@ -138,9 +142,21 @@ export function Desk({ onScreen, onOpenSort }: { onScreen: (id: ScreenId) => voi
                 now={now}
                 onOpen={() => onScreen("inbox")}
               />
+              {creator?.account.channel && (
+                <SourceRow
+                  name="YouTube"
+                  connected
+                  error={creator.account.error}
+                  syncedAt={creator.account.synced_at}
+                  line={creator.comments.length > 0 ? `${creator.comments.length} ${creator.comments.length === 1 ? "comment" : "comments"} waiting on a reply` : "No comment waiting"}
+                  behind={false}
+                  now={now}
+                  onOpen={() => onScreen("creator")}
+                />
+              )}
             </ul>
           </section>
-          <WeekLoad week={view.week} now={now} />
+          {creator?.account.channel && <CreatorWeek view={creator} onOpen={() => onScreen("creator")} />}
         </aside>
       </div>
     </div>
@@ -192,12 +208,15 @@ function NeedsYouRow({ item, service, now, onOpenSort }: { item: DeskItem; servi
 
   return (
     <li className="work-row">
+      <span className={`kind-icon ${item.source === "github" ? "clay" : "sage"}`} aria-hidden="true">
+        <Icon name={item.kind === "review" ? "pr" : item.kind === "issue" ? "issue" : "inbox"} size={18} />
+      </span>
       <div className="work-main">
         <span className="work-title">{item.title}</span>
         <span className="muted small">{detail}</span>
       </div>
       <div className="row-end">
-        <span className="muted small work-age">{age(item.at, now)}</span>
+        <span className={`age-pill ${ageTone(item.at, now)}`}>{age(item.at, now)}</span>
         {item.promise?.state === "unsorted" ? (
           <button type="button" className="link-button small" onClick={onOpenSort}>
             Waiting in Sort
@@ -253,40 +272,132 @@ function SourceRow(props: {
   );
 }
 
-/** Work promises per day this week: done (solid) and still planned (faded). */
+/** The channel's week, as in the v2 Desk: new followers and what did it. */
+function CreatorWeek({ view, onOpen }: { view: CreatorView; onOpen: () => void }) {
+  const gained = view.followers_this_week;
+  const top = view.top_posts[0];
+  return (
+    <section aria-labelledby="creator-week" className="card desk-card">
+      <h2 id="creator-week">Creator this week</h2>
+      <p className="creator-gain">
+        <span className="code-count">{gained === null ? "–" : `${gained >= 0 ? "+" : ""}${gained.toLocaleString("en-IN")}`}</span>
+        <span className="muted small">new followers</span>
+      </p>
+      {top && <p className="muted small">“{top.title}” did the most work this month.</p>}
+      {view.comments.length > 0 && (
+        <p className="small">
+          {view.comments.length} {view.comments.length === 1 ? "comment is" : "comments are"} waiting on your reply.
+        </p>
+      )}
+      <button type="button" className="link-button small" onClick={onOpen}>
+        Open Creator
+      </button>
+    </section>
+  );
+}
+
+/** How many things a day holds before it is full (as on Home). */
+const DAY_CAPACITY = 5;
+
+/** The chart's geometry in pixels: day names below, bars above them. */
+const LOAD_BASE = 22;
+const LOAD_BARS = 162;
+
+const SOURCES = [
+  ["email", "Email"],
+  ["code", "Code"],
+  ["content", "Content"],
+  ["other", "Other"],
+] as const;
+
+/**
+ * Work per day this week, stacked by where it came from, against a day's
+ * capacity. Days still ahead are faded: planned, not yet done.
+ */
 function WeekLoad({ week, now }: { week: DeskView["week"]; now: Date }) {
-  const most = Math.max(5, ...week.map((d) => d.open + d.done));
+  const [table, setTable] = useState(false);
+  const total = (d: DeskView["week"][number]) => d.email + d.code + d.content + d.other;
+  const most = Math.max(DAY_CAPACITY + 1, ...week.map(total));
   const today = dayString(now);
+  const name = (day: string) => new Date(`${day}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short" });
+  const todayLoad = week.find((d) => d.day === today);
+  const lightest = week.filter((d) => d.day > today).sort((a, b) => total(a) - total(b))[0];
+  const story =
+    todayLoad && total(todayLoad) > DAY_CAPACITY
+      ? `Today has ${total(todayLoad) - DAY_CAPACITY} more than a day holds.`
+      : todayLoad
+        ? "Today fits."
+        : "";
   return (
     <section aria-labelledby="load" className="card desk-card">
-      <h2 id="load">Work this week</h2>
+      <div className="section-head">
+        <h2 id="load">Load this week</h2>
+        <button type="button" className="link-button small" aria-pressed={table} onClick={() => setTable(!table)}>
+          {table ? "Chart" : "Table"}
+        </button>
+      </div>
+      <p className="muted small">
+        {story} {lightest ? `${new Date(`${lightest.day}T12:00:00`).toLocaleDateString("en-GB", { weekday: "long" })} has the most room.` : ""} Faded bars are
+        still to come.
+      </p>
       <ul className="desk-legend" aria-label="Key">
-        <li>
-          <span className="desk-swatch done" aria-hidden="true" />
-          Done
-        </li>
-        <li>
-          <span className="desk-swatch planned" aria-hidden="true" />
-          Planned
-        </li>
+        {SOURCES.map(([key, label]) => (
+          <li key={key}>
+            <span className={`desk-swatch ${key}`} aria-hidden="true" />
+            {label}
+          </li>
+        ))}
       </ul>
-      <ol className="desk-week">
-        {week.map((d) => {
-          const name = new Date(`${d.day}T12:00:00`).toLocaleDateString("en-GB", { weekday: "short" });
-          const tip = `${name}: ${d.done} done, ${d.open} planned`;
-          return (
-            <li key={d.day} className={d.day === today ? "today" : undefined} tabIndex={0} aria-label={tip} data-tip={tip}>
-              <span className="desk-bar" aria-hidden="true">
-                {d.done > 0 && <span className="desk-fill done" style={{ height: `${(d.done / most) * 100}%` }} />}
-                {d.open > 0 && <span className="desk-fill planned" style={{ height: `${(d.open / most) * 100}%` }} />}
-              </span>
-              <span className="muted small" aria-hidden="true">
-                {name}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+      {table ? (
+        <table className="numbers">
+          <thead>
+            <tr>
+              <th scope="col">Day</th>
+              {SOURCES.map(([key, label]) => (
+                <th key={key} scope="col">
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {week.map((d) => (
+              <tr key={d.day}>
+                <th scope="row">{name(d.day)}</th>
+                {SOURCES.map(([key]) => (
+                  <td key={key}>{d[key]}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <div className="load-chart">
+          <span className="load-capacity" style={{ bottom: `${LOAD_BASE + LOAD_BARS * (DAY_CAPACITY / most)}px` }} aria-hidden="true">
+            <span>Day holds {DAY_CAPACITY}</span>
+          </span>
+          <ol className="load-days">
+            {week.map((d) => {
+              const tip = `${name(d.day)}: ${SOURCES.map(([key, label]) => `${d[key]} ${label.toLowerCase()}`).join(", ")}`;
+              return (
+                <li key={d.day} className={`${d.day === today ? "today" : ""} ${d.day > today ? "ahead" : ""}`} tabIndex={0} aria-label={tip} title={tip}>
+                  <span className="load-total" aria-hidden="true">
+                    {total(d) || ""}
+                  </span>
+                  <span className="load-bar" aria-hidden="true">
+                    {SOURCES.map(([key]) =>
+                      d[key] > 0 ? <span key={key} className={`load-fill ${key}`} style={{ height: (d[key] / most) * LOAD_BARS - 2 }} /> : null,
+                    )}
+                  </span>
+                  <span className="muted small" aria-hidden="true">
+                    {name(d.day)}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
     </section>
   );
 }

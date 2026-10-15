@@ -18,6 +18,11 @@ const LOOK_EVERY: Duration = Duration::from_secs(30);
 /// Starts the reminder thread. It lives as long as the app.
 pub fn start<R: Runtime>(app: AppHandle<R>) {
     std::thread::spawn(move || loop {
+        // The sample's promises are made up: they never remind anyone.
+        if crate::showing_sample() {
+            std::thread::sleep(LOOK_EVERY);
+            continue;
+        }
         if let Err(error) = send_due(&app) {
             eprintln!("Bindle: reminders skipped this time: {error}");
         }

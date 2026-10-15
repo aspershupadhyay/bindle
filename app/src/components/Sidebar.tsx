@@ -4,10 +4,12 @@
 // The left rail: logo, the Life and Work switch, the screens of the current
 // mode, spaces, and Jot down (v2 design, Main and Desk).
 
-import { Avatar } from "./Avatar";
+import { useEffect, useState } from "react";
+import { Avatar, AvatarPair } from "./Avatar";
 import { Logo } from "./Logo";
 import { useSettings } from "../lib/settings";
-import type { Mode, Space } from "../lib/commands";
+import { commands, type Mode, type Space } from "../lib/commands";
+import { useSources } from "../lib/sources";
 import { screens, settingsScreen, type ScreenId } from "../screens";
 import { Icon } from "./Icon";
 
@@ -42,7 +44,7 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, com
         </div>
       </div>
 
-      <div className="mode-switch" role="group" aria-label="Mode">
+      <div className="mode-switch" role="group" aria-label="Mode" data-tour="mode">
         {(["life", "work"] as const).map((m) => (
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => onMode(m)}>
             {m === "life" ? "Life" : "Work"}
@@ -56,6 +58,7 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, com
             key={screen.id}
             type="button"
             className="nav-item"
+            data-tour={`nav-${screen.id}`}
             aria-current={current === screen.id ? "page" : undefined}
             onClick={() => onScreen(screen.id)}
           >
@@ -81,29 +84,37 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, com
         ))}
       </nav>
 
-      <div className="spaces">
-        <div className="eyebrow">Spaces</div>
-        <div className="space">
-          <Avatar name={settings.name ?? "Me"} avatar={settings.avatar} size={32} />
-          Mine<span className="space-note">private</span>
+      {mode === "work" ? (
+        <Sources current={current} onScreen={onScreen} />
+      ) : (
+        <div className="spaces">
+          <div className="eyebrow">Spaces</div>
+          <div className="space">
+            <Avatar name={settings.name ?? "Me"} avatar={settings.avatar} size={32} />
+            Mine<span className="space-note">private</span>
+          </div>
+          {spaces.map((space) => (
+            <button
+              key={space.id}
+              type="button"
+              className="nav-item space"
+              data-tour="space-ours"
+              aria-current={current === "ours" && currentSpace === space.id ? "page" : undefined}
+              onClick={() => onSpace(space.id)}
+            >
+              <SpaceFaces spaceId={space.id} />
+              {space.name}
+              <span className="space-note">
+                <span className={`dot ${space.waiting > 0 ? "honey" : "sage"}`} aria-hidden="true" />
+                {space.waiting > 0 ? "to sync" : "synced"}
+              </span>
+            </button>
+          ))}
         </div>
-        {spaces.map((space) => (
-          <button
-            key={space.id}
-            type="button"
-            className="nav-item space"
-            aria-current={current === "ours" && currentSpace === space.id ? "page" : undefined}
-            onClick={() => onSpace(space.id)}
-          >
-            <Icon name="people" size={18} />
-            {space.name}
-            <span className="space-note">{space.waiting > 0 ? "to sync" : "synced"}</span>
-          </button>
-        ))}
-      </div>
+      )}
 
       <div className="sidebar-foot">
-        <button type="button" className="button-primary jot-button" onClick={onJotDown}>
+        <button type="button" className="button-primary jot-button" data-tour="jot" onClick={onJotDown}>
           <Icon name="plus" size={18} />
           Jot down
         </button>
@@ -122,4 +133,39 @@ export function Sidebar({ mode, current, unsorted, reviewsOwed, repliesOwed, com
       </div>
     </aside>
   );
+}
+
+/** Work's sources, each with how it is doing, as in the v2 sidebar. */
+function Sources({ current, onScreen }: { current: ScreenId; onScreen: (id: ScreenId) => void }) {
+  const sources = useSources();
+  return (
+    <div className="spaces sources">
+      <div className="eyebrow">Sources</div>
+      {sources.map((source) => (
+        <button
+          key={source.screen}
+          type="button"
+          className="nav-item space source"
+          aria-current={current === source.screen ? "true" : undefined}
+          onClick={() => onScreen(source.screen)}
+        >
+          <span className={`dot ${source.state === "ok" ? "sage" : source.state === "error" ? "honey" : "off"}`} aria-hidden="true" />
+          {source.name}
+          <span className={`space-note ${source.state === "error" ? "warn" : ""}`}>{source.note}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Everyone who carries a space, side by side. */
+function SpaceFaces({ spaceId }: { spaceId: string }) {
+  const [names, setNames] = useState<string[]>([]);
+  useEffect(() => {
+    commands.oursView(spaceId).then(
+      (view) => setNames(view.members.map((m) => m.name)),
+      () => setNames([]),
+    );
+  }, [spaceId]);
+  return <AvatarPair people={names.map((name) => ({ name, avatar: null }))} size={32} />;
 }

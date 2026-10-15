@@ -202,3 +202,19 @@ kbd {
   .lead { font-size: 16px; }
   .scene-frame { flex-basis: 100%; }
 }
+
+/* A picture on a soft tile, as in the v2 cast. */
+.avatar-tile { display: inline-flex; flex: none; border-radius: 8px; overflow: hidden; }
+.avatar-tile.honey { background: var(--honey-wash); }
+.avatar-tile.sage { background: var(--sage-wash); }
+.avatar-tile.clay { background: var(--clay-wash); }
+.avatar-tile .avatar { border-radius: 0; }
+.avatar-pair { display: inline-flex; }
+.avatar-pair > .avatar-tile + .avatar-tile { margin-left: -8px; box-shadow: 0 0 0 2px var(--card); }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.dot.sage { background: var(--sage); }
+.dot.honey { background: var(--honey); }
+.dot.off { background: var(--sand); }
+.space-note { display: inline-flex; align-items: center; gap: 6px; }
+.space-note.warn { color: var(--honey-text); }
+.source { gap: 12px; }

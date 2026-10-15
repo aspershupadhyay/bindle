@@ -38,6 +38,13 @@ async function looksRight(app, name) {
   if (thrown.length) throw new Error(`${name} threw: ${thrown.join("; ")}`);
 }
 
+/** A new install opens on the sample; this skips its tour and starts fresh. */
+async function startOwn(app) {
+  await app.find("//*[contains(@class,'sample-bar')]");
+  if (await app.exists("//button[normalize-space(.)='Skip the tour']")) await app.button("Skip the tour");
+  await app.button("Start my own Bindle");
+}
+
 async function firstRun(app, name, jots) {
   await app.find("//button[normalize-space(.)='Start']");
   await app.js(
@@ -67,6 +74,48 @@ async function startCloud(app) {
 const a = await open(APP, 4444);
 const b = await open(APP, 4445);
 try {
+  await check("a new install opens on the sample, with its tour", async () => {
+    await a.find("//*[contains(@class,'tour-card')]");
+    await a.find("//*[contains(@class,'sample-bar')]");
+    await a.screenshot(`${OUT}/sample-tour.png`);
+    for (let stop = 0; stop < 9; stop++) await a.click("//button[contains(@class,'tour-next')]");
+    await a.button("Done");
+    await looksRight(a, "sample-home");
+    await a.find("//*[normalize-space(.)='Good evening, Aarav.' or normalize-space(.)='Good morning, Aarav.' or normalize-space(.)='Good afternoon, Aarav.']");
+  });
+
+  await check("Catch from a chat finds both sides and sends them to Sort", async () => {
+    await a.go("Home");
+    await a.click("//button[@data-tour='catch']");
+    const chat = "[12/10/26, 9:15 PM] Rohan: I'll pay you back the 500 kal\n[12/10/26, 9:20 PM] Aarav: I'll send you the trip photos by Friday";
+    await a.js(
+      "const t = document.querySelector('.catch-text');" +
+        "Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(t, arguments[0]);" +
+        "t.dispatchEvent(new Event('input', { bubbles: true }));",
+      [chat],
+    );
+    await a.button("Aarav");
+    await a.find("//*[normalize-space(.)='Rohan will pay me back']");
+    await a.find("//*[normalize-space(.)='Send Rohan the trip photos']");
+    await a.screenshot(`${OUT}/catch.png`);
+    await a.button("Add 2 to Sort");
+    await a.find("//p[contains(normalize-space(.),'to sort')]");
+  });
+
+  await check("the sample's Work, Ours and every screen open cleanly", async () => {
+    await a.button("Work");
+    for (const screen of ["Desk", "Inbox", "Code", "Board", "Creator"]) {
+      await a.go(screen);
+      await looksRight(a, `sample-${screen.toLowerCase()}`);
+    }
+    await a.button("Life");
+    await a.click("//button[@data-tour='space-ours']");
+    await a.find("//*[contains(normalize-space(.),'you and Meera carry this one together')]");
+    await looksRight(a, "sample-ours");
+  });
+
+  await check("Start my own Bindle leaves the sample for a fresh first run", () => startOwn(a));
+
   await check("first run, with three things jotted down", () =>
     firstRun(a, "Sparsh", ["send the deck to Priya by Friday", "Rohan will pay 500 kal", "call mom sunday"]),
   );
@@ -118,6 +167,7 @@ try {
 
   await check("Bindle Cloud starts on both devices", async () => {
     await startCloud(a);
+    await startOwn(b);
     await firstRun(b, "Ananya", []);
     await startCloud(b);
   });

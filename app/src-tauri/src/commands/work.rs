@@ -11,9 +11,11 @@ use super::{announce, lock, CommandError, Reply};
 use crate::Db;
 use bindle_core::Promise;
 use bindle_sources::github::{self, Client, GithubError};
+use bindle_store::github_stats::{self, GithubStats};
 use bindle_store::insights::{self, WaitKind};
 use bindle_store::work::{self, CodeView, GithubAccount};
 use chrono::{SecondsFormat, Utc};
+use serde::Serialize;
 use std::collections::HashSet;
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager, State as Managed};
@@ -44,6 +46,25 @@ pub fn code_view(db: Managed<Db>) -> Reply<CodeView> {
 }
 
 /// How many reviews you owe, for the sidebar.
+/// The Code screen's cards, with the streak and best week worked out.
+#[derive(Debug, Serialize)]
+pub struct CodeCards {
+    #[serde(flatten)]
+    pub stats: GithubStats,
+    pub streak: u32,
+    pub best_week: bool,
+}
+
+#[tauri::command]
+pub fn code_cards(db: Managed<Db>) -> Reply<CodeCards> {
+    let stats = github_stats::load(&*lock(&db)?)?;
+    Ok(CodeCards {
+        streak: stats.streak(),
+        best_week: stats.best_week(),
+        stats,
+    })
+}
+
 #[tauri::command]
 pub fn reviews_owed(db: Managed<Db>) -> Reply<u32> {
     Ok(work::reviews_owed(&*lock(&db)?)?)
@@ -58,6 +79,7 @@ pub fn github_token_page() -> &'static str {
 /// Checks the token with GitHub, keeps it in the keychain, and has a first look.
 #[tauri::command]
 pub async fn github_connect(app: AppHandle, token: String) -> Reply<GithubAccount> {
+    super::real_only("connect GitHub")?;
     let token = token.trim().to_string();
     if token.is_empty() {
         return Err(CommandError {
@@ -83,12 +105,14 @@ pub async fn github_connect(app: AppHandle, token: String) -> Reply<GithubAccoun
 /// Forgets the token and what GitHub listed. Promises already made stay.
 #[tauri::command]
 pub async fn github_disconnect(app: AppHandle) -> Reply<()> {
+    super::real_only("change GitHub")?;
     crate::secrets::forget(TOKEN).map_err(|message| CommandError { message })?;
     {
         let db = app.state::<Db>();
         let conn = lock(&db)?;
         work::save_github_account(&conn, &GithubAccount::default())?;
         work::forget(&conn, "github")?;
+        github_stats::forget(&conn)?;
     }
     let _ = app.emit(WORK_CHANGED, ());
     Ok(())
@@ -97,6 +121,7 @@ pub async fn github_disconnect(app: AppHandle) -> Reply<()> {
 /// Looks at GitHub now.
 #[tauri::command]
 pub async fn github_refresh(app: AppHandle) -> Reply<GithubAccount> {
+    super::real_only("look at your own GitHub")?;
     refresh(&app).await
 }
 
@@ -150,6 +175,17 @@ pub(crate) async fn refresh(app: &AppHandle) -> Reply<GithubAccount> {
         Ok(client) => client.work().await,
         Err(e) => Err(e.clone()),
     };
+    // The Code screen's cards are a bonus too: a failed read keeps the last ones.
+    let stats = match (&client, &found) {
+        (Ok(client), Ok(_)) => client
+            .stats(Utc::now())
+            .await
+            .map_err(|error| {
+                eprintln!("Bindle: no GitHub cards this time: {error}");
+            })
+            .ok(),
+        _ => None,
+    };
     // Review waits are a bonus: if they cannot be read, the look still counts.
     let waits = match (&client, &login, &found) {
         (Ok(client), Some(login), Ok(_)) => client
@@ -169,6 +205,9 @@ pub(crate) async fn refresh(app: &AppHandle) -> Reply<GithubAccount> {
             Ok(items) => {
                 work::sync(&mut conn, "github", &items, now)?;
                 insights::record_waits(&mut conn, &waits)?;
+                if let Some(stats) = &stats {
+                    github_stats::save(&conn, stats)?;
+                }
                 account.synced_at = Some(now.to_rfc3339_opts(SecondsFormat::Millis, true));
                 account.error = None;
             }
@@ -193,7 +232,7 @@ pub fn start(app: AppHandle) {
                     .and_then(|conn| work::github_account(&conn).ok())
                     .is_some_and(|a| a.login.is_some())
             };
-            if connected {
+            if connected && !crate::showing_sample() {
                 if let Err(error) = refresh(&app).await {
                     eprintln!("Bindle: could not look at GitHub: {}", error.message);
                 }

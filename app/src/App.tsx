@@ -2,10 +2,12 @@
 // Copyright 2026 Sparsh Upadhyay and the Bindle contributors.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SampleBar } from "./components/SampleBar";
 import { Sidebar } from "./components/Sidebar";
+import { Tour } from "./components/Tour";
 import { UndoProvider } from "./components/Undo";
 import { UpdateBar } from "./components/UpdateBar";
-import { commands, inDesktopApp, onCreatorChanged, onMailChanged, onPromisesChanged, onWorkChanged, onPhone, type Mode, type Space } from "./lib/commands";
+import { commands, inDesktopApp, onCreatorChanged, onMailChanged, onPromisesChanged, onWorkChanged, onPhone, type Mode, type SampleStatus, type Space } from "./lib/commands";
 import { findScreen, screens, type ScreenId } from "./screens";
 import { Board } from "./screens/Board";
 import { Code } from "./screens/Code";
@@ -37,6 +39,26 @@ export function App() {
   const [spaceId, setSpaceId] = useState<string | null>(null);
   const [focusSearch, setFocusSearch] = useState(0);
   const jotRef = useRef<HTMLInputElement>(null);
+  const [sample, setSample] = useState<SampleStatus | null>(null);
+  const [touring, setTouring] = useState(false);
+
+  // The sample Bindle shows the first time; its tour starts once by itself.
+  useEffect(() => {
+    commands.sampleStatus().then((status) => {
+      setSample(status);
+      if (status.showing && !seenTour()) setTouring(true);
+    }, () => setSample(null));
+  }, []);
+
+  const endTour = useCallback(() => {
+    setTouring(false);
+    rememberTour();
+  }, []);
+
+  const goTo = useCallback((next: Mode, screen?: ScreenId) => {
+    setMode(next);
+    setCurrent((now) => screen ?? (screens[next].some((s) => s.id === now) ? now : screens[next][0].id));
+  }, []);
 
   const refresh = useCallback(() => {
     commands.countPromises("unsorted").then(setUnsorted, () => setUnsorted(0));
@@ -78,6 +100,7 @@ export function App() {
   }, []);
 
   const openSpace = useCallback((id: string) => {
+    setMode("life");
     setSpaceId(id);
     setCurrent("ours");
     commands.cloudStatus().then((s) => setSpaces(s.spaces), () => {});
@@ -159,6 +182,7 @@ export function App() {
             onJotDown={jotDown}
           />
           <main className="main" id="main" tabIndex={-1}>
+            {sample?.showing && <SampleBar status={sample} onTour={() => setTouring(true)} />}
             <UpdateBar />
             {current === "home" ? (
               <Home
@@ -186,7 +210,7 @@ export function App() {
             ) : current === "creator" ? (
               <Creator onOpenSort={openSort} />
             ) : current === "settings" ? (
-              <Settings onOpenSpace={openSpace} />
+              <Settings onOpenSpace={openSpace} onTour={() => setTouring(true)} />
             ) : current === "ours" && spaceId ? (
               <Ours
                 spaceId={spaceId}
@@ -200,8 +224,27 @@ export function App() {
               <Soon screen={findScreen(current)} />
             )}
           </main>
+          {touring && <Tour onGo={goTo} onEnd={endTour} />}
         </div>
       </UndoProvider>
     </UpdatesProvider>
   );
+}
+
+const TOUR_SEEN = "bindle.tour.seen";
+
+function seenTour(): boolean {
+  try {
+    return localStorage.getItem(TOUR_SEEN) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function rememberTour() {
+  try {
+    localStorage.setItem(TOUR_SEEN, "1");
+  } catch {
+    // Without storage the tour may show again next time; that is all.
+  }
 }

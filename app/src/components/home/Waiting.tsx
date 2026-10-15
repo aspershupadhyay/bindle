@@ -22,15 +22,15 @@ export function Waiting({ waiting }: { waiting: HomeView["waiting_on_others"] })
         <span className="muted small">{waiting.length}, oldest first</span>
       </div>
       <ul className="card list">
-        {waiting.map((w, i) => (
-          <WaitingRow key={w.promise.id} promise={w.promise} lastNudged={w.last_nudged} tone={i % 2 === 0 ? "honey" : "sage"} picture={pictures.get((w.promise.person ?? "").toLowerCase()) ?? null} />
+        {waiting.map((w) => (
+          <WaitingRow key={w.promise.id} promise={w.promise} lastNudged={w.last_nudged} picture={pictures.get((w.promise.person ?? "").toLowerCase()) ?? null} />
         ))}
       </ul>
     </section>
   );
 }
 
-function WaitingRow({ promise, lastNudged, tone, picture }: { promise: BindlePromise; lastNudged: string | null; tone: "honey" | "sage"; picture: Avatar | null }) {
+function WaitingRow({ promise, lastNudged, picture }: { promise: BindlePromise; lastNudged: string | null; picture: Avatar | null }) {
   const notify = useNotify();
 
   async function nudge() {
@@ -52,13 +52,7 @@ function WaitingRow({ promise, lastNudged, tone, picture }: { promise: BindlePro
 
   return (
     <li className="waiting-row">
-      {picture ? (
-        <AvatarPicture name={promise.person ?? ""} avatar={picture} size={32} />
-      ) : (
-        <span className={`initial ${tone}`} aria-hidden="true">
-          {(promise.person ?? promise.title).charAt(0).toUpperCase()}
-        </span>
-      )}
+      <AvatarPicture name={promise.person ?? promise.title} avatar={picture} size={32} />
       <span className="promise-main">
         <span className="promise-title">{withPerson(promise)}</span>
         <span className="muted small">{waitingWords(promise, lastNudged, new Date())}</span>

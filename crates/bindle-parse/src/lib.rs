@@ -12,6 +12,7 @@
 //! This crate is pure: no clock, no database. Callers pass "now" and the names
 //! of people already in Bindle.
 
+pub mod chat;
 mod days;
 mod direction;
 mod money;
@@ -21,11 +22,11 @@ mod tokens;
 
 use bindle_core::{Direction, Money, Strength, When};
 use chrono::{Duration, NaiveDateTime};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tokens::Span;
 
 /// What Bindle understood from one line of text.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Reading {
     /// The line with the day, time, amount and soft words taken out.
     pub title: String,
@@ -131,7 +132,13 @@ fn title(text: &str, tokens: &[tokens::Token], taken: &[Span]) -> String {
         .iter()
         .fold(tidy.replace(" ,", ","), |t, empty| t.replace(empty, ""));
     let tidy = tidy.split_whitespace().collect::<Vec<_>>().join(" ");
-    let tidy = tidy.trim().trim_end_matches([',', ';', ':', '-']).trim();
+    let mut tidy = tidy.trim().trim_end_matches([',', ';', ':', '-']).trim();
+    // "pay back the ₹500" without the amount is "pay back", not "pay back the".
+    for article in [" the", " a", " an"] {
+        if tidy.len() > article.len() + 2 && tidy.to_lowercase().ends_with(article) {
+            tidy = tidy[..tidy.len() - article.len()].trim_end();
+        }
+    }
     let mut chars = tidy.chars();
     match chars.next() {
         Some(first) => first.to_uppercase().chain(chars).collect(),

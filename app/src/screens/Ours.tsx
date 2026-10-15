@@ -7,13 +7,37 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import house from "../art/house.png";
+import { Avatar } from "../components/Avatar";
 import { Chips } from "../components/Chips";
+import { Icon } from "../components/Icon";
 import { useNotify, useOfferUndo } from "../components/Undo";
 import { chipsForPromise } from "../lib/chips";
 import { commands, errorMessage, onPromisesChanged, type OursView, type Promise as BindlePromise, type SharedPromise } from "../lib/commands";
 import { lookedAgo } from "../lib/work";
 
-type Filter = "all" | "mine" | "theirs";
+type Filter = "all" | "mine" | "theirs" | "money";
+
+/** Open promises due within a week, then the rest. */
+function byWeek(list: SharedPromise[], today: Date): [SharedPromise[], SharedPromise[]] {
+  const limit = new Date(today);
+  limit.setDate(limit.getDate() + 7);
+  const soon = (s: SharedPromise) => {
+    const day = s.promise.due?.day ?? s.promise.do_on?.day;
+    return day !== undefined && day !== null && new Date(`${day}T00:00:00`) <= limit;
+  };
+  return [list.filter(soon), list.filter((s) => !soon(s))];
+}
+
+/** "today", "yesterday", "Monday" or "12 Oct". */
+function whenKept(iso: string | null, today: Date): string {
+  if (!iso) return "lately";
+  const day = new Date(iso);
+  const days = Math.round((new Date(today.toDateString()).getTime() - new Date(day.toDateString()).getTime()) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7) return day.toLocaleDateString("en-GB", { weekday: "long" });
+  return day.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
 
 export function Ours({ spaceId, onLeft }: { spaceId: string; onLeft: () => void }) {
   const [view, setView] = useState<OursView | null>(null);
@@ -44,8 +68,13 @@ export function Ours({ spaceId, onLeft }: { spaceId: string; onLeft: () => void 
 
   if (!view) return <div className="page" />;
   const others = view.members.filter((m) => m.account !== view.me).map((m) => m.name);
-  const shown = view.open.filter((s) => (filter === "all" ? true : filter === "mine" ? s.added_by === null : s.added_by !== null));
+  const shown = view.open.filter((s) =>
+    filter === "all" ? true : filter === "mine" ? s.added_by === null : filter === "money" ? s.promise.amount !== null : s.added_by !== null,
+  );
   const together = others.length > 0 ? `you and ${others.join(" and ")} carry this one together.` : "invite someone to carry this one with you.";
+  const today = new Date();
+  const [thisWeek, later] = byWeek(shown, today);
+  const me = view.members.find((m) => m.account === view.me)?.name ?? "You";
 
   return (
     <div className="page ours-page">
@@ -53,14 +82,23 @@ export function Ours({ spaceId, onLeft }: { spaceId: string; onLeft: () => void 
         <div className="code-hello">
           <div className="muted small">Shared space</div>
           <h1 className="display">{view.space.name}</h1>
-          <p className="lead">{together.charAt(0).toUpperCase() + together.slice(1)}</p>
-          <p className="muted small code-synced" role="status">
-            {lookedAgo(view.space.synced_at, new Date()).replace("Looked", "Synced").replace("Not looked yet", "Not synced yet")}
-            {view.space.waiting > 0 && ` · ${view.space.waiting} to send`} · End-to-end encrypted ·{" "}
-            <button type="button" className="link-button" disabled={syncing} onClick={() => void syncNow()}>
+          <p className="lead">
+            {view.space.name} · {together}
+          </p>
+          <div className="status-pills" role="status">
+            <span className={`status-pill ${view.space.waiting > 0 ? "honey" : "sage"}`}>
+              <span className={`dot ${view.space.waiting > 0 ? "honey" : "sage"}`} aria-hidden="true" />
+              {lookedAgo(view.space.synced_at, today).replace("Looked", "Synced").replace("Not looked yet", "Not synced yet")}
+              {view.space.waiting > 0 ? ` · ${view.space.waiting} to send` : ` · ${view.members.length} ${view.members.length === 1 ? "person" : "people"}`}
+            </span>
+            <span className="status-pill">
+              <Icon name="lock" size={14} />
+              End-to-end encrypted
+            </span>
+            <button type="button" className="link-button small" disabled={syncing} onClick={() => void syncNow()}>
               {syncing ? "Syncing…" : "Sync now"}
             </button>
-          </p>
+          </div>
         </div>
         <figure className="scene-frame">
           <img className="sprite scene" src={house} alt="Pixel art: a small house with two windows lit" width={384} height={168} />
@@ -79,6 +117,7 @@ export function Ours({ spaceId, onLeft }: { spaceId: string; onLeft: () => void 
                     ["all", `All ${view.open.length}`],
                     ["mine", "Added by me"],
                     ["theirs", others.length === 1 ? `Added by ${others[0]}` : "Added by others"],
+                    ["money", "Money"],
                   ] as const
                 ).map(([value, label]) => (
                   <button key={value} type="button" className="pill" aria-pressed={filter === value} onClick={() => setFilter(value)}>
@@ -88,37 +127,55 @@ export function Ours({ spaceId, onLeft }: { spaceId: string; onLeft: () => void 
               </div>
             </div>
             {shown.length === 0 ? (
-              <p className="card empty">Nothing here yet. Jot one down above, or share one of yours below.</p>
+              <p className="card empty">{filter === "all" ? "Nothing here yet. Jot one down above, or share one of yours below." : "Nothing like that right now."}</p>
             ) : (
-              <ul className="card list">
-                {shown.map((s) => (
-                  <SharedRow key={s.promise.id} shared={s} />
-                ))}
-              </ul>
+              <div className="card grouped">
+                {[
+                  ["This week", thisWeek],
+                  ["Later", later],
+                ].map(([title, list]) =>
+                  (list as SharedPromise[]).length === 0 ? null : (
+                    <div key={title as string}>
+                      <div className="group-head">{title as string}</div>
+                      <ul className="list">
+                        {(list as SharedPromise[]).map((s) => (
+                          <SharedRow key={s.promise.id} shared={s} me={me} />
+                        ))}
+                      </ul>
+                    </div>
+                  ),
+                )}
+              </div>
             )}
           </section>
-          <ShareExisting spaceId={spaceId} name={view.space.name} />
           {view.kept_lately.length > 0 && (
             <section aria-labelledby="kept">
-              <div className="section-head">
-                <h2 id="kept">Kept lately</h2>
+              <div className="card grouped">
+                <h2 id="kept" className="group-head">
+                  Kept lately
+                </h2>
+                <ul className="list">
+                  {view.kept_lately.map((s) => (
+                    <li key={s.promise.id} className="promise-row">
+                      <span className="tick ticked" aria-hidden="true">
+                        <Icon name="check" size={14} />
+                      </span>
+                      <div className="promise-main">
+                        <span className="promise-title">{s.promise.title}</span>
+                      </div>
+                      <span className="kept-pill">
+                        Done by {s.done_by ?? "you"} · {whenKept(s.promise.closed_at, today)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="card list">
-                {view.kept_lately.map((s) => (
-                  <li key={s.promise.id} className="promise-row">
-                    <span className="tick-space" aria-hidden="true" />
-                    <div className="promise-main">
-                      <span className="promise-title done">{s.promise.title}</span>
-                      <span className="muted small">Done by {s.done_by ?? "you"}</span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <p className="muted small">
-                Kept together this month: <strong>{view.kept_this_month}</strong>. No scores, no blame, just a shared bag.
+              <p className="muted small kept-line">
+                Kept together this month: <strong className="accent-sage">{view.kept_this_month}</strong>. No scores, no blame, just a shared bag.
               </p>
             </section>
           )}
+          <ShareExisting spaceId={spaceId} name={view.space.name} />
         </div>
 
         <aside className="home-side">
@@ -126,19 +183,36 @@ export function Ours({ spaceId, onLeft }: { spaceId: string; onLeft: () => void 
             <h2 id="carry">Who carries {view.space.name}</h2>
             <ul className="stack ours-members">
               {view.members.map((m) => (
-                <li key={m.account}>
-                  <strong>{m.name || "Someone"}</strong>
-                  <span className="muted small">{m.account === view.me ? " · you" : ` · since ${new Date(m.joined_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}</span>
+                <li key={m.account} className="member-row">
+                  <Avatar name={m.name || "Someone"} avatar={null} size={48} />
+                  <span>
+                    <strong>{m.name || "Someone"}</strong>
+                    <span className="muted small">
+                      {m.account === view.me ? " · you" : ` · since ${new Date(m.joined_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
+                    </span>
+                  </span>
                 </li>
               ))}
             </ul>
-            <p className="muted small">Each of you is yourself. {view.space.name} is shared; your Mine stays yours.</p>
+            <p className="note-box small">Each of you is yourself. {view.space.name} is shared; your Mine stays yours.</p>
           </section>
           <Invite spaceId={spaceId} name={view.space.name} />
           <section className="card desk-card" aria-labelledby="safety">
             <h2 id="safety">Safety</h2>
-            <p className="muted small">Locked on your device before it is sent. Bindle Cloud cannot read {view.space.name}.</p>
-            <p className="muted small">Works offline. Changes go up when you are back online.</p>
+            <ul className="checks">
+              <li>
+                <Icon name="check" size={16} />
+                Locked on your device before it is sent. Bindle Cloud cannot read {view.space.name}.
+              </li>
+              <li>
+                <Icon name="check" size={16} />
+                Works offline. Changes go up when you are back online.
+              </li>
+              <li>
+                <Icon name="check" size={16} />
+                Leaving never deletes anything: your copies stay in Mine.
+              </li>
+            </ul>
             <button
               type="button"
               className="link-button small"
@@ -156,11 +230,11 @@ export function Ours({ spaceId, onLeft }: { spaceId: string; onLeft: () => void 
   );
 }
 
-function SharedRow({ shared }: { shared: SharedPromise }) {
+function SharedRow({ shared, me }: { shared: SharedPromise; me: string }) {
   const offerUndo = useOfferUndo();
   const notify = useNotify();
   const p = shared.promise;
-  const who = shared.added_by ? `Added by ${shared.added_by}` : "Added by you";
+  const by = shared.added_by ?? me;
   return (
     <li className="promise-row">
       {p.state === "open" ? (
@@ -176,14 +250,15 @@ function SharedRow({ shared }: { shared: SharedPromise }) {
       <div className="promise-main">
         <span className="promise-title">{p.title}</span>
         <span className="muted small">
-          {who}
-          {p.state === "unsorted" && " · waiting in Sort"}
-          {p.first_step && ` · first step: ${p.first_step}`}
+          {p.state === "unsorted" ? "Waiting in Sort" : null}
+          {p.first_step && `${p.state === "unsorted" ? " · " : ""}first step: ${p.first_step}`}
         </span>
+        <Chips chips={chipsForPromise(p, new Date()).filter((c) => c.key !== "direction")} label="Details" />
       </div>
-      <div className="row-end">
-        <Chips chips={chipsForPromise(p, new Date())} label="Details" />
-      </div>
+      <span className="added-by">
+        <Avatar name={by} avatar={null} size={32} />
+        {shared.added_by ? `Added by ${shared.added_by}` : "Yours"}
+      </span>
     </li>
   );
 }

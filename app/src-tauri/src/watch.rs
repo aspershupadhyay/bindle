@@ -31,7 +31,7 @@ pub fn start<R: Runtime>(app: AppHandle<R>) {
                     let _ = app.emit(crate::commands::PROMISES_CHANGED, ());
                 }
                 last = version;
-                if tick == 0 {
+                if tick == 0 && !crate::showing_sample() {
                     let paths = app.state::<Paths>();
                     if let Err(error) =
                         bindle_store::backup::daily_copy(&conn, &paths.safety, chrono::Utc::now())

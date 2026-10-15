@@ -16,6 +16,7 @@ import { commands, onPromisesChanged, type HomeView } from "../lib/commands";
 import { timeLabel } from "../lib/chips";
 import { dateLine, greeting } from "../lib/days";
 import { useSettings } from "../lib/settings";
+import { CatchChat } from "../components/CatchChat";
 import { Icon } from "../components/Icon";
 
 interface HomeProps {
@@ -28,6 +29,7 @@ export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ onOp
   const now = new Date();
   const { settings } = useSettings();
   const [view, setView] = useState<HomeView | null>(null);
+  const [catching, setCatching] = useState(false);
 
   const refresh = useCallback(() => {
     commands.homeView().then(setView, () => setView(null));
@@ -46,6 +48,7 @@ export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ onOp
 
   return (
     <div className="page">
+      {catching && <CatchChat onClose={() => setCatching(false)} onOpenSort={onOpenSort} />}
       <header className="home-header">
         <div className="home-hello">
           <div className="muted small">{dateLine(now)}</div>
@@ -55,6 +58,10 @@ export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ onOp
           </h1>
           {view && <Summary view={view} unsorted={unsorted} onOpenSort={onOpenSort} />}
           <JotField ref={jotRef} />
+          <button type="button" className="link-button small catch-open" data-tour="catch" onClick={() => setCatching(true)}>
+            <Icon name="chat" size={16} />
+            Paste a chat, and Bindle finds the promises in it
+          </button>
         </div>
         <figure className="scene-frame">
           <img
@@ -70,9 +77,13 @@ export const Home = forwardRef<HTMLInputElement, HomeProps>(function Home({ onOp
       {view && (
         <div className="home-columns">
           <div className="home-today" aria-label="Today">
-            <TopThree top3={view.top3} suggestions={view.suggestions} />
+            <div data-tour="top3">
+              <TopThree top3={view.top3} suggestions={view.suggestions} />
+            </div>
             <RunningLate promises={view.running_late} />
-            <Waiting waiting={view.waiting_on_others} />
+            <div data-tour="waiting">
+              <Waiting waiting={view.waiting_on_others} />
+            </div>
             <section aria-labelledby="coming-up">
               <div className="section-head">
                 <h2 id="coming-up">Coming up</h2>

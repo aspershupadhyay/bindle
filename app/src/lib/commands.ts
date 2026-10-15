@@ -199,6 +199,8 @@ export interface MailAccount {
   provider?: string | null;
   host?: string | null;
   port?: number | null;
+  /** What came in over the last day, including what Bindle skipped. */
+  today?: { total: number; fyi: number; receipts: number; newsletters: number } | null;
 }
 
 /** A YouTube channel's public numbers. */
@@ -311,7 +313,7 @@ export interface DeskView {
   email_reply: WaitTrend;
   review_wait: WaitTrend;
   shipped: { this_week: number; weekly: number[]; from_code: number; from_inbox: number; other: number };
-  week: { day: string; open: number; done: number }[];
+  week: { day: string; open: number; done: number; email: number; code: number; content: number; other: number }[];
   github: GithubAccount;
   gmail: MailAccount;
   reviews_older_than_a_day: number;
@@ -403,6 +405,39 @@ export interface GithubAccount {
 }
 
 /** Everything the Code screen shows. */
+export type Checks = "passing" | "failing" | "flaky";
+
+export interface Repo {
+  full_name: string;
+  language: string | null;
+  stars: number;
+  private: boolean;
+  open_prs: number;
+  open_issues: number;
+  checks: Checks | null;
+  url: string;
+}
+
+export interface FailingCheck {
+  repo: string;
+  workflow: string;
+  failed: number;
+  of: number;
+  url: string;
+}
+
+/** The Code screen's cards beyond the work lists. */
+export interface CodeCards {
+  repos: Repo[];
+  failing: FailingCheck | null;
+  /** [day, contributions], oldest first. */
+  days: [string, number][];
+  /** Merged per week, oldest first; the last is this week. */
+  merged_weeks: number[];
+  streak: number;
+  best_week: boolean;
+}
+
 export interface CodeView {
   account: GithubAccount;
   reviews: WorkItem[];
@@ -466,10 +501,36 @@ function call<T>(name: string, args?: Record<string, unknown>): globalThis.Promi
   return isTauri() ? invoke<T>(name, args) : preview<T>(name, args);
 }
 
+/** A promise found in a pasted chat. */
+export interface Caught {
+  speaker: string | null;
+  said_at: string | null;
+  said: string;
+  reading: Reading;
+}
+
+/** Everything found in one pasted chat. */
+export interface Catch {
+  speakers: string[];
+  me: string | null;
+  found: Caught[];
+}
+
+/** Whether the sample Bindle is showing, and whether the person has their own. */
+export interface SampleStatus {
+  showing: boolean;
+  has_own: boolean;
+}
+
 export const commands = {
   appInfo: () => call<AppInfo>("app_info"),
+  sampleStatus: () => call<SampleStatus>("sample_status"),
+  sampleLeave: () => call<void>("sample_leave"),
+  sampleOpen: () => call<void>("sample_open"),
   jotDown: (text: string) => call<Promise>("jot_down", { text }),
   readJot: (text: string) => call<Reading>("read_jot", { text }),
+  catchChat: (text: string, me: string | null) => call<Catch>("catch_chat", { text, me }),
+  catchKeep: (chosen: { said: string; reading: Reading }[]) => call<Promise[]>("catch_keep", { chosen }),
   showJot: () => call<void>("show_jot"),
   sortQueue: () => call<SortItem[]>("sort_queue"),
   sortPromise: (id: string, sorting: Sorting, to: "open" | "later" | "let_go") =>
@@ -510,6 +571,7 @@ export const commands = {
     call<void>("set_person_look", { id, avatar, pronouns }),
   setPersonHidden: (id: string, hidden: boolean) => call<void>("set_person_hidden", { id, hidden }),
   codeView: () => call<CodeView>("code_view"),
+  codeCards: () => call<CodeCards>("code_cards"),
   reviewsOwed: () => call<number>("reviews_owed"),
   githubTokenPage: () => call<string>("github_token_page"),
   githubConnect: (token: string) => call<GithubAccount>("github_connect", { token }),

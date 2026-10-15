@@ -67,6 +67,15 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: v0.
 - [x] Jot down reads "on the 1st", "by the 20th" and "15th tak" as the next such day of the month (`crates/bindle-parse/tests/month_days.rs`). The global Alt+Shift+J shortcut and the Jot window were checked by hand in the real app on X11
 - [x] Fixed: Home's Waiting list and Nudge lowercased names ("Rohan · rohan will pay 500"); the Desk said Gmail with no mailbox connected
 
+### Why Bindle, and first open (after v0.0.2)
+- [x] Catch from a chat (`crates/bindle-parse/src/chat.rs`, tests in `tests/chat.rs`): WhatsApp exports from iPhone and Android, "Name:" pastes and plain email text. Finds your promises, theirs, Hinglish ones, and a "sure" after "can you…?", with days counted from when each message was sent. Home's "Paste a chat" panel sends the chosen ones to Sort
+- [x] The sample Bindle (`crates/bindle-store/src/sample.rs`): opens on a new install, in memory, written through the store's own functions. A sample band, a ten-stop tour (`app/src/components/Tour.tsx`), and Start my own Bindle. Network, keychain, reminders and safety copies are off while it shows (`showing_sample()` in `app/src-tauri/src/lib.rs`)
+- [x] Pixel pictures for everyone, picked from the name when none is chosen
+- [x] v2 design pass on the Work sidebar (sources), Ours, Inbox, Code and Desk
+- [x] Code's cards (`crates/bindle-sources/src/github_stats.rs`, kept in `bindle_store::github_stats`): your four most active repositories with open pull requests, issues and checks (passing, failing or flaky from the last 12 runs); a check that keeps failing, with Open logs and Make it a promise; 16 weeks of contributions (GraphQL contribution calendar) with the streak; merged per week for 8 weeks, with a table view; a Merged this week tile. Each read is a bonus: if one fails, the rest still show
+- [x] The Desk's Load this week: work per day stacked by where it came from (Email, Code, Content, Other) against what a day holds (5), faded for days still to come, with a table view. Chart colours checked with the dataviz validator in both themes. Creator this week card and YouTube in "How your sources are doing"
+- [x] Inbox counts what Bindle skipped today (FYI, Receipts, Newsletters) and says "41 emails came in today. Only 2 need you."
+
 ### Project
 - [x] Handbook mirror, roadmap, changelog, contributing guide, DCO and licence headers
 - [x] CI on Windows, macOS and Linux: format, lint, tests, views and licence headers. It runs on pushes to `main`, to working branches, and on pull requests. First full run passed on all three on 14 October 2026

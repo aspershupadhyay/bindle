@@ -32,6 +32,17 @@ export function lookedAgo(iso: string | null, now: Date): string {
   return when === "just now" ? "Looked just now" : `Looked ${when} ago`;
 }
 
+/**
+ * How an age pill looks: honey once a day has passed (someone has waited a
+ * while), clay for a fresh bug, plain otherwise. Never red: lateness is not
+ * an error.
+ */
+export function ageTone(iso: string, now: Date, bug = false): "honey" | "clay" | "plain" {
+  const hours = (now.getTime() - Date.parse(iso)) / 3_600_000;
+  if (hours >= 24) return "honey";
+  return bug ? "clay" : "plain";
+}
+
 /** "latch #42". */
 export function shortName(item: Pick<WorkItem, "repo" | "number">): string {
   return `${item.repo.split("/").pop()} #${item.number}`;

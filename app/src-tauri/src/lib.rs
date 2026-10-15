@@ -15,11 +15,45 @@ pub mod secrets;
 pub mod watch;
 
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 use tauri::Manager;
 
 /// The open database, shared by every command.
 pub struct Db(pub Mutex<rusqlite::Connection>);
+
+/// Whether the sample Bindle is showing instead of the person's own.
+static SAMPLE: AtomicBool = AtomicBool::new(false);
+
+/// True while the sample Bindle is showing. Nothing then reaches the
+/// network, the keychain, reminders or safety copies.
+pub fn showing_sample() -> bool {
+    SAMPLE.load(Ordering::SeqCst)
+}
+
+pub(crate) fn set_sample(on: bool) {
+    SAMPLE.store(on, Ordering::SeqCst);
+}
+
+/// A fresh database holding the sample Bindle, dated from today.
+pub(crate) fn sample_database() -> Result<rusqlite::Connection, bindle_store::StoreError> {
+    let mut conn = bindle_store::open_in_memory()?;
+    bindle_store::sample::seed(
+        &mut conn,
+        chrono::Local::now().date_naive(),
+        chrono::Utc::now(),
+    )?;
+    Ok(conn)
+}
+
+/// A brand-new Bindle: first run not done and nothing saved yet.
+pub(crate) fn is_new(conn: &rusqlite::Connection) -> bool {
+    let onboarded = bindle_store::settings::load(conn).is_ok_and(|s| s.onboarded);
+    let saved: i64 = conn
+        .query_row("SELECT count(*) FROM promise", [], |r| r.get(0))
+        .unwrap_or(1);
+    !onboarded && saved == 0
+}
 
 /// Where the database and its safety copies live.
 pub struct Paths {
@@ -68,7 +102,13 @@ pub fn run() {
                 db: dir.join("bindle.db"),
                 safety: dir.join("safety copies"),
             };
-            let conn = bindle_store::open(&paths.db)?;
+            let mut conn = bindle_store::open(&paths.db)?;
+            // The first time, Bindle opens on the sample so nobody meets an
+            // empty screen. The person's own Bindle starts when they choose.
+            if is_new(&conn) {
+                conn = sample_database()?;
+                set_sample(true);
+            }
             app.manage(Db(Mutex::new(conn)));
             app.manage(paths);
             #[cfg(desktop)]
@@ -83,8 +123,13 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::app_info,
+            commands::sample::sample_status,
+            commands::sample::sample_leave,
+            commands::sample::sample_open,
             commands::jot_down,
             commands::read_jot,
+            commands::catch::catch_chat,
+            commands::catch::catch_keep,
             commands::show_jot,
             commands::hide_jot,
             commands::list_promises,
@@ -134,6 +179,7 @@ pub fn run() {
             commands::creator::comment_unhide,
             commands::creator::open_on_youtube,
             commands::work::code_view,
+            commands::work::code_cards,
             commands::work::reviews_owed,
             commands::work::github_token_page,
             commands::work::github_connect,

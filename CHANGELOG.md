@@ -2,7 +2,14 @@
 
 ## Unreleased
 
-Nothing yet.
+- Catch from a chat: paste a WhatsApp export, a Slack thread or an email, and Bindle finds every promise in it, yours and theirs, in English and Hinglish: "I'll send it by Friday", "Rohan: I'll pay you back the 500 kal", "bhej dunga", and a "sure" after "can you…?". Days count from when each message was sent. Pick the ones you want; they wait in Sort. The chat is read on your computer and never saved.
+- A new install opens on a sample Bindle, Aarav's made-up week, with every screen full and a short guided tour. Start my own Bindle leaves it; Settings can show it again. While it shows, nothing is sent, connected or reminded.
+- Everyone has a pixel picture: people without one get one picked from their name, on a soft tile, instead of a letter.
+- Closer to the v2 design: the Work sidebar lists your sources and how each is doing; shared spaces show who carries them; Ours groups promises into this week, later and kept lately, with who added each and a Money filter; Inbox has three columns (sorted for you, the list with search and tags, the reading pane); Code and the Desk show ages as pills and what kind each row is.
+- Jot down reads "pay 500" and "owes me 2k" as money.
+- Code shows your most active repositories with their checks (passing, failing or flaky), a check that keeps failing with its logs, sixteen weeks of contributions and your streak, and pull requests merged each week.
+- The Desk shows this week's load stacked by where it came from (email, code, content) against what a day holds, and how your channel did this week.
+- Inbox says how much came in today and how little needs you, and counts the FYI, receipts and newsletters it set aside.
 
 ## 0.0.2 (15 October 2026)
 

@@ -10,7 +10,7 @@
 //! Automated email (newsletters, receipts, no-reply senders) never counts.
 
 use bindle_store::insights::{WaitKind, WaitSample};
-use bindle_store::mail::{FoundMail, MailKind, NoticedPromise};
+use bindle_store::mail::{FoundMail, MailDay, MailKind, NoticedPromise};
 use chrono::{DateTime, Duration, FixedOffset, TimeZone, Utc};
 use mail_parser::{HeaderValue, MessageParser};
 use std::collections::HashMap;
@@ -40,6 +40,8 @@ pub struct Mail {
     pub at: DateTime<Utc>,
     /// A newsletter, receipt, alert or other email no person wrote.
     pub automated: bool,
+    /// Sent to a mailing list: a newsletter or announcement.
+    pub list: bool,
     /// The new words in it, without quoted earlier emails or a signature.
     pub text: String,
 }
@@ -80,8 +82,12 @@ pub fn read_mail(raw: &[u8]) -> Option<Mail> {
     }
     let (to_name, to_address) = first_to.unwrap_or_default();
     let header = |name: &str| message.header_raw(name).is_some();
-    let automated = header("List-Unsubscribe")
+    let list = header("List-Unsubscribe")
         || header("List-Id")
+        || message
+            .header_raw("Precedence")
+            .is_some_and(|v| matches!(v.trim().to_lowercase().as_str(), "bulk" | "list"));
+    let automated = list
         || message
             .header_raw("Auto-Submitted")
             .is_some_and(|v| !v.trim().eq_ignore_ascii_case("no"))
@@ -108,6 +114,7 @@ pub fn read_mail(raw: &[u8]) -> Option<Mail> {
             .to_string(),
         at,
         automated,
+        list,
         text: new_words(&body),
     })
 }
@@ -118,6 +125,44 @@ fn text_list(value: &HeaderValue) -> Vec<String> {
         HeaderValue::TextList(list) => list.iter().map(|t| t.to_string()).collect(),
         _ => Vec::new(),
     }
+}
+
+/// Everything in `inbox` from the last day, sorted into what needs a person
+/// and what does not: receipts by their subject, newsletters by their list
+/// headers, and other automated email as FYI.
+pub fn the_day(inbox: &[Mail], now: DateTime<Utc>) -> MailDay {
+    let mut day = MailDay::default();
+    for mail in inbox
+        .iter()
+        .filter(|m| m.at > now - chrono::Duration::days(1))
+    {
+        day.total += 1;
+        if !mail.automated {
+            continue;
+        }
+        let subject = mail.subject.to_lowercase();
+        let receipt = [
+            "receipt",
+            "invoice",
+            "order",
+            "payment",
+            "paid",
+            "transaction",
+            "statement",
+            "booking",
+            "bill",
+        ]
+        .iter()
+        .any(|w| subject.contains(w));
+        if receipt {
+            day.receipts += 1;
+        } else if mail.list || mail.from_address.contains("newsletter") {
+            day.newsletters += 1;
+        } else {
+            day.fyi += 1;
+        }
+    }
+    day
 }
 
 /// "noreply@", "notifications@", "mailer-daemon@" and the like.
