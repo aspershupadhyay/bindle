@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: v0.0.2 release (15 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: v0.0.3 release (15 October 2026).
 
 ## Built
 
@@ -92,7 +92,7 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: v0.
 
 Read this first if you are continuing the work (another person or a new Claude session).
 
-- **Branch:** `claude/awesome-mccarthy-vtojde`. [#5](https://github.com/aspershupadhyay/bindle/pull/5) (weeks 9–20) and [#6](https://github.com/aspershupadhyay/bindle/pull/6) (desktop polish) are merged, and v0.0.2 is released from `main`. Start new work from the latest `main`.
+- **Branch:** `claude/awesome-mccarthy-vtojde`. [#5](https://github.com/aspershupadhyay/bindle/pull/5) (weeks 9–20) and [#6](https://github.com/aspershupadhyay/bindle/pull/6) (desktop polish) and [#8](https://github.com/aspershupadhyay/bindle/pull/8) (catch from a chat, the sample Bindle, the v2 design) are merged; v0.0.3 is released from `main`. Start new work from the latest `main`.
 - **Focus now:** the desktop app. The owner asked to leave Android until the desktop works well.
 - **Checks before every push** (same as CI): `(cd app && npm run typecheck && npm test && npx vite build)`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`. The views must be built before the Rust workspace compiles.
 - **Desktop checks (the real app, not the preview):** build with `(cd app && npx vite build) && cargo build -p bindle-app --features tauri/custom-protocol && cargo build -p bindle-relay`, install `cargo install tauri-driver --locked` and `apt-get install webkit2gtk-driver xvfb`, then `dbus-run-session -- xvfb-run -a app/scripts/desktop/run.sh`. Two copies of the app share a space through a local relay; screenshots go to `$BINDLE_SHOTS`. CI runs the same in the "Desktop app (Linux)" job.
