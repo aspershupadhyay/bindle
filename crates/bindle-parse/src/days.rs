@@ -60,6 +60,9 @@ fn at(tokens: &[Token], i: usize, today: NaiveDate) -> Option<DayHit> {
     if let Some((len, date)) = written_date(tokens, i, today) {
         return Some(hit(len, date, false));
     }
+    if let Some((len, date)) = day_of_month(tokens, i, today) {
+        return Some(hit(len, date, false));
+    }
     let one = |date, ambiguous| Some(hit(1, date, ambiguous));
     match w(0) {
         "today" | "aaj" => one(today, false),
@@ -191,6 +194,57 @@ fn numeric_date(word: &str, today: NaiveDate) -> Option<NaiveDate> {
         }
         _ => None,
     }
+}
+
+/// "on the 1st", "by 5th", "15th tak": a day of the month with no month,
+/// meaning the next time that day comes round. The ordinal ending is needed,
+/// and so is a word that makes it a day ("on", "by", "ko", "tak"), so "the 1st
+/// draft" and "2nd floor" are left alone.
+fn day_of_month(tokens: &[Token], i: usize, today: NaiveDate) -> Option<(usize, NaiveDate)> {
+    let w = |k: usize| tokens.get(k).map(|t| t.word.as_str());
+    let (len, at) = if w(i) == Some("the") {
+        (2, i + 1)
+    } else {
+        (1, i)
+    };
+    let word = w(at)?;
+    if !word.ends_with(|c: char| c.is_ascii_alphabetic()) {
+        return None;
+    }
+    let day = day_number(word)?;
+    let said_as_day = matches!(
+        i.checked_sub(1).and_then(w),
+        Some("on" | "by" | "before" | "until" | "till")
+    ) || matches!(w(at + 1), Some("ko" | "tak"));
+    let ends_here = match w(at + 1) {
+        None => true,
+        Some(next) => {
+            matches!(
+                next,
+                "ko" | "tak"
+                    | "at"
+                    | "se"
+                    | "morning"
+                    | "evening"
+                    | "night"
+                    | "subah"
+                    | "shaam"
+                    | "raat"
+            ) || next.starts_with(|c: char| c.is_ascii_digit())
+        }
+    };
+    if !(said_as_day && ends_here) {
+        return None;
+    }
+    // This month if the day is still ahead, else the next month that has it.
+    let mut first = today.with_day(1)?;
+    for _ in 0..3 {
+        if let Some(date) = first.with_day(day).filter(|d| *d >= today) {
+            return Some((len, date));
+        }
+        first = first.checked_add_months(chrono::Months::new(1))?;
+    }
+    None
 }
 
 fn this_or_next_year(today: NaiveDate, month: u32, day: u32) -> Option<NaiveDate> {

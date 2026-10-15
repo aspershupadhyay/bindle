@@ -64,6 +64,7 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: des
 - [x] GitHub searches read page after page, up to GitHub's 1,000, instead of stopping at 100
 - [x] People: someone with nothing open can be archived, and brought back from Archived or by naming them in a new promise (their history stays)
 - [x] Fixed: whoever made a shared space did not see themselves under "Who carries" until someone joined
+- [x] Jot down reads "on the 1st", "by the 20th" and "15th tak" as the next such day of the month (`crates/bindle-parse/tests/month_days.rs`). The global Alt+Shift+J shortcut and the Jot window were checked by hand in the real app on X11
 - [x] Fixed: Home's Waiting list and Nudge lowercased names ("Rohan · rohan will pay 500"); the Desk said Gmail with no mailbox connected
 
 ### Project

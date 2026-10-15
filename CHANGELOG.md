@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Jot down reads a day of the month on its own: "pay rent on the 1st", "file GST by the 20th", "15th tak". It means the next time that day comes round. "The 1st draft" and "2nd floor" are left alone.
 - People: archive someone once nothing is open between you. They come back from Archived, or when a new promise names them, with their history.
 - Linux desktops without a keychain (no Secret Service) can now connect GitHub, mail, YouTube and Bindle Cloud: Bindle keeps those secrets in a file only your account can read. The keychain is still used wherever there is one.
 - GitHub: Code reads all your reviews, pull requests and issues, not only the first 100 of each.
