@@ -68,6 +68,44 @@ async fn the_client_signs_in_and_reads_all_three_searches() {
     }
 }
 
+/// One full page of 100 review requests, numbered from `first`.
+fn full_page(first: u32) -> String {
+    let items: Vec<String> = (first..first + 100)
+        .map(|n| {
+            format!(
+                r#"{{"node_id":"PR_{n}","number":{n},"title":"Pull {n}","html_url":"https://github.com/o/r/pull/{n}","repository_url":"https://api.github.com/repos/o/r","user":{{"login":"maya"}},"created_at":"2026-10-01T00:00:00Z","updated_at":"2026-10-01T00:00:00Z"}}"#
+            )
+        })
+        .collect();
+    format!(r#"{{"items":[{}]}}"#, items.join(","))
+}
+
+#[tokio::test]
+async fn more_than_a_hundred_reviews_are_read_page_by_page() {
+    let (base, server) = serve(|request| {
+        if !request.contains("review-requested") {
+            (200, r#"{"items":[]}"#.into())
+        } else if request.contains("page=1 ") || request.contains("page=1&") {
+            (200, full_page(1))
+        } else if request.contains("page=2") {
+            (200, REVIEWS.into())
+        } else {
+            (500, String::new())
+        }
+    })
+    .await;
+    let client = Client::with_base("t", &base).unwrap();
+    let work = client.work().await.unwrap();
+    assert_eq!(work.len(), 102, "a full page and the two on the next");
+
+    let seen = server.await.unwrap();
+    assert_eq!(
+        seen.len(),
+        4,
+        "two pages of reviews, one of each other search"
+    );
+}
+
 #[tokio::test]
 async fn a_refusal_passes_on_what_github_said() {
     let (base, server) = serve(|_| {

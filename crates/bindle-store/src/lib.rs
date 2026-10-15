@@ -104,6 +104,8 @@ pub enum StoreError {
     NotForMaking,
     #[error("that is already a promise")]
     AlreadyPromised,
+    #[error("{0} still has open promises. Finish or let go of them first.")]
+    StillOpen(String),
     #[error("that is not one of the pictures")]
     UnknownAvatar,
     #[error("file error: {0}")]

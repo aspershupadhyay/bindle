@@ -1,7 +1,7 @@
 # Where Bindle stands
 
 A plain checklist of what is built, what is being built now, and what is left.
-Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: weeks 18 to 20 (14 October 2026).
+Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: desktop polish after weeks 18 to 20 (15 October 2026).
 
 ## Built
 
@@ -58,6 +58,15 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 - [x] Ours screen (v2 design): who carries the space, shared promises with who added them, Jot down to the space, share one of your promises, kept lately and kept together this month (no scores), the invite card, and Leave. Spaces are listed in the sidebar
 - [x] Checks: 8 sync tests in `bindle-store`, crypto and code tests, relay tests, and an end-to-end test where two databases share a space through a real relay (`crates/bindle-cloud/tests/ours.rs`). The accessibility audit covers the recovery kit and Ours
 
+### Desktop polish (after weeks 18–20)
+- [x] Desktop checks drive the real app on Linux (tauri-driver and WebKitWebDriver on a virtual display): first run, Sort, People, every Life and Work screen and Settings with no error text or thrown errors, Bindle Cloud on two devices, and an Ours space with an invite and a shared promise. In CI as "Desktop app (Linux)", with screenshots kept
+- [x] Linux without a Secret Service: tokens and keys fall back to `secrets.json` in the app's folder, readable only by the person's account. The keychain is always tried first. Checked in the real app: Bindle Cloud starts where it used to fail
+- [x] GitHub searches read page after page, up to GitHub's 1,000, instead of stopping at 100
+- [x] People: someone with nothing open can be archived, and brought back from Archived or by naming them in a new promise (their history stays)
+- [x] Fixed: whoever made a shared space did not see themselves under "Who carries" until someone joined
+- [x] Jot down reads "on the 1st", "by the 20th" and "15th tak" as the next such day of the month (`crates/bindle-parse/tests/month_days.rs`). The global Alt+Shift+J shortcut and the Jot window were checked by hand in the real app on X11
+- [x] Fixed: Home's Waiting list and Nudge lowercased names ("Rohan · rohan will pay 500"); the Desk said Gmail with no mailbox connected
+
 ### Project
 - [x] Handbook mirror, roadmap, changelog, contributing guide, DCO and licence headers
 - [x] CI on Windows, macOS and Linux: format, lint, tests, views and licence headers. It runs on pushes to `main`, to working branches, and on pull requests. First full run passed on all three on 14 October 2026
@@ -74,8 +83,10 @@ Updated at the end of every week of [the roadmap](ROADMAP.md). Last updated: wee
 
 Read this first if you are continuing the work (another person or a new Claude session).
 
-- **Branch:** `claude/stoic-cannon-hm2xzg`. Everything since v0.0.2 is on it, in the open pull request [#5](https://github.com/aspershupadhyay/bindle/pull/5), which is **not merged yet**. Keep committing to this branch, and update #5's title and description after each push. Only the owner merges.
+- **Branch:** `claude/awesome-mccarthy-vtojde`, started from `main` after [#5](https://github.com/aspershupadhyay/bindle/pull/5) (weeks 9–20) was merged. It holds the desktop polish below; no pull request is open for it yet. Only the owner merges.
+- **Focus now:** the desktop app. The owner asked to leave Android until the desktop works well.
 - **Checks before every push** (same as CI): `(cd app && npm run typecheck && npm test && npx vite build)`, `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`. The views must be built before the Rust workspace compiles.
+- **Desktop checks (the real app, not the preview):** build with `(cd app && npx vite build) && cargo build -p bindle-app --features tauri/custom-protocol && cargo build -p bindle-relay`, install `cargo install tauri-driver --locked` and `apt-get install webkit2gtk-driver xvfb`, then `dbus-run-session -- xvfb-run -a app/scripts/desktop/run.sh`. Two copies of the app share a space through a local relay; screenshots go to `$BINDLE_SHOTS`. CI runs the same in the "Desktop app (Linux)" job.
 - **Accessibility audit and screenshots:** start `npx vite --port 1420` in `app/`, then `PLAYWRIGHT_DIR=$(npm root -g) node app/scripts/a11y-audit.mjs`. In the cloud container, Chromium is at `/opt/pw-browsers/chromium` (pass it as `executablePath`). Screenshots for each week go in `docs/screens/`.
 - **Where things live:** all SQL is in `crates/bindle-store` (one migration per change, numbered; the latest is 0010). Sources (GitHub, Gmail) are in `crates/bindle-sources`; Bindle Cloud is in `crates/bindle-cloud` and `crates/bindle-relay`. Tauri commands are in `app/src-tauri/src/commands/`, one file per area, and every command needs a stand-in in `app/src/lib/preview*.ts` so the views run in a browser.
 - **House rules:** sources are read only; Bindle never sends email or posts anything; suggestions wait in Sort; no scores or shaming; tokens and keys live in the system keychain (`app/src-tauri/src/secrets.rs`), never in the database; errors in plain words; tests for everything; every source file starts with the SPDX licence header.
@@ -103,7 +114,7 @@ Read this first if you are continuing the work (another person or a new Claude s
 
 - [ ] Week 8 gate, "all acceptance checks pass": the automated checks pass. The hands-on checks in [ACCEPTANCE.md](ACCEPTANCE.md) still need a person on a real Windows and macOS machine
 - [ ] Signed builds need the Apple and Windows certificates added as repository secrets. Only the owner can do this
-- [ ] Turn on updates: the three updater secrets are added; release v0.0.2 once #5 is merged (see "Updates inside the app" in [RELEASING.md](RELEASING.md)). People on v0.0.1 install v0.0.2 by hand once; every later version arrives inside the app
+- [ ] Turn on updates: the three updater secrets are added and #5 is merged, so v0.0.2 can be released (see "Updates inside the app" in [RELEASING.md](RELEASING.md)). People on v0.0.1 install v0.0.2 by hand once; every later version arrives inside the app
 
 ## Left to deal with
 
@@ -116,9 +127,7 @@ Read this first if you are continuing the work (another person or a new Claude s
 - [ ] Some Wayland desktops refuse global shortcuts. Bindle then works with the in-app shortcut only; a desktop-portal shortcut would fix this
 
 ### Known rough edges
-- [ ] GitHub needs the system keychain. A Linux desktop with no Secret Service (some minimal window managers) cannot keep the token, so Code cannot connect there yet
 - [ ] GitHub sign-in uses a personal access token. A "Sign in with GitHub" button needs a registered GitHub app (OAuth device flow), which only the owner can create
-- [ ] Each search reads at most 100 items
 - [ ] Gmail uses an app password, which needs 2-Step Verification on the Google account. "Sign in with Google" needs a Google Cloud app that only the owner can register (and Google's review for Gmail access)
 - [ ] Inbox reads the newest 200 emails of the last two weeks in each folder, and only the start of each email
 - [ ] Review waits count from when a pull request was opened, not from when your review was requested; GitHub's search does not say when that was without one more request per pull request
@@ -126,10 +135,8 @@ Read this first if you are continuing the work (another person or a new Claude s
 - [ ] Bindle Cloud needs a relay that is running somewhere; none is hosted yet. Until one is, the gate (two people share Ours for two weeks) cannot start
 - [ ] Sharing a promise shares its title, state, dates, amount, first step, note, and who added and kept it. Its person and history stay on each device
 - [ ] Leaving a space keeps it on the relay for the others. There is no way yet to remove someone or to delete a space for everyone
-- [ ] Gmail only for now; Outlook and other IMAP mailboxes come in weeks 18–20
 - [ ] Putting back an old safety copy also brings back that day's settings (by design, but it can surprise)
 - [ ] When an AI's suggestion mentions an amount, Bindle stores it as the promise's amount
-- [ ] A person with no promises left stays on People; there is no archive yet
 - [ ] The handbook here is a summary. The full one is in Notion, so some checks were written from the summary
 - [ ] `bindle-parse/tests/table.rs` is just over 400 lines; split it when it next grows
 

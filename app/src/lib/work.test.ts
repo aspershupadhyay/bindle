@@ -111,6 +111,8 @@ describe("mailName", () => {
     expect(mailName({ provider: "icloud" })).toBe("iCloud Mail");
     expect(mailName({ provider: "other", host: "imap.zoho.eu" })).toBe("imap.zoho.eu");
     expect(mailName({ provider: "other" })).toBe("your mailbox");
+    expect(mailName({ provider: null, address: null })).toBe("Email");
+    expect(mailName({ provider: null, address: "me@gmail.com" })).toBe("Gmail");
   });
 });
 

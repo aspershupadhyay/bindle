@@ -104,9 +104,12 @@ export async function preview<T>(name: string, args: Record<string, unknown> = {
     case "promises_in":
       return promises.filter((p) => p.state === (args.state as State)) as T;
     case "people_list":
+    case "archived_people":
       return [] as T;
     case "person_detail":
     case "rename_person":
+    case "archive_person":
+    case "unarchive_person":
       throw { message: "People works in the desktop app only" };
     case "get_settings":
       return settings as T;

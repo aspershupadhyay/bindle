@@ -64,3 +64,27 @@ pub fn rename_person(app: AppHandle, db: Managed<Db>, id: String, name: String) 
     announce(&app);
     Ok(())
 }
+
+/// Archives someone with nothing open between you.
+#[tauri::command]
+pub fn archive_person(app: AppHandle, db: Managed<Db>, id: String) -> Reply<()> {
+    let at = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
+    people::archive(&*lock(&db)?, &id, &at)?;
+    announce(&app);
+    Ok(())
+}
+
+/// Brings an archived person back to People.
+#[tauri::command]
+pub fn unarchive_person(app: AppHandle, db: Managed<Db>, id: String) -> Reply<()> {
+    let at = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
+    people::unarchive(&*lock(&db)?, &id, &at)?;
+    announce(&app);
+    Ok(())
+}
+
+/// Everyone archived.
+#[tauri::command]
+pub fn archived_people(db: Managed<Db>) -> Reply<Vec<PersonSummary>> {
+    Ok(people::archived(&*lock(&db)?)?)
+}

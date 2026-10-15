@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Jot down reads a day of the month on its own: "pay rent on the 1st", "file GST by the 20th", "15th tak". It means the next time that day comes round. "The 1st draft" and "2nd floor" are left alone.
+- People: archive someone once nothing is open between you. They come back from Archived, or when a new promise names them, with their history.
+- Linux desktops without a keychain (no Secret Service) can now connect GitHub, mail, YouTube and Bindle Cloud: Bindle keeps those secrets in a file only your account can read. The keychain is still used wherever there is one.
+- GitHub: Code reads all your reviews, pull requests and issues, not only the first 100 of each.
+- Fixed: whoever made a shared space now sees themselves under "Who carries" straight away.
+- Fixed: Home's Waiting list and Nudge kept names in lowercase ("rohan will pay 500"); the Desk said Gmail when no mailbox was connected.
+- Desktop checks: CI now drives the real app on Linux, two copies sharing a space through a local relay.
+
 - Phones: Bindle fits a phone screen (the screens and spaces scroll sideways across the top, Jot down floats at the bottom), and the app can be built for Android from the Actions tab. Desktop-only parts stay on desktops.
 - Creator: connect your YouTube channel with an API key (kept in the system keychain) and see subscribers and views against a week ago, twelve weeks of growth, your top posts of the last 30 days, how much you post long videos and Shorts, and the comments still waiting on your reply. Any comment can become a promise in Sort. Bindle only reads public data and never replies or posts. Migration 0011.
 - Inbox reads any mailbox, not only Gmail: iCloud Mail, Fastmail, Yahoo Mail, Zoho Mail, Outlook (where app passwords still work) or any IMAP server you type. Still read only, and Bindle still never sends email.

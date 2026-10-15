@@ -59,4 +59,13 @@ describe("nudge and names", () => {
     expect(nudgeMessage(promise({}))).toBe("Hi Rohan, just checking in on pay the invoice. Thanks!");
     expect(withPerson(promise({}))).toBe("Rohan · pay the invoice");
   });
+  it("keeps names, I and short capitals as they are", () => {
+    const rohanPays = promise({ title: "Rohan will pay 500" });
+    expect(withPerson(rohanPays)).toBe("Rohan will pay 500");
+    expect(nudgeMessage(rohanPays)).toBe("Hi Rohan, just checking in on Rohan will pay 500. Thanks!");
+    expect(withPerson(promise({ title: "GST papers" }))).toBe("Rohan · GST papers");
+    expect(withPerson(promise({ title: "I’ll get the keys back" }))).toBe("Rohan · I’ll get the keys back");
+    expect(withPerson(promise({ title: "Rohanbhai's invoice" }))).toBe("Rohan · rohanbhai's invoice");
+    expect(withPerson(promise({ title: "A gift" }))).toBe("Rohan · a gift");
+  });
 });

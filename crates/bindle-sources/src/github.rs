@@ -6,7 +6,8 @@
 //!
 //! Bindle signs in with a personal access token the person makes on GitHub.
 //! The token is kept in the system keychain by the app, never in the
-//! database. Three searches cover everything; each reads at most 100 items.
+//! database. Three searches cover everything; each reads 100 items a page,
+//! up to GitHub's own limit of 1,000.
 
 use bindle_store::insights::{WaitKind, WaitSample};
 use bindle_store::work::{FoundItem, WorkKind};
@@ -206,22 +207,36 @@ impl Client {
     pub async fn work(&self) -> Result<Vec<FoundItem>, GithubError> {
         let mut all = Vec::new();
         for kind in [WorkKind::Review, WorkKind::Mine, WorkKind::Issue] {
-            let body = self
-                .get(
-                    "/search/issues",
-                    &[
-                        ("q", query(kind)),
-                        ("sort", "updated"),
-                        ("order", "desc"),
-                        ("per_page", "100"),
-                    ],
-                )
-                .await?;
-            all.extend(parse_search(kind, &body)?);
+            // A page that is not full is the last one, so most people need
+            // one request per search.
+            for page in 1..=SEARCH_PAGES {
+                let page = page.to_string();
+                let body = self
+                    .get(
+                        "/search/issues",
+                        &[
+                            ("q", query(kind)),
+                            ("sort", "updated"),
+                            ("order", "desc"),
+                            ("per_page", "100"),
+                            ("page", &page),
+                        ],
+                    )
+                    .await?;
+                let found = parse_search(kind, &body)?;
+                let last = found.len() < 100;
+                all.extend(found);
+                if last {
+                    break;
+                }
+            }
         }
         Ok(all)
     }
 }
+
+/// GitHub's search hands out at most 1,000 results, 100 a page.
+const SEARCH_PAGES: usize = 10;
 
 /// At most this many new pull requests are asked about per look: each one
 /// costs a request, and the history fills in over a few looks.

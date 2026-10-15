@@ -40,16 +40,37 @@ export function weekNote(week: DayLoad[], today: Date): string | null {
   return `${name} already has ${full.count} things. Think before you say yes.`;
 }
 
+/**
+ * A title as it reads mid-sentence: "Pay the invoice" becomes "pay the
+ * invoice", but a name ("Rohan will pay"), "I" and short capitals ("GST")
+ * keep their capitals.
+ */
+export function midSentence(title: string, person: string | null = null): string {
+  const first = title.split(/\s/, 1)[0] ?? "";
+  const word = first.replace(/[^\p{L}'’]/gu, "");
+  const keep =
+    (person !== null && word.toLowerCase() === person.split(/\s/, 1)[0].toLowerCase()) ||
+    /^I(['’]|$)/.test(word) ||
+    (word.length > 1 && word === word.toUpperCase());
+  return keep ? title : title.charAt(0).toLowerCase() + title.slice(1);
+}
+
 /** A friendly message the person can paste to whoever owes them. */
 export function nudgeMessage(promise: BindlePromise): string {
-  const what = promise.title.charAt(0).toLowerCase() + promise.title.slice(1);
+  const what = midSentence(promise.title, promise.person);
   return `Hi${promise.person ? ` ${promise.person}` : ""}, just checking in on ${what}. Thanks!`;
 }
 
-/** "Rohan · pay the invoice", or the title alone when there is no person. */
+/**
+ * "Rohan · pay the invoice", or the title alone when there is no person or
+ * the title already starts with them ("Rohan will pay 500").
+ */
 export function withPerson(promise: BindlePromise): string {
   if (!promise.person) return promise.title;
-  return `${promise.person} · ${promise.title.charAt(0).toLowerCase()}${promise.title.slice(1)}`;
+  const what = midSentence(promise.title, promise.person);
+  return what === promise.title && promise.title.toLowerCase().startsWith(promise.person.toLowerCase())
+    ? promise.title
+    : `${promise.person} · ${what}`;
 }
 
 /** "due Friday", or "was due Friday" once that day has passed. */
